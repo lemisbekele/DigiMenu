@@ -1,0 +1,46 @@
+{
+  "name": "digimenu",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host --port 3000",
+    "build": "vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "backend:start": "supabase start",
+    "backend:stop": "supabase stop",
+    "backend:status": "supabase status",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:rebuild": "docker compose build --no-cache"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.8",
+    "browser-image-compression": "^2.0.2",
+    "i18next": "^26.3.4",
+    "lucide-react": "^1.22.0",
+    "qrcode.react": "^4.2.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-i18next": "^17.0.8",
+    "react-router-dom": "^7.18.3"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "jsdom": "^29.1.1",
+    "oxlint": "^1.69.0",
+    "puppeteer-core": "^25.10.0",
+    "supabase": "^2.114.0",
+    "vite": "^8.1.0",
+    "vitest": "^4.1.10"
+  }
+}

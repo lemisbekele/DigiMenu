@@ -1,0 +1,56 @@
+:root {
+  background: var(--bg);
+  color: #1d2724;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+html,
+body,
+#root {
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: auto;
+  width: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+}
+
+button, input, select, textarea { font: inherit; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 3px solid var(--brand, #34821b); outline-offset: 3px; }
+button:disabled { cursor: wait; opacity: .65; }
+input, select, textarea { max-width: 100%; min-width: 0; }
+h1, h2, h3 { line-height: 1.2; overflow-wrap: anywhere; }
+.admin-content, .dash-panel, .summary-panel, .kds-root { min-width: 0; }
+.workspace-nav { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; padding: .75rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+.workspace-nav a { padding: .5rem; border-radius: .5rem; text-decoration: none; }
+.workspace-nav a.active { color: var(--brand); background: var(--brand-soft); }
+.workspace-nav button { margin-left: auto; }
+.inventory-form { margin-block: 1rem; max-width: 40rem; display: grid; gap: .75rem; }
+.inventory-actions { display: flex; gap: .5rem; margin-top: .75rem; }
+[role="dialog"], .modal-content, .modal-card { max-width: calc(100vw - 2rem); max-height: calc(100dvh - 2rem); overflow-y: auto; }
+@media (max-width: 600px) {
+  input, select, textarea { font-size: 1rem; }
+  .notification-dropdown { width: min(360px, calc(100vw - 2rem)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}

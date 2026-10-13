@@ -1,0 +1,123 @@
+/* Shared reference palette: white, cool gray and fresh green.
+   Light is the default; an explicit dark preference uses neutral dark surfaces. */
+:root {
+  color-scheme: light;
+  --brand: #34821b;
+  --brand-hover: #286b14;
+  --brand-bright: #4c9f2c;
+  --brand-soft: #e1f4d4;
+  --brand-soft-2: #f0f9e9;
+  --brand-deep: #286b14;
+  --brand-deep-2: #1e5010;
+  --brand-ink: #286b14;
+  --on-brand: #ffffff;
+  --bg: #f3f4f5;
+  --bg-2: #f7f8f9;
+  --surface: #ffffff;
+  --surface-2: #f5f6f7;
+  --surface-3: #edf0f2;
+  --cream: #f5f6f7;
+  --text: #171b1d;
+  --text-2: #3c4348;
+  --text-3: #596268;
+  --muted: #657078;
+  --muted-2: #727c83;
+  --border: #e2e6e9;
+  --border-strong: #cbd2d7;
+  --border-soft: #edf0f2;
+  --success: #34821b;
+  --success-bg: #edf8e5;
+  --warning: #99500e;
+  --warning-bg: #fff3e5;
+  --info: #246cb0;
+  --info-bg: #eaf3fc;
+  --danger: #c32d2d;
+  --danger-2: #ac2323;
+  --danger-soft: #fff0ee;
+  --danger-text: #a22525;
+  --sidebar: #ffffff;
+  --sidebar-2: #f7f8f9;
+  --on-dark: #ffffff;
+  --on-dark-muted: #d6e9cb;
+  --shadow-sm: 0 1px 2px rgba(25, 34, 40, 0.04);
+  --shadow-md: 0 8px 24px rgba(25, 34, 40, 0.06);
+  --shadow-lg: 0 20px 50px rgba(25, 34, 40, 0.10);
+  --shadow-brand: 0 8px 24px rgba(52, 130, 27, 0.15);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --brand: #91d66c;
+  --brand-hover: #ace68c;
+  --brand-bright: #91d66c;
+  --brand-soft: #293e22;
+  --brand-soft-2: #22301e;
+  --brand-deep: #285c1b;
+  --brand-deep-2: #1e4516;
+  --brand-ink: #ace68c;
+  --on-brand: #15220e;
+  --bg: #151819;
+  --bg-2: #191d1f;
+  --surface: #202527;
+  --surface-2: #282e31;
+  --surface-3: #30373a;
+  --cream: #282e31;
+  --text: #f3f5f6;
+  --text-2: #d5dade;
+  --text-3: #b2bbc1;
+  --muted: #a0adb5;
+  --muted-2: #8c9ba4;
+  --border: #363f44;
+  --border-strong: #515e65;
+  --border-soft: #2c3337;
+  --success: #a0dc7d;
+  --success-bg: #293e22;
+  --warning: #f6bc77;
+  --warning-bg: #403020;
+  --info: #8ec4f2;
+  --info-bg: #203649;
+  --danger: #ff9d96;
+  --danger-2: #ffb0aa;
+  --danger-soft: #442928;
+  --danger-text: #ffb8b2;
+  --sidebar: #1b2022;
+  --sidebar-2: #202527;
+  --on-dark: #ffffff;
+  --on-dark-muted: #d6e9cb;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.35);
+  --shadow-brand: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+/* Theme toggle control */
+.theme-toggle {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  box-shadow: 0 10px 24px rgba(24, 35, 31, 0.12);
+  color: var(--text-2);
+  cursor: pointer;
+  display: inline-flex;
+  gap: 6px;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.theme-toggle:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+  transform: translateY(-1px);
+}

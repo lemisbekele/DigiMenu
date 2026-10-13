@@ -1,0 +1,6 @@
+.digimenu-brand { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; max-width: 100%; line-height: 1; vertical-align: middle; }
+.digimenu-brand-mark { width: var(--logo-size); height: var(--logo-size); display: block; flex: 0 0 auto; }
+.digimenu-brand-name { color: var(--text, #17231c); font-size: calc(var(--logo-size) * .64); font-weight: 750; letter-spacing: -.045em; white-space: nowrap; }
+.digimenu-brand-name > span { color: var(--brand-ink, #327a21); }
+.digimenu-brand.stacked { flex-direction: column; gap: 12px; }
+.customer-brand-footer { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; padding: 28px 16px 110px; color: var(--muted); font-size: .75rem; }

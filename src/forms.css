@@ -1,0 +1,60 @@
+/* Shared form and workspace controls, across cafe and platform pages. */
+.inline-page-controls { display: flex; align-items: center; gap: 8px; }
+.notif-corner { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; min-height: 44px; margin-bottom: 16px; position: relative; z-index: 85; }
+.notif-corner .language-toggle, .notif-corner .theme-toggle, .notif-corner .notify-bell { position: relative; min-height: 44px; height: 44px; margin: 0; box-shadow: none; }
+.notif-corner .theme-toggle, .notif-corner .notify-bell { width: 44px; padding: 10px; flex-shrink: 0; }
+.notif-corner .notify-bell { background: var(--surface); color: var(--text-2); border: 1px solid var(--border-strong); border-radius: 50%; }
+.notif-corner .notify-bell:hover { background: var(--brand-soft); color: var(--brand-ink); }
+.notification-dropdown { width: min(380px, calc(100vw - 32px)); max-height: min(560px, calc(100dvh - 100px)); z-index: 100; }
+.notify-head { flex-wrap: wrap; }
+.notify-actions { margin-left: auto; }
+.notify-body { max-height: min(440px, 50dvh); }
+
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.form-grid > *, form fieldset { min-width: 0; }
+.form-grid .form-span { grid-column: 1 / -1; }
+.form-help { color: var(--muted); font-size: .875rem; line-height: 1.5; margin: 0; }
+.form-context { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; display: grid; gap: 4px; margin-bottom: 16px; overflow-wrap: anywhere; }
+.form-context p { margin: 0; }
+.form-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+:is(.admin-form, .inventory-form, .sa-modal, .product-form, .auth-card, .regional-form) :is(.field, .sa-field) { min-width: 0; }
+:is(.admin-form, .inventory-form, .sa-modal, .product-form, .auth-card, .regional-form) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); color: var(--text); padding: 11px 12px; }
+:is(.admin-form, .inventory-form, .sa-modal, .product-form, .auth-card, .regional-form) textarea { min-height: 96px; resize: vertical; }
+:is(.admin-form, .inventory-form, .sa-modal, .product-form) label { line-height: 1.45; overflow-wrap: anywhere; }
+:is(.admin-form, .inventory-form, .sa-modal, .product-form) :is(input, textarea, select):focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+:is(.admin-form, .inventory-form, .sa-modal, .product-form) input[type="checkbox"] { accent-color: var(--brand); flex-shrink: 0; }
+.sa-modal-scrim, .modal-shell { padding: clamp(12px, 3vw, 28px); overflow-y: auto; overscroll-behavior: contain; }
+.sa-modal, .admin-edit-modal, .modal-card { max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; }
+.sa-modal-wide { max-width: 760px; }
+.sa-modal-actions { flex-wrap: wrap; }
+.sa-modal-actions > p { flex-basis: 100%; margin: 0 0 8px; }
+.sa-modal :is(.sa-form-error, .sa-alert-error) { color: var(--danger-text); background: var(--danger-soft); padding: 12px; border-radius: 8px; }
+.inventory-form { max-width: 760px; padding: clamp(16px, 3vw, 28px); gap: 18px; }
+.admin-add-table-form { width: 100%; max-width: 900px; padding: 20px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.admin-add-table-form .form-row-inline { display: grid; grid-template-columns: minmax(90px,.5fr) minmax(0,1fr) minmax(0,1.5fr); align-items: start; gap: 14px; }
+.admin-add-table-form .field { width: 100%; margin: 0; }
+.admin-add-table-form input { width: 100%; min-width: 0; }
+.admin-add-table-form button { grid-column: 1 / -1; justify-self: end; }
+.qr-copy-form label { display: grid; gap: 6px; font-size: .85rem; color: var(--text-2); }
+.password-change-panel { width: min(100%, 480px); max-height: calc(100dvh - 32px); overflow-y: auto; padding: clamp(20px, 4vw, 32px); background: var(--surface); border: 1px solid var(--border); border-radius: 16px; color: var(--text); }
+.password-change-panel form { display: grid; gap: 18px; }
+.password-change-panel .field { display: grid; gap: 6px; }
+.password-change-panel input { width: 100%; min-height: 44px; padding: 12px; background: var(--surface-2); color: var(--text); border: 1px solid var(--border-strong); border-radius: 8px; }
+@media (max-width: 640px) {
+  .form-grid, .admin-add-table-form .form-row-inline { grid-template-columns: minmax(0, 1fr); }
+  .form-actions > *, .sa-modal-actions > button, .admin-add-table-form button { flex: 1 1 100%; width: 100%; }
+  .sa-modal, .admin-edit-modal { padding: 18px; }
+  :is(form, .sa-modal) :is(input, select, textarea) { font-size: 16px; }
+  .notif-corner { margin-top: 4px; }
+}
+
+.feature-fieldset { border: 0; padding: 0; margin: 0 0 16px; }
+.feature-fieldset > legend { font-weight: 700; color: var(--text); margin-bottom: 10px; }
+.password-change-panel .ghost-button { color: var(--text-2); background: var(--surface-2); border-color: var(--border); }
+
+:is(.admin-form, .sa-modal, .inventory-form) :is(h2, h3) { color: var(--text); }
+:is(.admin-form, .inventory-form) .field > span:first-child { color: var(--text-2); }
+:is(.admin-form, .password-change-panel) .icon-button { background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); }
+.admin-form > .admin-head { position: static; padding: 0; border: 0; background: transparent; box-shadow: none; align-items: center; }
+.admin-form > .admin-head .icon-button { flex: 0 0 44px; width: 44px; min-height: 44px; }
+@media (max-width: 640px) { .admin-form > .admin-head { flex-direction: row; } }

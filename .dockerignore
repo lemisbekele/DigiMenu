@@ -1,0 +1,11 @@
+node_modules
+dist
+logs
+.git
+.gitignore
+.agents
+.claude
+supabase/.temp
+supabase/.branches
+*.md
+.env.local
