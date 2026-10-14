@@ -135,3 +135,101 @@ values
   ('table-lemi-coffee-1', 'lemi-coffee', 1, 'Table 1', 'Scan to Order', 'Point your phone camera to view the menu and place your order'),
   ('table-lemi-coffee-2', 'lemi-coffee', 2, 'Table 2', 'Scan to Order', 'Point your phone camera to view the menu and place your order')
 on conflict (id) do nothing;
+
+-- 5. Demo Menu Items -------------------------------------------------------
+insert into public.menu_items (
+  id, name, description, price, category, subcategory, image_url, available, estimated_minutes, ingredients, options, cafe_slug, calories
+)
+values
+  (
+    '00000000-0000-0000-0000-000000000001',
+    'Specialty Macchiato',
+    'Double shot Ethiopian Arabica layered with silky micro-foam.',
+    140.00,
+    'Hot Coffee',
+    'Espresso',
+    'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=600&q=80',
+    true,
+    5,
+    '["Ethiopian Arabica", "Whole Milk"]'::jsonb,
+    '[{"label": "Milk Option", "choices": [{"name": "Whole Milk", "extraPrice": 0}, {"name": "Oat Milk", "extraPrice": 30}]}]'::jsonb,
+    'lemi-coffee',
+    110
+  ),
+  (
+    '00000000-0000-0000-0000-000000000002',
+    'Honey Oat Cortado',
+    'Rich espresso infused with wildflower honey and steamed oat milk.',
+    195.00,
+    'Hot Coffee',
+    'Specialty',
+    'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
+    true,
+    6,
+    '["Double Espresso", "Wildflower Honey", "Organic Oat Milk"]'::jsonb,
+    '[]'::jsonb,
+    'lemi-coffee',
+    165
+  ),
+  (
+    '00000000-0000-0000-0000-000000000003',
+    'Iced Spanish Latte',
+    'Chilled espresso over ice with textured condensed and fresh milk.',
+    230.00,
+    'Iced Drinks',
+    'Cold Coffee',
+    'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=600&q=80',
+    true,
+    5,
+    '["Espresso", "Condensed Milk", "Fresh Milk", "Ice"]'::jsonb,
+    '[]'::jsonb,
+    'lemi-coffee',
+    260
+  ),
+  (
+    '00000000-0000-0000-0000-000000000004',
+    'Almond Butter Croissant',
+    'Flaky French pastry baked fresh every morning with toasted almonds.',
+    240.00,
+    'Pastries',
+    'Bakery',
+    'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80',
+    true,
+    3,
+    '["French Butter", "Flour", "Toasted Almonds", "Almond Frangipane"]'::jsonb,
+    '[]'::jsonb,
+    'lemi-coffee',
+    340
+  ),
+  (
+    '00000000-0000-0000-0000-000000000005',
+    'Avocado Toast',
+    'Artisan sourdough topped with crushed avocado, poached egg, and chili flakes.',
+    280.00,
+    'Pastries',
+    'Brunch',
+    'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=600&q=80',
+    true,
+    10,
+    '["Sourdough Bread", "Hass Avocado", "Poached Egg", "Olive Oil", "Chili Flakes"]'::jsonb,
+    '[]'::jsonb,
+    'lemi-coffee',
+    320
+  ),
+  (
+    '00000000-0000-0000-0000-000000000006',
+    'Ceremonial Matcha Latte',
+    'Stone-ground Japanese green tea whisked with silky steamed milk.',
+    210.00,
+    'Hot Coffee',
+    'Tea & Infusions',
+    'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=600&q=80',
+    true,
+    5,
+    '["Ceremonial Matcha", "Steamed Milk", "Vanilla"]'::jsonb,
+    '[]'::jsonb,
+    'lemi-coffee',
+    140
+  )
+on conflict (id) do nothing;
+
