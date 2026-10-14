@@ -37,7 +37,7 @@ export async function auditWorkflow({ cafe, clients, password, check }) {
     if(process.env.AUDIT_MARKETING_SCREENSHOTS==='1') await customer.screenshot({path:'public/assets/screenshots/customer_menu_mobile.png'})
     await customer.click('.menu-card')
     await customer.click('input[name="Size-Large"]')
-    await customer.type('.modal-card textarea','No foam please')
+    await customer.type('.modal-card :is(input.modal-kitchen-note-input, textarea)','No foam please')
     await customer.click('.modal-content > button.primary-button')
     await customer.click('.floating-cart')
     await customer.click('.cart-drawer a[href*="checkout"]')

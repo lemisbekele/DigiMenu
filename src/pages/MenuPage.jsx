@@ -29,6 +29,7 @@ import { useTable } from "../context/tableContextValue"
 import { useTheme } from "../context/themeContextValue"
 import { useCafeSlug } from "../hooks/useCafeSlug"
 import { getCafeBySlug } from "../services/cafeService"
+import { currentRegion } from "../services/regionalSettings"
 import {
   buildDefaultCustomizations,
   fetchPopularItems,
@@ -38,6 +39,15 @@ import {
   observeMenuItems,
 } from "../services/dataService"
 import "./customer-menu.css"
+
+function formatCardPrice(price) {
+  const currency = currentRegion()?.currency || "ETB"
+  const num = Number(price || 0)
+  if (num % 1 === 0) {
+    return `${currency} ${num.toLocaleString()}`
+  }
+  return money(price, currency)
+}
 
 const CALORIE_PRESETS = [
   { key: "all", labelKey: "all" },
@@ -486,7 +496,7 @@ export function MenuPage() {
                   </p>
 
                   <div className="qr-item-footer">
-                    <span className="qr-item-price">{money(item.price)}</span>
+                    <span className="qr-item-price">{formatCardPrice(item.price)}</span>
                     <button
                       className={`qr-add-btn ${selected ? "in-cart" : ""}`}
                       type="button"
@@ -495,14 +505,14 @@ export function MenuPage() {
                         e.stopPropagation()
                         toggleItem(defaultCartItem(item))
                       }}
-                      aria-label={`${selected ? t("addedToCart", "Added to Cart") : t("addToCart", "Add to Cart")}: ${localized.displayName}`}
+                      aria-label={`${selected ? t("addedToCart", "Added to Cart") : t("add", "Add")}: ${localized.displayName}`}
                     >
                       {selected ? (
                         <>
                           <Check size={12} strokeWidth={3} /> {t("addedToCart", "Added")}
                         </>
                       ) : (
-                        `+ ${t("addToCart", "Add")}`
+                        `+ ${t("add", "Add")}`
                       )}
                     </button>
                   </div>
