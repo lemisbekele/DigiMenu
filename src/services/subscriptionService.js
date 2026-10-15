@@ -125,6 +125,11 @@ export async function assignPackageToCafe({ cafeSlug, planKey, actorRole = null 
     const { error } = await supabase.from("subscription_requests").insert([record])
     if (error) throw new Error(`Could not create package assignment in Supabase: ${error.message}`)
   }
+
+  if (cafe?.id) {
+    await supabase.from("cafes").update({ subscription_id: existing?.id || record.id }).eq("id", cafe.id).catch(() => {})
+  }
+
   subRequestsCache.clear()
 
   await recordAuditLog("subscription.package.assign", {

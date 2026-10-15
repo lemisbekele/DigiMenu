@@ -109,6 +109,20 @@ export function SuperAdminPackages() {
     })
   }
 
+  const validatePackageForm = (pkg) => {
+    const features = featureKeysOf(pkg)
+    const staffLimit = Number(pkg.limits?.staffUsers || 0)
+    if (staffLimit > 0 && !features.includes("staffAccess")) {
+      throw new Error("Packages that allow staff accounts must include the Staff Access (staffAccess) feature.")
+    }
+    if (staffLimit > 1 && !features.includes("userManagement")) {
+      throw new Error("Packages that allocate multiple staff accounts must include User Management (userManagement) so the cafe admin can invite staff.")
+    }
+    if (!features.includes("digitalMenu") || !features.includes("ordering")) {
+      throw new Error("Packages must include Digital Menu (digitalMenu) and Online Ordering (ordering) for cafe customer operations.")
+    }
+  }
+
   const saveEdit = async () => {
     if (!editingPackage || busy) return
     setBusy(true)
@@ -116,6 +130,7 @@ export function SuperAdminPackages() {
     try {
       if (!editingPackage.id || !editingPackage.id.trim()) throw new Error("A package key is required (e.g. premium).")
       if (!editingPackage.name || !editingPackage.name.trim()) throw new Error("A package name is required.")
+      validatePackageForm(editingPackage)
       await savePackage({
         id: editingPackage.id.trim().toLowerCase(),
         name: editingPackage.name,
@@ -142,6 +157,7 @@ export function SuperAdminPackages() {
     try {
       if (!creating.id || !creating.id.trim()) throw new Error("A package key is required (e.g. premium).")
       if (!creating.name || !creating.name.trim()) throw new Error("A package name is required.")
+      validatePackageForm(creating)
       await createPackage({
         id: creating.id.trim().toLowerCase(),
         name: creating.name,
