@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { Bell, Globe, Lock, Moon, Sun, Volume2 } from "lucide-react"
+import { Bell, Globe, Moon, Sun, Volume2 } from "lucide-react"
 import { LogoutButton } from "../components/LogoutButton"
 import { useLanguage } from "../context/languageContextValue"
-import { usePlan } from "../context/planContextValue"
 import {
   getPermission,
   requestPermission,
@@ -27,9 +25,6 @@ function saveSetting(key, value) {
 
 export function KitchenSettings() {
   const { language, setLanguage: setUserLanguage } = useLanguage()
-  const { hasFeature } = usePlan()
-  const navigate = useNavigate()
-  const multiLanguageUnlocked = hasFeature("multiLanguage")
 
   const [soundAlerts, setSoundAlerts] = useState(() => loadSetting("soundAlerts", true))
   const [desktopNotifs, setDesktopNotifs] = useState(() => loadSetting("desktopNotifs", true))
@@ -104,27 +99,14 @@ export function KitchenSettings() {
       <section className="admin-form settings-panel kds-settings-section">
         <p className="eyebrow"><Globe size={13} style={{ verticalAlign: -1 }} /> Regional</p>
         <h2>Language</h2>
-        {multiLanguageUnlocked ? (
-          <label className="field" style={{ marginTop: 8 }}>
-            <span>Interface language</span>
-            <select value={language} onChange={(e) => setUserLanguage(e.target.value)}>
-              <option value="en">English</option>
-              <option value="am">አማርኛ (Amharic)</option>
-              <option value="om">Afaan Oromo</option>
-            </select>
-          </label>
-        ) : (
-          <div style={{ marginTop: 8 }}>
-            <button
-              type="button"
-              className="ghost-button"
-              onClick={() => navigate("/pricing?locked=multiLanguage")}
-              style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
-            >
-              <Lock size={14} /> Multi-language requires a package upgrade
-            </button>
-          </div>
-        )}
+        <label className="field" style={{ marginTop: 8 }}>
+          <span>Interface language</span>
+          <select value={language} onChange={(e) => setUserLanguage(e.target.value)}>
+            <option value="en">English</option>
+            <option value="am">አማርኛ (Amharic)</option>
+            <option value="om">Afaan Oromo</option>
+          </select>
+        </label>
       </section>
 
       <hr className="kds-settings-divider" />
