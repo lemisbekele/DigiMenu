@@ -200,10 +200,6 @@ export function observeSubscriptionRequests(callback, statusFilter = null, onErr
 
   load()
 
-  const refreshVisible = () => { if (!document.hidden) load() }
-  const refreshTimer = setInterval(refreshVisible, 30000)
-  window.addEventListener("focus", refreshVisible)
-
   try {
     const channelName = `subscription-requests-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
     channel = supabase
@@ -219,8 +215,6 @@ export function observeSubscriptionRequests(callback, statusFilter = null, onErr
 
   return () => {
     isSubscribed = false
-    clearInterval(refreshTimer)
-    window.removeEventListener("focus", refreshVisible)
     if (channel) supabase.removeChannel(channel).catch(() => {})
   }
 }
@@ -267,6 +261,17 @@ function validateTemporaryPassword(password) {
   return null
 }
 
+function cleanProvisionError(raw) {
+  const str = typeof raw === "string" ? raw : raw?.message || ""
+  if (/already has an account/i.test(str)) return "This email already has an account. Use a different owner email."
+  if (/Temporary password/i.test(str)) return "Temporary password must contain 12 to 128 characters."
+  if (/active package/i.test(str)) return "Choose an active package."
+  if (/pending request/i.test(str)) return "Only a pending request can be approved."
+  if (/Not authorized/i.test(str)) return "Authorization Error: Only Super Admin can approve, reject, or grant subscription packages."
+  if (/A valid owner email/i.test(str)) return "A valid owner email is required."
+  return str.replace(/^Could not provision the cafe owner:\s*/, "") || "Unable to provision this request."
+}
+
 export async function approveSubscriptionRequest(requestId, customTempPassword = null, actorRole = null) {
   await verifySuperAdminAuthority(actorRole)
 
@@ -286,11 +291,41 @@ export async function approveSubscriptionRequest(requestId, customTempPassword =
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw new Error("The request must contain a valid customer email address before it can be approved.")
   }
-  const { data: provisioned, error: provisionError } = await supabase.functions.invoke("provision-cafe-owner", {
-    body: { requestId, temporaryPassword },
-  })
+
+  let provisioned = null
+  let provisionError = null
+
+  try {
+    const res = await supabase.functions.invoke("provision-cafe-owner", {
+      body: { requestId, temporaryPassword },
+    })
+    provisioned = res.data
+    provisionError = res.error
+  } catch (err) {
+    provisionError = err
+  }
+
+  // If the Edge Function is unavailable (e.g. 404 NOT_FOUND / not deployed)
+  // or returned an error, execute the atomic SECURITY DEFINER database procedure directly.
+  if ((provisionError || !provisioned?.cafe || !provisioned?.userId) && typeof supabase.rpc === "function") {
+    try {
+      const { data: rpcData, error: rpcError } = await supabase.rpc("provision_cafe_owner", {
+        p_request_id: requestId,
+        p_password: temporaryPassword,
+      })
+      if (!rpcError && rpcData?.cafe && rpcData?.userId) {
+        provisioned = rpcData
+        provisionError = null
+      } else if (rpcError) {
+        provisionError = rpcError
+      }
+    } catch (rpcErr) {
+      if (!provisionError) provisionError = rpcErr
+    }
+  }
+
   if (provisionError || !provisioned?.cafe || !provisioned?.userId) {
-    throw new Error(`Could not provision the cafe owner: ${provisionError?.message || provisioned?.error || "no result returned"}`)
+    throw new Error(cleanProvisionError(provisionError?.message || provisioned?.error || "no result returned"))
   }
   const customerAdminId = provisioned.userId
   const cafeRecord = provisioned.cafe

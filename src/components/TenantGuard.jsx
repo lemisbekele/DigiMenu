@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useParams, Navigate, useLocation, Link } from "react-router-dom"
 import { useAuth } from "../context/authContextValue"
 import { ROLES } from "../services/roleService"
@@ -56,11 +56,24 @@ export function TenantGuard({ children }) {
   // Public cafe lookup does not depend on the staff session. In particular,
   // keep the login component mounted while its account validation finishes.
   const userId = isPublicRoute ? null : user?.id || null
+  const lastSlugRef = useRef(currentSlug)
+  const hasBeenReadyRef = useRef(false)
+  const readyStatus = TENANT_ACCESS.READY || "ready"
+  if (tenantAccess?.status && tenantAccess.status === readyStatus) {
+    hasBeenReadyRef.current = true
+  }
 
-  useEffect(() => { setTenantAccess(null); return observeTenantAccess(
-    { slug: currentSlug, userId, requireStaff: Boolean(userId && !isPublicRoute) },
-    setTenantAccess,
-  ) }, [currentSlug, userId, isPublicRoute])
+  useEffect(() => {
+    if (lastSlugRef.current !== currentSlug) {
+      hasBeenReadyRef.current = false
+      setTenantAccess(null)
+      lastSlugRef.current = currentSlug
+    }
+    return observeTenantAccess(
+      { slug: currentSlug, userId, requireStaff: Boolean(userId && !isPublicRoute) },
+      setTenantAccess,
+    )
+  }, [currentSlug, userId, isPublicRoute])
 
   // Canonicalize letter-casing before any guard logic runs:
   // /lemi-coffee/Barista, /Lemi-Coffee/MENU, /x/Admin/Login … all resolve to
@@ -72,7 +85,10 @@ export function TenantGuard({ children }) {
     return <Navigate to={{ pathname: canonicalPath, search: location.search, hash: location.hash }} replace />
   }
 
-  if (!tenantAccess || (!isPublicRoute && (loading || roleLoading))) {
+  if (!tenantAccess || (!isPublicRoute && (!user || !role) && (loading || roleLoading))) {
+    if (hasBeenReadyRef.current) {
+      return children
+    }
     return (
       <main className="page-pad splash-loader-container" style={{ minHeight: "80vh", display: "grid", placeItems: "center" }}>
         <div className="skeleton-pulse" style={{ width: 120, height: 4, borderRadius: 2 }} />
@@ -81,6 +97,9 @@ export function TenantGuard({ children }) {
   }
 
   if (tenantAccess.status === TENANT_ACCESS.UNAVAILABLE) {
+    if (hasBeenReadyRef.current) {
+      return children
+    }
     return <main className="auth-page"><div className="auth-card"><BrandLogo size="medium" /><h1>Temporarily unavailable</h1><p>We couldn’t open this cafe right now. Please try again in a moment.</p><button className="primary-button" onClick={() => window.location.reload()}>Try again</button></div></main>
   }
 

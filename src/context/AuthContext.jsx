@@ -17,12 +17,14 @@ export function AuthProvider({ children }) {
   const [signingIn, setSigningIn] = useState(false)
   const loginPendingRef = useRef(false)
   const currentUidRef = useRef(null)
+  const currentRoleRef = useRef(null)
   const roleRequestRef = useRef(0)
 
-  const loadRole = useCallback(async (uid) => {
+  const loadRole = useCallback(async (uid, { silent = false } = {}) => {
     if (loginPendingRef.current || uid !== currentUidRef.current) return
     const request = ++roleRequestRef.current
     if (!uid) {
+      currentRoleRef.current = null
       setRole(null)
       setRoleData(null)
       setCafeSlug(null)
@@ -30,7 +32,10 @@ export function AuthProvider({ children }) {
       setRoleLoading(false)
       return
     }
-    setRoleLoading(true)
+    const isAlreadyLoaded = currentUidRef.current === uid && currentRoleRef.current !== null
+    if (!silent && !isAlreadyLoaded) {
+      setRoleLoading(true)
+    }
 
     try {
       const { data: dbRoleData, error } = await supabase
@@ -48,6 +53,7 @@ export function AuthProvider({ children }) {
       if (dbRoleData?.disabled) {
         await supabase.auth.signOut().catch(() => {})
         currentUidRef.current = null
+        currentRoleRef.current = null
         setRole(null)
         setRoleData(null)
         setCafeSlug(null)
@@ -60,6 +66,7 @@ export function AuthProvider({ children }) {
       const isMustChange = Boolean(dbRoleData?.must_change_password)
       const userCafeSlug = dbRoleData?.cafe_slug || null
 
+      currentRoleRef.current = assigned || null
       setRole(assigned || null)
       setRoleData(dbRoleData)
       setCafeSlug(userCafeSlug)
@@ -68,6 +75,7 @@ export function AuthProvider({ children }) {
       if (currentUidRef.current !== uid || request !== roleRequestRef.current) return
       // A database profile is mandatory. Do not infer a tenant from editable
       // auth metadata or route to a shared fallback cafe.
+      currentRoleRef.current = null
       setRole(null)
       setRoleData(null)
       setCafeSlug(null)
@@ -85,7 +93,9 @@ export function AuthProvider({ children }) {
       if (loginPendingRef.current) return
       const uid = nextUser?.id || null
       setNotificationUser(uid)
+      const isSameUser = currentUidRef.current === uid && currentRoleRef.current !== null
       if (currentUidRef.current !== uid) {
+        currentRoleRef.current = null
         setRole(null)
         setRoleData(null)
         setCafeSlug(null)
@@ -94,12 +104,13 @@ export function AuthProvider({ children }) {
       currentUidRef.current = uid
       setUser(nextUser)
       if (uid) {
-        loadRole(uid).then(() => {
+        loadRole(uid, { silent: isSameUser }).then(() => {
           if (currentUidRef.current === uid) {
             setLoading(false)
           }
         })
       } else {
+        currentRoleRef.current = null
         setRole(null)
         setRoleData(null)
         setCafeSlug(null)
@@ -116,6 +127,7 @@ export function AuthProvider({ children }) {
     setSigningIn(true)
     ++roleRequestRef.current
     currentUidRef.current = null
+    currentRoleRef.current = null
     setUser(null)
     setRole(null)
     setRoleData(null)
@@ -208,6 +220,7 @@ export function AuthProvider({ children }) {
         throw new Error("Your sign-in session changed. Please sign in again.")
       }
       currentUidRef.current = uid
+      currentRoleRef.current = assignedRole
       setUser(sessionUser)
       setNotificationUser(uid)
 
@@ -223,6 +236,7 @@ export function AuthProvider({ children }) {
       // the account's independent sessions on other devices.
       await supabase.auth.signOut({ scope: "local" }).catch(() => {})
       currentUidRef.current = null
+      currentRoleRef.current = null
       ++roleRequestRef.current
       setUser(null)
       setRole(null)
@@ -278,6 +292,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(async () => {
     await logoutAdmin()
     currentUidRef.current = null
+    currentRoleRef.current = null
     ++roleRequestRef.current
     setUser(null)
     setRole(null)
@@ -290,11 +305,9 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!user?.id) return
     const channel = supabase.channel(`profile-${user.id}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "user_roles", filter: `id=eq.${user.id}` }, () => loadRole(user.id))
+      .on("postgres_changes", { event: "*", schema: "public", table: "user_roles", filter: `id=eq.${user.id}` }, () => loadRole(user.id, { silent: true }))
       .subscribe()
-    const refresh = () => { if (!document.hidden) loadRole(user.id) }
-    window.addEventListener("focus", refresh)
-    return () => { window.removeEventListener("focus", refresh); supabase.removeChannel(channel).catch(() => {}) }
+    return () => { supabase.removeChannel(channel).catch(() => {}) }
   }, [user?.id, loadRole])
 
   const redirectAfterLogin = useCallback(() => {

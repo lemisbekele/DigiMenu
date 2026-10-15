@@ -7,15 +7,16 @@ export function TenantAdminRoute({ children }) {
   const { user, loading, roleLoading, role, cafeSlug: authCafeSlug } = useAuth()
   const location = useLocation()
 
-  if (loading || roleLoading) {
-    return (
-      <main className="page-pad splash-loader-container" style={{ minHeight: "80vh", display: "grid", placeItems: "center" }}>
-        <div className="skeleton-pulse" style={{ width: 120, height: 4, borderRadius: 2 }} />
-      </main>
-    )
-  }
-
-  if (!user) {
+  // Only block render on initial verification before user or role is known.
+  // Once authenticated, background loading must NEVER unmount children.
+  if (!user || !role) {
+    if (loading || roleLoading) {
+      return (
+        <main className="page-pad splash-loader-container" style={{ minHeight: "80vh", display: "grid", placeItems: "center" }}>
+          <div className="skeleton-pulse" style={{ width: 120, height: 4, borderRadius: 2 }} />
+        </main>
+      )
+    }
     return (
       <Navigate
         to={cafeSlug ? `/${cafeSlug}/admin/login` : "/404"}

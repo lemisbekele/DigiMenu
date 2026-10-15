@@ -1,3 +1,4 @@
+import { useRef } from "react"
 import { Link } from "react-router-dom"
 import { Lock, ArrowRight } from "lucide-react"
 import { usePlan } from "../context/planContextValue"
@@ -77,6 +78,22 @@ export function PlanGate({ feature, fallback = null, children }) {
 
 export function PlanRoute({ feature, children }) {
   const { hasFeature, subscriptionStatus } = usePlan()
+  const grantedRef = useRef(false)
+  const isFeatureAllowed = hasFeature(feature)
+
+  if (isFeatureAllowed) {
+    grantedRef.current = true
+  }
+
+  // Once access has been granted, background revalidations must never unmount children
+  if (grantedRef.current) {
+    if (!isFeatureAllowed && subscriptionStatus !== "loading") {
+      grantedRef.current = false
+      return <FeatureLockedPage feature={feature} />
+    }
+    return children
+  }
+
   if (subscriptionStatus === "unavailable") return <main className="auth-page"><div className="auth-card"><h1>Access could not be verified</h1><p>Package information is temporarily unavailable. Please try again.</p><button type="button" className="primary-button" onClick={() => window.location.reload()}>Try again</button></div></main>
   if (subscriptionStatus === "loading") {
     return (
@@ -85,7 +102,7 @@ export function PlanRoute({ feature, children }) {
       </main>
     )
   }
-  if (!hasFeature(feature)) {
+  if (!isFeatureAllowed) {
     return <FeatureLockedPage feature={feature} />
   }
   return children

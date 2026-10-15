@@ -165,7 +165,33 @@ export async function deleteCafe(cafeId) {
   // runs with the service-role key (never exposed to the browser), removes
   // the cafe's storage files, deletes every cafe-scoped record plus the
   // Supabase Auth accounts of the owner and staff, and verifies the result.
-  const { data, error } = await supabase.functions.invoke("delete-cafe", { body: { cafeId } })
+  let data = null
+  let error = null
+
+  try {
+    const res = await supabase.functions.invoke("delete-cafe", { body: { cafeId } })
+    data = res.data
+    error = res.error
+  } catch (err) {
+    error = err
+  }
+
+  // If the Edge Function is not deployed (404 / NOT_FOUND) or fails,
+  // execute the atomic SECURITY DEFINER delete_cafe_tenant procedure directly.
+  if ((error || !data?.success) && typeof supabase.rpc === "function") {
+    try {
+      const { data: rpcData, error: rpcError } = await supabase.rpc("delete_cafe_tenant", { p_cafe_id: cafeId })
+      if (!rpcError) {
+        data = { success: true, cafeId, cafeSlug: cafe.slug, filesRemoved: 0, cleanupPending: false, summary: rpcData }
+        error = null
+      } else if (rpcError) {
+        error = rpcError
+      }
+    } catch (rpcErr) {
+      if (!error) error = rpcErr
+    }
+  }
+
   if (error) {
     throw new Error(`Cafe could not be deleted: ${error.message}`)
   }

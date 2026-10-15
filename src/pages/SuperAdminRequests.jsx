@@ -10,6 +10,7 @@ import {
   observeSubscriptionRequests,
   approveSubscriptionRequest,
   rejectSubscriptionRequest,
+  generateTemporaryPassword,
   SUBSCRIPTION_STATUS,
   SUBSCRIPTION_STATUS_LABELS,
 } from "../services/subscriptionService"
@@ -72,15 +73,15 @@ export function SuperAdminRequests() {
   const handleApprove = (request) => {
     if (!isSuperAdmin) { alert("Authorization Error: Only Super Admin can approve requests."); return }
     setApprovalRequest(request)
-    setTemporaryPassword("")
+    setTemporaryPassword(generateTemporaryPassword())
     setApprovalError("")
   }
 
   const confirmApprove = async () => {
     if (!approvalRequest || busy) return
     const password = temporaryPassword.trim()
-    if (password.length < 8) {
-      setApprovalError("Temporary password must be at least 8 characters long.")
+    if (password.length < 12) {
+      setApprovalError("Temporary password must be at least 12 characters long.")
       return
     }
     if (!/[A-Z]/.test(password)) {
@@ -309,16 +310,25 @@ export function SuperAdminRequests() {
               </div>
             </div>
             <div className="form-context"><strong>{approvalRequest.customer_name}</strong><span>{approvalRequest.email}</span><span>Requested package: {approvalRequest.plan_key}</span></div>
-            <p className="form-help">Use at least 8 characters with uppercase and lowercase letters, a number, and a symbol (!@#$%^&amp;*). Share the temporary password securely after approval.</p>
+            <p className="form-help">Use at least 12 characters with uppercase and lowercase letters, a number, and a symbol (!@#$%^&amp;*). Share the temporary password securely after approval.</p>
             <label className="sa-field">
-              <span className="sa-label">Temporary password</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                <span className="sa-label" style={{ margin: 0 }}>Temporary password</span>
+                <button
+                  type="button"
+                  className="sa-ghost"
+                  style={{ fontSize: "0.78rem", padding: "2px 8px", height: "auto", cursor: "pointer" }}
+                  onClick={() => setTemporaryPassword(generateTemporaryPassword())}
+                >
+                  Regenerate password
+                </button>
+              </div>
               <input
                 className="sa-input"
-                type="password" required minLength={8} autoComplete="new-password"
+                type="text" required minLength={12} autoComplete="off"
                 value={temporaryPassword}
                 onChange={(event) => setTemporaryPassword(event.target.value)}
-                placeholder="At least 8 characters, with upper/lowercase, number and symbol"
-                
+                placeholder="At least 12 characters, with upper/lowercase, number and symbol"
                 autoFocus
               />
             </label>

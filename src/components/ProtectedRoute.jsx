@@ -15,7 +15,9 @@ export function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
   const location = useLocation()
 
-  if (loading) return <div className="page-pad">Checking session...</div>
-  if (!user) return <Navigate to={getLoginPath(location.pathname)} replace state={{ from: location }} />
+  if (!user) {
+    if (loading) return <div className="page-pad">Checking session...</div>
+    return <Navigate to={getLoginPath(location.pathname)} replace state={{ from: location }} />
+  }
   return children
 }

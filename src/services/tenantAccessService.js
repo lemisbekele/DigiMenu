@@ -81,14 +81,23 @@ export function observeTenantAccess({ slug, userId = null, requireStaff = false 
   let cancelled = false
   let channel = null
   let refreshTimer = null
-  let fallbackTimer = null
+  let lastKnownSnapshot = null
 
   const load = async () => {
     try {
       const snapshot = await validateTenantAccess({ slug, userId, requireStaff })
-      if (!cancelled) callback(snapshot)
+      if (!cancelled) {
+        if (snapshot.status === TENANT_ACCESS.READY) {
+          lastKnownSnapshot = snapshot
+        }
+        callback(snapshot)
+      }
     } catch (error) {
       if (!cancelled) {
+        if (lastKnownSnapshot) {
+          onError?.(error)
+          return
+        }
         onError?.(error)
         callback({ status: TENANT_ACCESS.UNAVAILABLE, error })
       }
@@ -104,7 +113,6 @@ export function observeTenantAccess({ slug, userId = null, requireStaff = false 
   }
 
   load()
-  fallbackTimer = setInterval(load, 30000)
 
   try {
     channel = supabase
@@ -118,7 +126,7 @@ export function observeTenantAccess({ slug, userId = null, requireStaff = false 
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "subscription_requests" }, scheduleLoad)
       .on("postgres_changes", { event: "*", schema: "public", table: "user_roles", filter: userId ? `id=eq.${userId}` : undefined }, scheduleLoad)
       .subscribe((state) => {
-        if (state === "CHANNEL_ERROR" || state === "TIMED_OUT") load()
+        if (state === "CHANNEL_ERROR" || state === "TIMED_OUT") scheduleLoad()
       })
   } catch (error) {
     onError?.(error)
@@ -127,7 +135,6 @@ export function observeTenantAccess({ slug, userId = null, requireStaff = false 
   return () => {
     cancelled = true
     if (refreshTimer) clearTimeout(refreshTimer)
-    if (fallbackTimer) clearInterval(fallbackTimer)
     if (channel) supabase.removeChannel(channel).catch(() => {})
   }
 }

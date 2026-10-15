@@ -6,7 +6,7 @@ import { TenantGuard } from "./TenantGuard"
 const state = vi.hoisted(() => ({ status: "not_found" }))
 vi.mock("../context/authContextValue", () => ({ useAuth: () => ({ user: null, loading: false, roleLoading: false }) }))
 vi.mock("../services/tenantAccessService", () => ({
-  TENANT_ACCESS: { NOT_FOUND: "not_found", UNAVAILABLE: "unavailable" },
+  TENANT_ACCESS: { READY: "ready", NOT_FOUND: "not_found", UNAVAILABLE: "unavailable" },
   observeTenantAccess: (_, callback) => {
     callback({ status: state.status, error: { message: "Supabase private_table SQL secret" } })
     return () => {}

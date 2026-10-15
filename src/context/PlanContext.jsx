@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useLocation } from "react-router-dom"
 import { PlanContext } from "./planContextValue"
 import {
@@ -35,6 +35,7 @@ export function PlanProvider({ children }) {
   const [enabledFeatures, setEnabledFeatures] = useState(null)
   const [catalogLoaded, setCatalogLoaded] = useState(false)
   const [catalogError, setCatalogError] = useState(false)
+  const lastAuthRef = useRef({ cafeSlug: null, userId: null })
 
   useEffect(() => observeFeatures(list => setEnabledFeatures(list.filter(f => f.enabled).map(f => f.key)), () => { setEnabledFeatures([]); setCatalogError(true) }), [])
 
@@ -93,10 +94,14 @@ export function PlanProvider({ children }) {
 
     // Drop both caches so no fetch can be served a stale snapshot that
     // belongs to another auth state.
-    invalidateSubscriptionRequestCache()
-    clearCachedSubscriptionRequests()
-    setSubscriptionStatus("loading")
-    setPlanState(null)
+    const authStateChanged = lastAuthRef.current.cafeSlug !== cafeSlug || lastAuthRef.current.userId !== userId
+    if (authStateChanged) {
+      lastAuthRef.current = { cafeSlug, userId }
+      invalidateSubscriptionRequestCache()
+      clearCachedSubscriptionRequests()
+      setSubscriptionStatus("loading")
+      setPlanState(null)
+    }
     if (!cafeSlug) { setSubscriptionStatus("no-cafe"); return () => { isMounted = false } }
 
     if (!userId && cafeSlug) {
@@ -107,13 +112,8 @@ export function PlanProvider({ children }) {
         .then(({ data }) => finishWithPlanKey(data ? String(data) : null))
         .catch(() => finishWithPlanKey(null))
       loadPublicPlan()
-      const refreshVisible = () => { if (!document.hidden) loadPublicPlan() }
-      const timer = setInterval(refreshVisible, 60000)
-      window.addEventListener("focus", refreshVisible)
       return () => {
         isMounted = false
-        clearInterval(timer)
-        window.removeEventListener("focus", refreshVisible)
       }
     }
 

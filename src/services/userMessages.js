@@ -42,6 +42,10 @@ const knownCases = [
   [/^(?:Invalid payment proof\.|Use the proof upload workflow\.)$/, "Please upload your payment receipt again."],
   [/^(?:Invalid customizations\.|Invalid option selection\.|Duplicate choice\.|Invalid ingredient\.|Invalid menu option\.)$/, "An item’s available options have changed. Review your cart and try again."],
   [/^(?:Failed to fetch|NetworkError when attempting to fetch resource\.|Network request failed)$/, "We couldn’t connect. Check your internet connection and try again."],
+  [/already has an account/i, "This email already has an account. Use a different owner email."],
+  [/Choose an active package/i, "Choose an active package."],
+  [/Only a pending request can be approved/i, "Only a pending request can be approved."],
+  [/Temporary password must (?:contain 12|be at least 12)/i, "Temporary password must be at least 12 characters long."],
 ]
 
 // Exact messages emitted by local validation are safe to retain. Do not add
@@ -72,6 +76,18 @@ const validationMessages = new Set([
   "Enter a valid package name and status.", "Invalid preparation time.", "Invalid discount.",
   "This cafe is not accepting orders.", "Choose a valid cafe table.",
   "Quantity must be a whole number.", "Menu item is not available in this cafe.",
+  "Temporary password must be at least 12 characters long.",
+  "Temporary password must contain 12 to 128 characters.",
+  "Temporary password must contain at least one uppercase letter.",
+  "Temporary password must contain at least one lowercase letter.",
+  "Temporary password must contain at least one number.",
+  "Temporary password must contain at least one special character.",
+  "This email already has an account. Use a different owner email.",
+  "Choose an active package.",
+  "Only a pending request can be approved.",
+  "A valid owner email is required.",
+  "Subscription request not found.",
+  "Unable to provision this request.",
 ])
 
 export function toUserMessage(error, fallback = DEFAULT_ERROR_MESSAGE) {

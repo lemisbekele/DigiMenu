@@ -22,12 +22,13 @@ export function RoleRoute({ role, fallback = null, children }) {
     refreshRole(user.id)?.catch(() => {})
   }, [profileMissing, retried, loading, roleLoading, user, refreshRole])
 
-  if (loading || roleLoading || (profileMissing && !retried)) {
-    if (fallback) return fallback
-    return <div className="page-pad">Verifying access...</div>
-  }
-
-  if (!user) {
+  // Only block render on initial verification before user or role is known.
+  // Once authenticated with a role, background loading must NEVER unmount children.
+  if (!user || !userRole) {
+    if (loading || roleLoading || (profileMissing && !retried)) {
+      if (fallback) return fallback
+      return <div className="page-pad">Verifying access...</div>
+    }
     return <Navigate to={`/${cafeSlug}/login`} replace />
   }
 
