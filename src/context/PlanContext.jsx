@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useLocation } from "react-router-dom"
 import { PlanContext } from "./planContextValue"
 import {
+  cacheSubscriptionRequests,
   clearCachedSubscriptionRequests,
   resolveFeatureKeys,
   resolvePlanMeta,
@@ -13,15 +14,16 @@ import {
   invalidateSubscriptionRequestCache,
   observeSubscriptionRequests,
 } from "../services/subscriptionService"
-import { observePackages, observeFeatures, getCachedPackages } from "../services/packageService"
+import { observePackages, observeFeatures, getCachedPackages, getCachedFeatures } from "../services/packageService"
 import { supabase } from "../services/supabase"
 import { useAuth } from "./authContextValue"
 
 function cafeSlugFromPath(pathname) {
   const parts = (pathname || "").split("/").filter(Boolean)
   if (!parts.length) return null
-  if (["superadmin", "login", "reset-password", "pricing", "portfolio", "404", "admin"].includes(parts[0])) return null
-  return parts[0]
+  const first = parts[0].toLowerCase()
+  if (["superadmin", "login", "reset-password", "pricing", "portfolio", "404", "admin"].includes(first)) return null
+  return first
 }
 
 export function PlanProvider({ children }) {
@@ -32,7 +34,10 @@ export function PlanProvider({ children }) {
   const [plan, setPlanState] = useState(null)
   const [packages, setPackages] = useState(getCachedPackages)
   const [subscriptionStatus, setSubscriptionStatus] = useState("loading")
-  const [enabledFeatures, setEnabledFeatures] = useState(null)
+  const [enabledFeatures, setEnabledFeatures] = useState(() => {
+    const cached = getCachedFeatures()
+    return cached.length ? cached.filter(f => f.enabled).map(f => f.key) : null
+  })
   const [catalogLoaded, setCatalogLoaded] = useState(false)
   const [catalogError, setCatalogError] = useState(false)
   const lastAuthRef = useRef({ cafeSlug: null, userId: null })
@@ -109,7 +114,19 @@ export function PlanProvider({ children }) {
       // lookup RPC (subscription rows themselves are RLS-protected).
       const loadPublicPlan = () => supabase
         .rpc("get_active_cafe_plan", { p_cafe_slug: cafeSlug.toLowerCase() })
-        .then(({ data }) => finishWithPlanKey(data ? String(data) : null))
+        .then(({ data }) => {
+          const planKey = data ? String(data).toLowerCase() : null
+          if (planKey) {
+            cacheSubscriptionRequests([
+              {
+                cafe_slug: cafeSlug.toLowerCase(),
+                plan_key: planKey,
+                status: "active",
+              },
+            ])
+          }
+          finishWithPlanKey(planKey)
+        })
         .catch(() => finishWithPlanKey(null))
       loadPublicPlan()
       return () => {
