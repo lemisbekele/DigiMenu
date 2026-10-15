@@ -226,9 +226,9 @@ function App() {
                   <Route path="/admin/login" element={<Navigate to="/superadmin/login" replace />} />
                   <Route path="/admin" element={<Navigate to="/superadmin/login" replace />} />
                   <Route path="/admin/*" element={<Navigate to="/superadmin/login" replace />} />
-                  <Route path="/manager" element={<Navigate to="/pricing" replace />} />
-                  <Route path="/cashier" element={<Navigate to="/pricing" replace />} />
-                  <Route path="/barista" element={<Navigate to="/pricing" replace />} />
+                  <Route path="/manager" element={<Navigate to="/login" replace />} />
+                  <Route path="/cashier" element={<Navigate to="/login" replace />} />
+                  <Route path="/barista" element={<Navigate to="/login" replace />} />
 
                   {/* Fallback */}
                   <Route path="*" element={<Navigate to="/404" replace />} />

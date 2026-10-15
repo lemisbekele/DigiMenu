@@ -4867,10 +4867,10 @@ notify pgrst,'reload schema';
 
 -- 1. Starter Package:
 -- Essential cafe tier: customer digital menu, online ordering, staff access for owner,
--- menu management, tables, cafe settings, kitchen order history, KDS, and analytics.
+-- menu management, tables, cafe settings, kitchen order history, KDS, analytics, and multi-language support.
 -- Limits: 50 menu items, 2 staff accounts (owner + 1 staff).
 UPDATE public.packages
-SET features = '["digitalMenu","ordering","staffAccess","menuManagement","tables","settings","orderHistory","kds","analytics"]'::jsonb,
+SET features = '["digitalMenu","ordering","staffAccess","menuManagement","tables","settings","orderHistory","kds","analytics","multiLanguage"]'::jsonb,
     limits = jsonb_set(
       jsonb_set(coalesce(limits, '{}'::jsonb), '{menuItems}', to_jsonb(50)),
       '{staffUsers}',
@@ -4881,10 +4881,10 @@ WHERE id = 'starter';
 
 -- 2. Professional Package:
 -- Growing cafe tier: Starter + cashier POS, inventory management, real-time notifications,
--- and user management so the cafe admin can invite and manage their 8 staff accounts.
+-- user management (for 8 staff), and multi-language support.
 -- Limits: 500 menu items, 8 staff accounts.
 UPDATE public.packages
-SET features = '["digitalMenu","ordering","staffAccess","kds","orderHistory","cashierPos","inventory","notifications","analytics","menuManagement","tables","settings","userManagement"]'::jsonb,
+SET features = '["digitalMenu","ordering","staffAccess","kds","orderHistory","cashierPos","inventory","notifications","analytics","menuManagement","tables","settings","userManagement","multiLanguage"]'::jsonb,
     limits = jsonb_set(
       jsonb_set(coalesce(limits, '{}'::jsonb), '{menuItems}', to_jsonb(500)),
       '{staffUsers}',
@@ -4894,7 +4894,7 @@ SET features = '["digitalMenu","ordering","staffAccess","kds","orderHistory","ca
 WHERE id = 'professional';
 
 -- 3. Enterprise Package:
--- Full enterprise tier: Professional + audit logs and multi-language support.
+-- Full enterprise tier: Professional + audit logs.
 -- Limits: 5000 menu items, 25 staff accounts.
 UPDATE public.packages
 SET features = '["digitalMenu","ordering","staffAccess","kds","orderHistory","cashierPos","inventory","notifications","analytics","menuManagement","tables","settings","userManagement","auditLogs","multiLanguage"]'::jsonb,

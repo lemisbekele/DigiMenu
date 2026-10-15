@@ -147,8 +147,6 @@ export function MenuPage() {
   const navigate = useNavigate()
   const { isItemSelected, toggleItem, itemCount, setCartOpen } = useCart()
 
-  const isLanguageUnlocked = hasFeature("multiLanguage")
-
   // Observe menu items for current cafe
   useEffect(() => observeMenuItems(setItems, undefined, cafeSlug), [cafeSlug])
 
@@ -238,10 +236,6 @@ export function MenuPage() {
   const nextLang = LANGUAGES[(Math.max(activeLangIndex, 0) + 1) % LANGUAGES.length]
 
   const handleLanguageSwitch = () => {
-    if (!isLanguageUnlocked) {
-      navigate("/pricing?locked=multiLanguage")
-      return
-    }
     setLanguage(nextLang.code)
   }
 
@@ -288,16 +282,11 @@ export function MenuPage() {
               className="qr-compact-btn"
               type="button"
               onClick={handleLanguageSwitch}
-              title={
-                isLanguageUnlocked
-                  ? t("languageSwitch", { active: currentLang.title, next: nextLang.title })
-                  : t("languageLocked", "Language options depend on your cafe's package")
-              }
+              title={t("languageSwitch", { active: currentLang.title, next: nextLang.title })}
               aria-label="Switch language"
             >
               <Languages size={14} />
               <span>{currentLang.label}</span>
-              {!isLanguageUnlocked ? <Lock size={10} style={{ color: "#facc15" }} /> : null}
             </button>
 
             <button
