@@ -47,6 +47,7 @@ export function SuperAdminRequests() {
   const [approvalRequest, setApprovalRequest] = useState(null)
   const [temporaryPassword, setTemporaryPassword] = useState("")
   const [approvalError, setApprovalError] = useState("")
+  const [actionError, setActionError] = useState("")
   const [copied, setCopied] = useState(false)
   const [successNotice, setSuccessNotice] = useState(null)
 
@@ -71,7 +72,7 @@ export function SuperAdminRequests() {
   }, [requests, search, packageById])
 
   const handleApprove = (request) => {
-    if (!isSuperAdmin) { alert("Authorization Error: Only Super Admin can approve requests."); return }
+    if (!isSuperAdmin) { setActionError("Only the platform owner can approve requests."); return }
     setApprovalRequest(request)
     setTemporaryPassword(generateTemporaryPassword())
     setApprovalError("")
@@ -122,14 +123,14 @@ export function SuperAdminRequests() {
   }
 
   const handleReject = async (reqId) => {
-    if (!isSuperAdmin) { alert("Authorization Error: Only Super Admin can reject requests."); return }
+    if (!isSuperAdmin) { setActionError("Only the platform owner can reject requests."); return }
     const reason = window.prompt("Reason for declining this access request:", "Request declined by administrator.")
     if (reason === null) return
     setBusy(reqId)
     try {
       await rejectSubscriptionRequest(reqId, reason, role)
     } catch (err) {
-      alert(toUserMessage(err, "Failed to reject request."))
+      setActionError(toUserMessage(err, "Failed to reject request."))
     } finally {
       setBusy("")
     }
@@ -147,6 +148,7 @@ export function SuperAdminRequests() {
 
   return (
     <div className="sa-page sa-requests-page">
+      {actionError ? <p className="form-error" role="alert">{actionError}</p> : null}
       {successNotice ? (
         <div className="sa-success-toast" role="status" aria-live="polite">
           <CheckCircle2 size={20} />
@@ -230,7 +232,7 @@ export function SuperAdminRequests() {
                               type="button"
                               onClick={() => handleApprove(req)}
                               disabled={isBusy}
-                              className="sa-btn sa-btn-success"
+                              className="primary-button"
                             >
                               <CheckCircle2 size={16} /> {isBusy ? "Approving..." : "Approve & Provision"}
                             </button>
@@ -238,7 +240,7 @@ export function SuperAdminRequests() {
                               type="button"
                               onClick={() => handleReject(req.id)}
                               disabled={isBusy}
-                              className="sa-btn sa-btn-danger"
+                              className="danger-button"
                             >
                               <XCircle size={16} /> Reject
                             </button>
@@ -287,11 +289,11 @@ export function SuperAdminRequests() {
             </div>
 
             <div style={{ display: "flex", gap: "1rem" }}>
-              <button type="button" onClick={handleCopy} className="sa-btn" style={{ flex: 1, justifyContent: "center" }}>
+              <button type="button" onClick={handleCopy} className="ghost-button" style={{ flex: 1, justifyContent: "center" }}>
                 {copied ? <Check size={18} style={{ color: "var(--brand)" }} /> : <Copy size={18} />}
                 {copied ? "Copied!" : "Copy Credentials"}
               </button>
-              <button type="button" onClick={() => setCredentialModal(null)} className="sa-btn sa-btn-primary" style={{ flex: 1, justifyContent: "center" }}>
+              <button type="button" onClick={() => setCredentialModal(null)} className="primary-button" style={{ flex: 1, justifyContent: "center" }}>
                 Done
               </button>
             </div>
@@ -332,12 +334,12 @@ export function SuperAdminRequests() {
                 autoFocus
               />
             </label>
-            {approvalError ? <p className="sa-form-error">{approvalError}</p> : null}
+            {approvalError ? <p className="form-error">{approvalError}</p> : null}
             <div className="sa-modal-actions">
               <button type="button" className="sa-ghost" onClick={() => setApprovalRequest(null)} disabled={Boolean(busy)}>
                 Cancel
               </button>
-              <button type="submit" className="sa-btn sa-btn-primary" disabled={Boolean(busy)}>
+              <button type="submit" className="primary-button" disabled={Boolean(busy)}>
                 {busy ? "Approving..." : "Approve & Provision"}
               </button>
             </div>

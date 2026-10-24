@@ -121,3 +121,16 @@ body {
   color: var(--brand);
   transform: translateY(-1px);
 }
+/* Older names some styles still use, mapped onto the palette above so they follow light and dark. */
+:root {
+  --accent: var(--brand);
+  --accent-muted: var(--brand-soft);
+  --background: var(--bg);
+  --bg-muted: var(--surface-2);
+  --bg-panel: var(--surface);
+  --border-color: var(--border);
+  --border-light: var(--border-soft);
+  --surface-muted: var(--surface-2);
+  --text-muted: var(--muted);
+  --text-primary: var(--text);
+}

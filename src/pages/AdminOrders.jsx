@@ -138,56 +138,60 @@ export function AdminOrders() {
       return
     }
     if (orderStatus !== "ready") return
-    updateStaffOrder(order.id, {
-      orderStatus,
-      readyAt: new Date().toISOString(),
-      readyAtMs: Date.now(),
-    }).then(() => sendPushToCustomer(order.id)).catch((err) => setLoadError(err.message))
+    save(order.id, { orderStatus, readyAt: new Date().toISOString(), readyAtMs: Date.now() }, () => sendPushToCustomer(order.id))
+  }
+
+  // Every action waits for the save; the audit entry and notification follow only a successful save,
+  // and a failure shows in the page's error line instead of disappearing.
+  const save = (orderId, changes, after) => {
+    setLoadError("")
+    return updateStaffOrder(orderId, changes).then(after).catch((err) => setLoadError(err.message || "Could not save the change. Please retry."))
   }
 
   const confirmReject = () => {
     if (!rejectTarget) return
-    updateStaffOrder(rejectTarget.id, { orderStatus: "rejected" })
-    writeAuditLog("order.rejected", { id: rejectTarget.id, tableNumber: rejectTarget.tableNumber, reason: rejectReason })
+    const target = rejectTarget
     setRejectTarget(null)
     setRejectReason("")
+    save(target.id, { orderStatus: "rejected" }, () =>
+      writeAuditLog("order.rejected", { id: target.id, tableNumber: target.tableNumber, reason: rejectReason }))
   }
 
   const processCashPayment = (order, discountAmount = 0) => {
     const discount = Math.min(Number(discountAmount || 0), order.totalAmount)
     // total_amount is derived server-side from discountAmount — sending it
     // would be rejected by the update_staff_order field whitelist.
-    updateStaffOrder(order.id, {
+    save(order.id, {
       paymentStatus: "paid",
       paidAt: new Date().toISOString(),
       discountAmount: discount,
       paymentMethod: "Cash",
+    }, () => {
+      writeAuditLog("order.payment.processed", { id: order.id, tableNumber: order.tableNumber, totalAmount: order.totalAmount - discount, discount, paymentMethod: "Cash" })
+      notifyOrderEvent(order, NOTIFICATION_EVENTS.ORDER_PAID)
     })
-    writeAuditLog("order.payment.processed", { id: order.id, tableNumber: order.tableNumber, totalAmount: order.totalAmount - discount, discount, paymentMethod: "Cash" })
-    notifyOrderEvent(order, NOTIFICATION_EVENTS.ORDER_PAID)
   }
 
   const selectTransferMethod = (order) => {
     if (order.orderStatus !== "ready") return
-    updateStaffOrder(order.id, { paymentMethod: "transfer" })
+    save(order.id, { paymentMethod: "transfer" })
   }
 
   const approveTransferProof = (order, discountAmount = 0) => {
     if (order.orderStatus !== "ready") return
     const discount = Math.min(Number(discountAmount || 0), order.totalAmount)
-    updateStaffOrder(order.id, {
+    save(order.id, {
       orderStatus: "paid",
       paymentStatus: "paid",
       paidAt: new Date().toISOString(),
       discountAmount: discount,
-    })
-    writeAuditLog("order.paymentProof.approved", { id: order.id, tableNumber: order.tableNumber, totalAmount: order.totalAmount - discount, discount })
+    }, () => writeAuditLog("order.paymentProof.approved", { id: order.id, tableNumber: order.tableNumber, totalAmount: order.totalAmount - discount, discount }))
   }
 
   const rejectTransferProof = (order) => {
     if (order.orderStatus !== "ready") return
-    updateStaffOrder(order.id, { paymentStatus: "rejected" })
-    writeAuditLog("order.paymentProof.rejected", { id: order.id, tableNumber: order.tableNumber })
+    save(order.id, { paymentStatus: "rejected" }, () =>
+      writeAuditLog("order.paymentProof.rejected", { id: order.id, tableNumber: order.tableNumber }))
   }
 
   const visibleOrders = orders.filter((order) => {

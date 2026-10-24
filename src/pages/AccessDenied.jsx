@@ -27,8 +27,8 @@ export function AccessDenied() {
             borderRadius: "50%",
             display: "grid",
             placeItems: "center",
-            background: "#fdecec",
-            color: "#b91c1c",
+            background: "var(--danger-soft)",
+            color: "var(--danger-text)",
           }}
         >
           <ShieldX size={26} />

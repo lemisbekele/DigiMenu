@@ -174,7 +174,7 @@ export function CashierDashboard() {
       pushToast("Payment Approved", `Payment for order #${orderId.slice(-6)} confirmed.`, "paid", orderId, "normal")
     } catch (err) {
       setOrders(prevOrders)
-      alert(toUserMessage(err, "Could not approve payment."))
+      pushToast("Payment not saved", toUserMessage(err, "Could not approve payment."), "error", orderId, "high")
     }
   }
 
@@ -204,7 +204,7 @@ export function CashierDashboard() {
       await writeAuditLog("cashier.payment.reject", { orderId, reason: rejectionReason })
     } catch (err) {
       setOrders(prevOrders)
-      alert(toUserMessage(err, "Could not reject payment proof."))
+      pushToast("Rejection not saved", toUserMessage(err, "Could not reject payment proof."), "error", orderId, "high")
     }
   }
 
@@ -226,7 +226,7 @@ export function CashierDashboard() {
         <article className="stat-card">
           <div className="stat-head">
             <span>Pending Payment Proofs</span>
-            <Clock size={20} style={{ color: "#d97706" }} />
+            <Clock size={20} style={{ color: "var(--warning)" }} />
           </div>
           <p className="stat-value">{stats.pendingProofs}</p>
           <p className="stat-note">Requires verification</p>
@@ -235,7 +235,7 @@ export function CashierDashboard() {
         <article className="stat-card">
           <div className="stat-head">
             <span>Unpaid Orders</span>
-            <Banknote size={20} style={{ color: "#c93b2b" }} />
+            <Banknote size={20} style={{ color: "var(--danger)" }} />
           </div>
           <p className="stat-value">{stats.unpaidOrders}</p>
           <p className="stat-note">Awaiting payment settlement</p>

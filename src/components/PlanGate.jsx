@@ -21,8 +21,8 @@ export function FeatureLockedPage({ feature }) {
             borderRadius: "50%",
             display: "grid",
             placeItems: "center",
-            background: "#fff7e8",
-            color: "#835514",
+            background: "var(--warning-bg)",
+            color: "var(--warning)",
           }}
         >
           <Lock size={26} />

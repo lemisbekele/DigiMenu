@@ -63,9 +63,14 @@
   font-weight: 700;
   color: var(--text, #0f172a);
   margin: 0;
-  white-space: nowrap;
+  /* Up to two lines so customers can read whose menu this is on narrow phones. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
+  line-height: 1.2;
   letter-spacing: -0.01em;
 }
 

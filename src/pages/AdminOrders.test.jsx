@@ -5,6 +5,7 @@ import { AdminOrders } from "./AdminOrders"
 
 const mocks = vi.hoisted(() => ({
   updateStaffOrder: vi.fn(() => Promise.resolve()),
+  writeAuditLog: vi.fn(() => Promise.resolve()),
 }))
 
 vi.mock("../context/rbacContextValue", () => ({
@@ -49,7 +50,7 @@ vi.mock("../services/dataService", () => ({
     return vi.fn()
   }),
   updateStaffOrder: mocks.updateStaffOrder,
-  writeAuditLog: vi.fn(() => Promise.resolve()),
+  writeAuditLog: mocks.writeAuditLog,
   observePaymentOptions: vi.fn((callback) => {
     callback([])
     return vi.fn()
@@ -72,6 +73,7 @@ vi.mock("../components/NotificationCenter", () => ({
 describe("AdminOrders", () => {
   beforeEach(() => {
     mocks.updateStaffOrder.mockClear()
+    mocks.writeAuditLog.mockClear()
   })
 
   it("searches active orders by item and table number", async () => {
@@ -106,5 +108,16 @@ describe("AdminOrders", () => {
     await user.click(screen.getByText("Reject"))
     await user.click(screen.getByRole("button", { name: "Reject Order" }))
     expect(mocks.updateStaffOrder).toHaveBeenCalledWith("ORD-1", { orderStatus: "rejected" })
+  })
+
+  it("shows a failed save and records no audit entry for it", async () => {
+    const user = userEvent.setup()
+    mocks.updateStaffOrder.mockRejectedValueOnce(new Error("Network down"))
+    render(<AdminOrders />)
+
+    await user.click(screen.getByText("Reject"))
+    await user.click(screen.getByRole("button", { name: "Reject Order" }))
+    expect(await screen.findByText("Network down")).toBeInTheDocument()
+    expect(mocks.writeAuditLog).not.toHaveBeenCalled()
   })
 })

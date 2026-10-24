@@ -28,7 +28,7 @@
 .sa-modal-wide { max-width: 760px; }
 .sa-modal-actions { flex-wrap: wrap; }
 .sa-modal-actions > p { flex-basis: 100%; margin: 0 0 8px; }
-.sa-modal :is(.sa-form-error, .sa-alert-error) { color: var(--danger-text); background: var(--danger-soft); padding: 12px; border-radius: 8px; }
+.sa-modal .sa-alert-error { color: var(--danger-text); background: var(--danger-soft); padding: 12px; border-radius: 8px; }
 .inventory-form { max-width: 760px; padding: clamp(16px, 3vw, 28px); gap: 18px; }
 .admin-add-table-form { width: 100%; max-width: 900px; padding: 20px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
 .admin-add-table-form .form-row-inline { display: grid; grid-template-columns: minmax(90px,.5fr) minmax(0,1fr) minmax(0,1.5fr); align-items: start; gap: 14px; }

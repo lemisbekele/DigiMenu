@@ -1,4 +1,5 @@
 import { toUserMessage } from "../services/userMessages"
+import { useConfirm } from "../hooks/useConfirm"
 import { useEffect, useMemo, useState } from "react"
 import { AlertTriangle, Package, Search } from "lucide-react"
 import { observeCollection, saveInventory, deleteInventory } from "../services/dataService"
@@ -13,6 +14,7 @@ const STATUS = {
 }
 
 export function KitchenInventory() {
+  const [confirm, confirmDialog] = useConfirm()
   const { can } = useRBAC()
   const canManage = can(PERMISSIONS.INVENTORY_MANAGE)
   const [form, setForm] = useState(null)
@@ -69,6 +71,7 @@ export function KitchenInventory() {
 
   return (
     <div className="kds-root">
+      {confirmDialog}
       <header className="kds-header kds-stock-header">
         <div className="kds-header-left">
           <h1 className="kds-title">Inventory</h1>
@@ -161,7 +164,7 @@ export function KitchenInventory() {
                     {canManage ? <div className="inventory-actions">
                       <button className="ghost-button" onClick={() => setForm(item)}>Edit</button>
                       <button className="ghost-button danger" onClick={async () => {
-                        if (!window.confirm(`Remove ${item.name} from inventory?`)) return
+                        if (!(await confirm(`Remove ${item.name} from inventory?`, { title: "Remove item?", confirmLabel: "Remove" }))) return
                         try { await deleteInventory(item.id); setVersion((v) => v + 1) }
                         catch (error) { setLoadError(toUserMessage(error)) }
                       }}>Remove</button>

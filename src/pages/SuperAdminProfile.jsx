@@ -109,7 +109,7 @@ export function SuperAdminProfile() {
           <button
             type="submit"
             disabled={submitting}
-            className="sa-btn sa-btn-primary"
+            className="primary-button"
           >
             {submitting ? "Updating..." : "Update Password"}
           </button>

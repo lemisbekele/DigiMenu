@@ -1,4 +1,5 @@
 import { toUserMessage } from "../services/userMessages"
+import { useConfirm } from "../hooks/useConfirm"
 import { useEffect, useState } from "react"
 import {
   Banknote, Check, Landmark, Loader2, LogOut, Pencil,
@@ -32,6 +33,7 @@ function PaymentTypeIcon({ type }) {
 }
 
 export function AdminSettings() {
+  const [confirm, confirmDialog] = useConfirm()
   const [paymentOptions, setPaymentOptions] = useState([])
   const [form, setForm] = useState(blankPayment)
   const [loadError, setLoadError] = useState("")
@@ -82,7 +84,7 @@ export function AdminSettings() {
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Remove this payment option? Customers will no longer see it at checkout.")) return
+    if (!(await confirm("Customers will no longer see it at checkout.", { title: "Remove payment option?", confirmLabel: "Remove" }))) return
     try {
       await deletePaymentOption(id)
       setSaveSuccess("Payment option removed.")
@@ -96,6 +98,7 @@ export function AdminSettings() {
 
   return (
     <div className="admin-stack settings-page">
+      {confirmDialog}
       <div className="admin-head settings-head">
         <div>
           <p className="eyebrow">Customer payment</p>

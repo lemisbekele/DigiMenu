@@ -55,7 +55,7 @@ export function AdminTables() {
             <QrCode size={14} /> QR Management & Table Routing
           </p>
           <h2>Tables & QR Codes</h2>
-          <p style={{ color: "#6b7280", margin: "4px 0 0", fontSize: "0.9rem" }}>
+          <p style={{ color: "var(--muted)", margin: "4px 0 0", fontSize: "0.9rem" }}>
             Generate, customize, and print high-resolution A5 QR codes for each table.
           </p>
           {loadError ? <p className="form-error">{loadError}</p> : null}
@@ -97,7 +97,7 @@ export function AdminTables() {
           <div className="empty-state-box" style={{ padding: "48px 24px", textAlign: "center" }}>
             <Sparkles size={36} style={{ color: "var(--brand-ink)", marginBottom: 12 }} />
             <h3>No Tables Added Yet</h3>
-            <p style={{ color: "#6b7280", maxWidth: 420, margin: "0 auto 16px" }}>
+            <p style={{ color: "var(--muted)", maxWidth: 420, margin: "0 auto 16px" }}>
               Add table numbers above to instantly create print-ready A5 QR codes for your customers.
             </p>
           </div>

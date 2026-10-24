@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useConfirm } from "../hooks/useConfirm"
 import { Printer, Download, Share2, Trash2, Check, Save } from "lucide-react"
 import { QRCodeSVG } from "qrcode.react"
 import { useParams } from "react-router-dom"
@@ -15,6 +16,7 @@ function escapeHtml(value = "") {
 }
 
 export function TableQrCard({ table, onDelete, onSave }) {
+  const [confirm, confirmDialog] = useConfirm()
   const { cafeSlug } = useParams()
   const [printTitle, setPrintTitle] = useState(table.printTitle || "")
   const [printNote, setPrintNote] = useState(table.printNote || "")
@@ -243,12 +245,14 @@ export function TableQrCard({ table, onDelete, onSave }) {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      alert(`Table Link: ${url}`)
+      // Clipboard blocked: show the link so it can be copied by hand.
+      window.prompt("Copy this table link:", url)
     }
   }
 
   return (
     <article className="qr-card a5-preview-card">
+      {confirmDialog}
       <div className="a5-card-inner">
         <div className="a5-card-header">
           <span className="a5-badge">A5 Print Format</span>
@@ -302,7 +306,7 @@ export function TableQrCard({ table, onDelete, onSave }) {
           </button>
 
           <button className="ghost-button action-btn" type="button" onClick={handleShare} title="Share Link">
-            {copied ? <Check size={16} style={{ color: "#286b14" }} /> : <Share2 size={16} />}
+            {copied ? <Check size={16} style={{ color: "var(--brand-ink)" }} /> : <Share2 size={16} />}
             <span>{copied ? "Copied!" : "Share"}</span>
           </button>
 
@@ -310,8 +314,8 @@ export function TableQrCard({ table, onDelete, onSave }) {
             <button
               className="icon-button danger action-btn-delete"
               type="button"
-              onClick={() => {
-                if (!window.confirm(`Delete Table ${table.tableNumber} and its QR code? Links printed on existing cards will stop working.`)) return
+              onClick={async () => {
+                if (!(await confirm(`Delete Table ${table.tableNumber} and its QR code? Links printed on existing cards will stop working.`, { title: "Delete table?" }))) return
                 onDelete(table.id)
               }}
               title="Delete Table"

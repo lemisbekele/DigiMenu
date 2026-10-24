@@ -255,7 +255,7 @@ export function AdminAuditLogs() {
                 <div className="audit-row" key={log.id}>
                   <span>{formatAuditAction(log)}</span>
                   <span>{log.actor || "system"}</span>
-                  <span style={{ color: "#8b9692", fontSize: "0.86rem" }}>{formatTime(log.createdAtMs ? new Date(log.createdAtMs) : log.createdAt)}</span>
+                  <span style={{ color: "var(--muted)", fontSize: "0.86rem" }}>{formatTime(log.createdAtMs ? new Date(log.createdAtMs) : log.createdAt)}</span>
                 </div>
               ))}
             </div>

@@ -38,9 +38,9 @@ function orderTimestamp(order, status) {
 }
 
 const stepMeta = {
-  received: { icon: Receipt, labelKey: "received", timeKey: "placedAt", color: "#6b7280" },
-  preparing: { icon: CookingPot, labelKey: "preparing", timeKey: "preparingTime", color: "#d97706" },
-  ready: { icon: Coffee, labelKey: "ready", timeKey: "readyTime", color: "var(--brand)" },
+  received: { icon: Receipt, labelKey: "received", timeKey: "placedAt" },
+  preparing: { icon: CookingPot, labelKey: "preparing", timeKey: "preparingTime" },
+  ready: { icon: Coffee, labelKey: "ready", timeKey: "readyTime" },
 }
 
 function isCashPayment(method) {
@@ -344,7 +344,7 @@ export function OrderPage() {
                 </div>
                 <div className="bank-details-box">
                   <div className="bank-instructions-box">
-                    <Clock size={18} style={{ color: "#d97706", flexShrink: 0, marginTop: 2 }} />
+                    <Clock size={18} style={{ color: "var(--warning)", flexShrink: 0, marginTop: 2 }} />
                     <p style={{ margin: 0 }}>
                       Please hand cash payment of <strong>{money(order.totalAmount)}</strong> to the cashier or staff at the counter. The cashier will confirm receipt directly from the POS/KDS interface.
                     </p>
@@ -363,7 +363,7 @@ export function OrderPage() {
           ) : order.paymentStatus === "pending" ? (
             <div className="bank-payment-card">
               <div className="bank-step-header">
-                <Clock size={20} style={{ color: "#d97706" }} />
+                <Clock size={20} style={{ color: "var(--warning)" }} />
                 <h4>{t("paymentProofPending")}</h4>
               </div>
               {order.paymentProofUrl && isSafeStorageUrl(order.paymentProofUrl) ? (
@@ -383,7 +383,7 @@ export function OrderPage() {
           ) : order.paymentStatus === "rejected" ? (
             <div className="bank-payment-card">
               <div className="bank-step-header">
-                <XCircle size={20} style={{ color: "#c93b2b" }} />
+                <XCircle size={20} style={{ color: "var(--danger)" }} />
                 <h4>{t("paymentProofRejected")}</h4>
               </div>
               {order.paymentProofUrl && isSafeStorageUrl(order.paymentProofUrl) ? (
@@ -478,7 +478,7 @@ export function OrderPage() {
                   <span className="step-badge step-2">Step 2</span>
                   <h4>{t("uploadPaymentProof")}</h4>
                 </div>
-                <p style={{ margin: "0 0 6px", fontSize: "0.85rem", color: "#586863" }}>
+                <p style={{ margin: "0 0 6px", fontSize: "0.85rem" }}>
                   {t("uploadProofAfterTransfer")}
                 </p>
                 {proofError ? <p className="form-error">{proofError}</p> : null}

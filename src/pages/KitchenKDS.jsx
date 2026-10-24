@@ -168,7 +168,7 @@ export function KitchenKDS() {
   const [orders, setOrders] = useState([])
   const [loaded, setLoaded] = useState(false)
   const [loadError, setLoadError] = useState("")
-  const [activeTab, setActiveTab] = useState("received")
+  const [activeTab, setActiveTab] = useState(TABS[0].key)
   const [stationFilter, setStationFilter] = useState("all")
   const [isMuted, setIsMuted] = useState(() => {
     return localStorage.getItem("kds_muted") === "true"

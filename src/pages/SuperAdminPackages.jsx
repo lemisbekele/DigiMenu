@@ -243,7 +243,7 @@ export function SuperAdminPackages() {
       )}
 
       <div style={{ marginBottom: "1.25rem" }}>
-        <button type="button" onClick={() => setCreating({ ...EMPTY_PACKAGE })} className="sa-btn sa-btn-primary">
+        <button type="button" onClick={() => setCreating({ ...EMPTY_PACKAGE })} className="primary-button">
           + New Package
         </button>
       </div>
@@ -301,15 +301,15 @@ export function SuperAdminPackages() {
                     features: featureKeysOf(pkg),
                     limits: { menuItems: pkg.limits?.menuItems ?? 50, staffUsers: pkg.limits?.staffUsers ?? 1 },
                   })}
-                  className="sa-btn"
+                  className="ghost-button"
                   style={{ flex: "1 1 120px", justifyContent: "center" }}
                 >
                   Edit Package
                 </button>
-                <button type="button" onClick={() => { setAssigningPackage(pkg); setSelectedCafe("") }} className="sa-btn sa-btn-primary" style={{ flex: "1 1 120px", justifyContent: "center" }}>
+                <button type="button" onClick={() => { setAssigningPackage(pkg); setSelectedCafe("") }} className="primary-button" style={{ flex: "1 1 120px", justifyContent: "center" }}>
                   Assign Cafe
                 </button>
-                <button type="button" onClick={() => toggleStatus(pkg)} disabled={busy} className="sa-btn" style={{ flex: "1 1 120px", justifyContent: "center" }}>
+                <button type="button" onClick={() => toggleStatus(pkg)} disabled={busy} className="ghost-button" style={{ flex: "1 1 120px", justifyContent: "center" }}>
                   {isActive ? "Deactivate" : "Activate"}
                 </button>
               </div>
@@ -327,7 +327,7 @@ export function SuperAdminPackages() {
           <form className="sa-modal sa-modal-wide" onSubmit={event => { event.preventDefault(); if (!busy) saveEdit() }}>
             <h3>Edit Package: {editingPackage.name}</h3>
             <p className="form-help">Provide a clear public name, pricing terms, usage limits and the exact included features.</p>
-            {notice?.type === "error" && <p className="sa-form-error" role="alert">{notice.text}</p>}
+            {notice?.type === "error" && <p className="form-error" role="alert">{notice.text}</p>}
             <div className="form-grid">
               <label className="sa-field">
                 <span className="sa-label">Package Key (read-only)</span>
@@ -385,7 +385,7 @@ export function SuperAdminPackages() {
             <div className="sa-modal-actions">
               <p className="muted">Changes apply to every cafe assigned this package ({activeCafeCounts[editingPackage.id] || 0} active subscriptions). To change only one cafe, assign it a different package.</p>
               <button type="button" onClick={() => setEditingPackage(null)} className="sa-ghost">Cancel</button>
-              <button type="submit" disabled={busy} className="sa-btn sa-btn-primary">
+              <button type="submit" disabled={busy} className="primary-button">
                 {busy ? "Saving..." : "Save Changes"}
               </button>
             </div>
@@ -398,7 +398,7 @@ export function SuperAdminPackages() {
           <form className="sa-modal sa-modal-wide" onSubmit={event => { event.preventDefault(); if (!busy) confirmCreate() }}>
             <h3>Create New Package</h3>
             <p className="form-help">Provide a clear public name, pricing terms, usage limits and the exact included features.</p>
-            {notice?.type === "error" && <p className="sa-form-error" role="alert">{notice.text}</p>}
+            {notice?.type === "error" && <p className="form-error" role="alert">{notice.text}</p>}
             <div className="form-grid">
               <label className="sa-field">
                 <span className="sa-label">Package Key (unique id, e.g. premium)</span>
@@ -461,7 +461,7 @@ export function SuperAdminPackages() {
             </fieldset>
             <div className="sa-modal-actions">
               <button type="button" onClick={() => setCreating(null)} className="sa-ghost">Cancel</button>
-              <button type="submit" disabled={busy} className="sa-btn sa-btn-primary">
+              <button type="submit" disabled={busy} className="primary-button">
                 {busy ? "Creating..." : "Create Package"}
               </button>
             </div>
@@ -476,7 +476,7 @@ export function SuperAdminPackages() {
             <p className="sa-notice" style={{ margin: "0 0 1rem" }}>
               Creates or updates an Active subscription for the selected registered cafe. The cafe receives these features immediately.
             </p>
-            {notice?.type === "error" && <p className="sa-form-error" role="alert">{notice.text}</p>}
+            {notice?.type === "error" && <p className="form-error" role="alert">{notice.text}</p>}
             <label className="sa-field">
               <span className="sa-label">Registered Cafe</span>
               <select
@@ -498,7 +498,7 @@ export function SuperAdminPackages() {
               <button
                 type="submit"
                 disabled={busy || !selectedCafe}
-                className="sa-btn sa-btn-primary"
+                className="primary-button"
               >
                 {busy ? "Assigning..." : "Confirm Assignment"}
               </button>

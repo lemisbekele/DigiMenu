@@ -1,4 +1,5 @@
 import { toUserMessage } from "../services/userMessages"
+import { useConfirm } from "../hooks/useConfirm"
 import { currentRegion } from "../services/regionalSettings"
 import { useEffect, useMemo, useState } from "react"
 import { Edit3, Globe, Plus, Save, Trash2 } from "lucide-react"
@@ -96,6 +97,7 @@ function saveErrorMessage(error) {
 }
 
 export function AdminMenu() {
+  const [confirm, confirmDialog] = useConfirm()
   const { t } = useLanguage()
   const { role } = useRBAC()
   const isManager = role === "manager"
@@ -187,6 +189,7 @@ export function AdminMenu() {
 
   return (
     <div className="admin-stack">
+      {confirmDialog}
       <section>
         <div className="admin-head">
           <div>
@@ -246,8 +249,8 @@ export function AdminMenu() {
                 <button className="icon-button" type="button" onClick={() => edit(item)} aria-label={t("editItem")}>
                   <Edit3 size={18} />
                 </button>
-                <button className="icon-button danger" type="button" onClick={() => {
-                  if (!window.confirm(`Delete "${item.name}" permanently? This cannot be undone.`)) return
+                <button className="icon-button danger" type="button" onClick={async () => {
+                  if (!(await confirm(`Delete "${item.name}" permanently? This cannot be undone.`, { title: "Delete menu item?" }))) return
                   deleteMenuItem(item.id)
                 }} aria-label={t("removeItem")}>
                   <Trash2 size={18} />

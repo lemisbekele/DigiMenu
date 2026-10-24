@@ -50,6 +50,7 @@ export function SubscriptionAssignments() {
   const [activeTab, setActiveTab] = useState("all")
   const [search, setSearch] = useState("")
   const [busy, setBusy] = useState("")
+  const [actionError, setActionError] = useState("")
 
   const packageFeed = usePlatformFeed(observePackages)
   const packagesList = packageFeed.data
@@ -88,12 +89,12 @@ export function SubscriptionAssignments() {
   }, [subscriptions, packageById])
 
   const handleStatus = async (sub, status) => {
-    if (!isSuperAdmin) { alert("Authorization Error: Only Super Admin can update subscriptions."); return }
+    if (!isSuperAdmin) { setActionError("Only the platform owner can update subscriptions."); return }
     setBusy(sub.id)
     try {
       await updateSubscriptionStatus(sub.id, status, role)
     } catch (err) {
-      alert(toUserMessage(err, "Could not update subscription status."))
+      setActionError(toUserMessage(err, "Could not update subscription status."))
     } finally {
       setBusy("")
     }
@@ -103,6 +104,7 @@ export function SubscriptionAssignments() {
 
   return (
     <div className="sa-page">
+      {actionError ? <p className="form-error" role="alert">{actionError}</p> : null}
       <p className="sa-section-intro">Review subscription history and adjust access for provisioned cafes.</p>
 
       <div className="sa-stats">
@@ -194,14 +196,14 @@ export function SubscriptionAssignments() {
                       </td>
                       <td style={{ textAlign: "right" }}>
                         <div className="sa-inline-actions">
-                          {sub.status === SUBSCRIPTION_STATUS.PENDING_APPROVAL && <Link className="sa-btn" to="/superadmin/requests">Review request</Link>}
+                          {sub.status === SUBSCRIPTION_STATUS.PENDING_APPROVAL && <Link className="ghost-button" to="/superadmin/requests">Review request</Link>}
                           {(sub.status === SUBSCRIPTION_STATUS.ACTIVE || sub.status === SUBSCRIPTION_STATUS.APPROVED) ? (
                             <button
                               type="button"
                               disabled={isBusy}
                               onClick={() => handleStatus(sub, SUBSCRIPTION_STATUS.EXPIRED)}
                               title="Mark as expired"
-                              className="sa-btn sa-btn-danger"
+                              className="danger-button"
                             >
                               <XCircle size={14} /> Expire
                             </button>
@@ -212,7 +214,7 @@ export function SubscriptionAssignments() {
                               disabled={isBusy}
                               onClick={() => handleStatus(sub, SUBSCRIPTION_STATUS.ACTIVE)}
                               title="Mark as active"
-                              className="sa-btn sa-btn-success"
+                              className="primary-button"
                             >
                               <RotateCcw size={14} /> Activate
                             </button>
