@@ -1,16 +1,17 @@
 import { currentRegion, formatDateTime } from "../services/regionalSettings"
 import { useEffect, useRef, useState } from "react"
-import { Banknote, CheckCircle2, Landmark, LayoutGrid, List, Search, X, XCircle } from "lucide-react"
+import { Banknote, CheckCircle2, Landmark, Search, XCircle } from "lucide-react"
 import { StatusBadge } from "../components/StatusBadge"
 import { useKitchenQueue } from "../hooks/useKitchenQueue"
 import { useCafeSlug } from "../hooks/useCafeSlug"
 import { queueStatus } from "../services/kitchenQueue"
 import { OptimizedImage } from "../components/OptimizedImage"
+import { OrderItemList } from "../components/OrderItemList"
+import { Modal } from "../components/Modal"
+import "./orders.css"
 import { PermissionGuard } from "../components/PermissionGuard"
 import { useRBAC } from "../context/rbacContextValue"
 import {
-  formatCustomizations,
-  formatIngredientSelections,
   money,
   observeOrders,
   observePaymentOptions,
@@ -38,6 +39,19 @@ function isCashMethod(method) {
   return /cash/i.test(String(method || ""))
 }
 
+const STATUS_CHIPS = [
+  { key: "all", label: "All" },
+  { key: "inLine", label: "In line" },
+  { key: "preparing", label: "Preparing" },
+  { key: "ready", label: "Ready" },
+]
+const PAYMENT_CHIPS = [
+  { key: "all", label: "Any payment" },
+  { key: "unpaid", label: "Unpaid" },
+  { key: "pending", label: "Receipt to check" },
+  { key: "paid", label: "Paid" },
+]
+
 export function AdminOrders() {
   const { can } = useRBAC()
   const [orders, setOrders] = useState([])
@@ -53,7 +67,6 @@ export function AdminOrders() {
   const [rejectReason, setRejectReason] = useState("")
   const [paymentMethod, setPaymentMethod] = useState({})
   const [paymentOptions, setPaymentOptions] = useState([])
-  const [viewLayout, setViewLayout] = useState("card")
   const previousOrders = useRef(new Map())
   const initialized = useRef(false)
   const originalTitle = useRef(document.title)
@@ -76,7 +89,7 @@ export function AdminOrders() {
       if (existing) {
         const mergedLines = [
           ...new Set([
-            ...(alert.lines || []).filter((line) => !line.startsWith("Time:")),
+            ...(existing.lines || []).filter((line) => !line.startsWith("Time:")),
             ...nextLines.filter((line) => !line.startsWith("Time:")),
           ]),
           `Time: ${createdAt}.`,
@@ -212,318 +225,210 @@ export function AdminOrders() {
   const canProcessPayment = can(PERMISSIONS.PAYMENT_PROCESS)
   const canApplyDiscount = can(PERMISSIONS.DISCOUNT_APPLY)
 
-  return (
-    <div>
-      <div className="orders-dashboard-head">
-        <div>
-          <p className="eyebrow">Live queue</p>
-          <h2>Orders</h2>
-          <p className="admin-hint">{visibleOrders.length} active orders</p>
-          {unreadCount ? <p className="admin-hint">{unreadCount} unread admin alert{unreadCount === 1 ? "" : "s"}</p> : null}
-          {loadError ? <p className="form-error">{loadError}</p> : null}
-        </div>
-        <div className="row-actions">
-          {alerts.length ? (
-            <button className="ghost-button" type="button" onClick={() => { setAlerts([]); setUnreadCount(0) }}>
-              Clear alerts
+  // One cash step, used whether the cashier picked cash or the customer did.
+  const cashStep = (order, note) => {
+    const due = order.totalAmount - Number(discountInput[order.id] || 0)
+    return (
+      <>
+        {note ? <p>{note}</p> : null}
+        {canApplyDiscount ? (
+          <label className="oc-discount">
+            Discount ({currentRegion().currency})
+            <input
+              type="number" min="0" step="1" inputMode="numeric"
+              value={discountInput[order.id] || ""}
+              onChange={(e) => setDiscountInput((prev) => ({ ...prev, [order.id]: e.target.value }))}
+              placeholder="0"
+            />
+          </label>
+        ) : null}
+        <button className="oc-main" type="button" onClick={() => processCashPayment(order, discountInput[order.id])}>
+          <Banknote size={18} /> Collect {money(due)}
+        </button>
+      </>
+    )
+  }
+
+  const paymentStep = (order) => {
+    if (!order.paymentMethod) {
+      return (
+        <>
+          <div className="oc-methods" role="group" aria-label="Payment method">
+            <button type="button" className="oc-method" aria-pressed={paymentMethod[order.id] === "cash"}
+              onClick={() => setPaymentMethod((p) => ({ ...p, [order.id]: "cash" }))}>
+              <Banknote size={18} /> Cash
             </button>
+            <button type="button" className="oc-method" aria-pressed={paymentMethod[order.id] === "transfer"}
+              onClick={() => { setPaymentMethod((p) => ({ ...p, [order.id]: "transfer" })); selectTransferMethod(order) }}>
+              <Landmark size={18} /> Transfer
+            </button>
+          </div>
+          {paymentMethod[order.id] === "cash" ? cashStep(order) : null}
+          {paymentMethod[order.id] === "transfer" ? <p>Waiting for the customer to upload their transfer receipt.</p> : null}
+        </>
+      )
+    }
+    if (isCashMethod(order.paymentMethod)) return cashStep(order, `Customer will pay with ${order.paymentMethod}.`)
+    if (order.paymentStatus === "pending" && order.paymentProofUrl && isSafeStorageUrl(order.paymentProofUrl)) {
+      const details = paymentOptions.filter((o) => o.type === order.paymentMethod)
+      return (
+        <>
+          <a href={order.paymentProofUrl} target="_blank" rel="noopener noreferrer" className="oc-proof" aria-label="Open the receipt">
+            <OptimizedImage src={order.paymentProofUrl} alt="Payment receipt" fallbackType="receipt" aspectRatio="4/3" />
+          </a>
+          {details.length ? (
+            <details className="transfer-details">
+              <summary>Account details</summary>
+              <ul>
+                {details.map((opt) => (
+                  <li key={opt.id}>
+                    {opt.name ? <p><strong>{opt.name}</strong></p> : null}
+                    {opt.accountHolder ? <p>Account holder: {opt.accountHolder}</p> : null}
+                    {opt.accountNumber ? <p>Account: {opt.accountNumber}</p> : null}
+                    {opt.instructions ? <p>{opt.instructions}</p> : null}
+                  </li>
+                ))}
+              </ul>
+            </details>
           ) : null}
+          <p>Check {money(order.totalAmount - Number(discountInput[order.id] || 0))} arrived in your bank app, then approve.</p>
+          {canApplyDiscount ? (
+            <label className="oc-discount">
+              Discount ({currentRegion().currency})
+              <input type="number" min="0" step="1" inputMode="numeric" value={discountInput[order.id] || ""} placeholder="0"
+                onChange={(e) => setDiscountInput((prev) => ({ ...prev, [order.id]: e.target.value }))} />
+            </label>
+          ) : null}
+          <div className="oc-actions">
+            <button className="oc-main" type="button" onClick={() => approveTransferProof(order, discountInput[order.id])}>
+              <CheckCircle2 size={18} /> Approve payment
+            </button>
+            <button className="oc-quiet oc-danger" type="button" onClick={() => rejectTransferProof(order)}>
+              <XCircle size={16} /> Reject
+            </button>
+          </div>
+        </>
+      )
+    }
+    if (order.paymentStatus === "rejected") {
+      return (
+        <>
+          <p className="oc-proof-missing">The receipt was rejected. Ask the customer to upload a new one.</p>
+          <button className="oc-quiet" type="button" onClick={() => save(order.id, { paymentStatus: "unpaid" })}>Wait for a new receipt</button>
+        </>
+      )
+    }
+    return <p>Waiting for the customer to upload their transfer receipt.</p>
+  }
+
+  return (
+    <div className="oc-page">
+      <header className="oc-head">
+        <div>
+          <h1>Orders</h1>
+          <p>{visibleOrders.length} open{unreadCount ? ` · ${unreadCount} new alert${unreadCount === 1 ? "" : "s"}` : ""}</p>
         </div>
-      </div>
-      <section className="orders-toolbar">
-        <label className="field search-field">
-          <span>Search orders</span>
-          <div className="input-with-icon">
-            <Search size={18} />
-            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Table, item, status, order ID" />
-          </div>
+        {alerts.length ? (
+          <button className="oc-quiet" type="button" onClick={() => { setAlerts([]); setUnreadCount(0) }}>Clear alerts</button>
+        ) : null}
+      </header>
+      {loadError ? <p className="form-error" role="alert">{loadError}</p> : null}
+
+      <section className="oc-toolbar">
+        <label className="oc-search">
+          <Search size={18} />
+          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Table, item, status, order ID" aria-label="Search orders" />
         </label>
-        <label className="field">
-          <span>Status</span>
-          <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
-            <option value="all">All statuses</option>
-            <option value="inLine">In line</option>
-            <option value="preparing">Preparing</option>
-            <option value="ready">Ready</option>
-            <option value="rejected">Rejected</option>
-          </select>
-        </label>
-        <label className="field">
-          <span>Payment</span>
-          <select value={paymentFilter} onChange={(event) => setPaymentFilter(event.target.value)}>
-            <option value="all">All payments</option>
-            <option value="unpaid">Unpaid</option>
-            <option value="paid">Paid</option>
-          </select>
-        </label>
-        <div className="view-layout-group">
-          <span>View layout</span>
-          <div className="view-layout-toggle">
-            <button
-              className={`icon-button ${viewLayout === "card" ? "active" : ""}`}
-              type="button"
-              onClick={() => setViewLayout("card")}
-              aria-label="Card view"
-            >
-              <LayoutGrid size={18} />
+        <div className="oc-chips" role="group" aria-label="Status">
+          {STATUS_CHIPS.map((chip) => (
+            <button key={chip.key} type="button" className="oc-chip" aria-pressed={statusFilter === chip.key} onClick={() => setStatusFilter(chip.key)}>
+              {chip.label}
             </button>
-            <button
-              className={`icon-button ${viewLayout === "list" ? "active" : ""}`}
-              type="button"
-              onClick={() => setViewLayout("list")}
-              aria-label="List view"
-            >
-              <List size={18} />
+          ))}
+        </div>
+        <div className="oc-chips" role="group" aria-label="Payment">
+          {PAYMENT_CHIPS.map((chip) => (
+            <button key={chip.key} type="button" className="oc-chip" aria-pressed={paymentFilter === chip.key} onClick={() => setPaymentFilter(chip.key)}>
+              {chip.label}
             </button>
-          </div>
+          ))}
         </div>
       </section>
+
       {alerts.length ? (
-        <section className="admin-alerts" aria-live="polite">
+        <section className="oc-alerts" aria-live="polite">
           {alerts.map((alert) => (
-            <article key={alert.id}>
+            <article key={alert.id} className="oc-alert">
               <strong>{alert.title}</strong>
-              <span>{alert.createdAt}</span>
-              {(alert.lines || [alert.message]).map((line) => <p key={line}>{line}</p>)}
+              {(alert.lines || [alert.message]).filter((line) => !line.startsWith("Time:")).map((line) => <p key={line}>{line}</p>)}
             </article>
           ))}
         </section>
       ) : null}
-      <section className={`orders-grid view-${viewLayout}`}>
-        {visibleOrders.length === 0 ? (
-          <div className="empty-state">
-            <Search size={36} strokeWidth={1.5} opacity={0.4} />
-            <p style={{ margin: 0 }}>No active orders match your search or filter.</p>
-            <span style={{ fontSize: "0.86rem", opacity: 0.7 }}>Try adjusting status, payment filter, or search query.</span>
-          </div>
-        ) : null}
-        {visibleOrders.map((order) => (
-          <article
-            className={`order-admin-card compact-order ${order.orderStatus === "rejected" ? "rejected-order-card" : ""} ${!previousOrders.current.has(order.id) ? "new-order" : ""}`}
-            key={order.id}
-          >
-            <div className="order-admin-top">
-              <div>
-                <h3>Table {order.tableNumber}</h3>
-                <p>{formatDateTime(orderCreatedAt(order), { dateStyle: undefined })}</p>
-              </div>
-              <div className="order-top-right">
-                {queue.has(order.id) ? (
-                  <span className="countdown-pill muted-pill">~{queue.get(order.id).waitMinutes} min</span>
-                ) : null}
-                <strong>{money(order.totalAmount)}</strong>
-                <StatusBadge type="payment" value={order.paymentStatus} />
-              </div>
-            </div>
-            <div className="order-status-strip">
-              <StatusBadge value={queue.get(order.id)?.preparing ? "preparing" : order.orderStatus} label={queueStatus(order, queue)} />
-            </div>
-            <ul>
-              {(order.items || []).map((item, index) => (
-                <li className="admin-order-item" key={`${order.id}-${index}`}>
-                  <strong>{item.quantity} x {item.name}</strong>
-                  <p>{formatIngredientSelections(item, "Ingredients", "Removed")}</p>
-                  {formatCustomizations(item.customizations) ? <p>Options: {formatCustomizations(item.customizations)}</p> : null}
-                  {item.notes ? <p>Note: {item.notes}</p> : null}
-                  {item.calories != null ? <span className="calorie-badge">{item.calories} kcal</span> : null}
-                </li>
-              ))}
-            </ul>
-            <PermissionGuard permission={PERMISSIONS.ORDERS_UPDATE}>
-              <div className={`admin-controls ${order.orderStatus === "ready" ? "payment-active" : ""}`}>
-                {["received", "preparing"].includes(order.orderStatus) ? (
-                  <div className="admin-action-row">
-                    <button type="button" className="primary-button compact-btn" onClick={() => changeOrderStatus(order, "ready")}>
-                      <CheckCircle2 size={16} /> Done
-                    </button>
-                    <button type="button" className="danger-button reject-btn" onClick={() => changeOrderStatus(order, "rejected")}>
-                      Reject
-                    </button>
+
+      {visibleOrders.length === 0 ? (
+        <div className="oc-empty">
+          <Search size={32} strokeWidth={1.5} />
+          <strong>No open orders here</strong>
+          <p>New orders appear automatically. Try another filter or clear the search.</p>
+        </div>
+      ) : (
+        <section className="oc-grid">
+          {visibleOrders.map((order) => {
+            const q = queue.get(order.id)
+            const showPayment = (order.orderStatus === "ready" || isCashMethod(order.paymentMethod)) && canProcessPayment && order.paymentStatus !== "paid"
+            return (
+              <article className="oc-card" key={order.id}>
+                <div className="oc-card-top">
+                  <div>
+                    <h3 className="oc-table">Table {order.tableNumber}</h3>
+                    <p className="oc-meta">{formatDateTime(orderCreatedAt(order), { dateStyle: undefined })} · #{String(order.id).slice(-6)}</p>
                   </div>
-                ) : null}
-                {(order.orderStatus === "ready" || isCashMethod(order.paymentMethod)) && canProcessPayment && order.paymentStatus !== "paid" ? (
-                  <div className="payment-process-panel">
-                    {!order.paymentMethod ? (
-                      <>
-                        <div className="payment-method-select">
-                          <span>Select payment method</span>
-                          <div className="payment-method-options">
-                            <label className={`method-option ${paymentMethod[order.id] === "cash" ? "selected" : ""}`}>
-                              <input
-                                type="radio"
-                                name={`pm-${order.id}`}
-                                value="cash"
-                                checked={paymentMethod[order.id] === "cash"}
-                                onChange={() => setPaymentMethod((p) => ({ ...p, [order.id]: "cash" }))}
-                              />
-                              <Banknote size={18} />
-                              <span>Cash</span>
-                            </label>
-                            <label className={`method-option ${paymentMethod[order.id] === "transfer" ? "selected" : ""}`}>
-                              <input
-                                type="radio"
-                                name={`pm-${order.id}`}
-                                value="transfer"
-                                checked={paymentMethod[order.id] === "transfer"}
-                                onChange={() => {
-                                  setPaymentMethod((p) => ({ ...p, [order.id]: "transfer" }))
-                                  selectTransferMethod(order)
-                                }}
-                              />
-                              <Landmark size={18} />
-                              <span>Transfer</span>
-                            </label>
-                          </div>
-                        </div>
-                        {paymentMethod[order.id] === "cash" ? (
-                          <div className="cash-payment-section">
-                            <p className="payment-instruction">
-                              Collect <strong>{money(order.totalAmount - Number(discountInput[order.id] || 0))}</strong> from customer.
-                            </p>
-                            {canApplyDiscount ? (
-                              <label className="field compact discount-field">
-                                <span>Discount ({currentRegion().currency})</span>
-                                <input
-                                  type="number" min="0" step="1"
-                                  value={discountInput[order.id] || ""}
-                                  onChange={(e) => setDiscountInput((prev) => ({ ...prev, [order.id]: e.target.value }))}
-                                  placeholder="0"
-                                />
-                              </label>
-                            ) : null}
-                            <button
-                              className="primary-button"
-                              type="button"
-                              onClick={() => processCashPayment(order, discountInput[order.id])}
-                            >
-                              Confirm Cash — Collect {money(order.totalAmount - Number(discountInput[order.id] || 0))}
-                            </button>
-                          </div>
-                        ) : null}
-                        {paymentMethod[order.id] === "transfer" ? (
-                          <p className="payment-instruction">
-                            Customer notified to transfer. Awaiting proof upload.
-                          </p>
-                        ) : null}
-                      </>
-                    ) : !isCashMethod(order.paymentMethod) && order.paymentStatus === "pending" && order.paymentProofUrl && isSafeStorageUrl(order.paymentProofUrl) ? (
-                      <div className="transfer-proof-section">
-                        <p className="eyebrow">Payment proof uploaded</p>
-                        <a href={order.paymentProofUrl} target="_blank" rel="noopener noreferrer" className="proof-thumb">
-                          <OptimizedImage
-                            src={order.paymentProofUrl}
-                            alt="Payment proof"
-                            fallbackType="receipt"
-                            aspectRatio="4/3"
-                            style={{ maxWidth: 200, maxHeight: 120, borderRadius: 6 }}
-                          />
-                        </a>
-                        {(() => {
-                          const matched = paymentOptions.filter((o) => o.type === order.paymentMethod)
-                          return matched.length ? (
-                            <details className="transfer-details">
-                              <summary>Show payment details</summary>
-                              <ul>
-                                {matched.map((opt) => (
-                                  <li key={opt.id}>
-                                    {opt.name ? <p><strong>{opt.name}</strong></p> : null}
-                                    {opt.accountHolder ? <p>Account holder: {opt.accountHolder}</p> : null}
-                                    {opt.accountNumber ? <p>Account: {opt.accountNumber}</p> : null}
-                                    {opt.instructions ? <p>{opt.instructions}</p> : null}
-                                  </li>
-                                ))}
-                              </ul>
-                            </details>
-                          ) : null
-                        })()}
-                        <p>Verify the transfer in your banking app, then approve or reject:</p>
-                        <strong>{money(order.totalAmount - Number(discountInput[order.id] || 0))}</strong>
-                        {canApplyDiscount ? (
-                          <label className="field compact discount-field">
-                            <span>Discount ({currentRegion().currency})</span>
-                            <input
-                              type="number" min="0" step="1"
-                              value={discountInput[order.id] || ""}
-                              onChange={(e) => setDiscountInput((prev) => ({ ...prev, [order.id]: e.target.value }))}
-                              placeholder="0"
-                            />
-                          </label>
-                        ) : null}
-                        <div className="proof-actions">
-                          <button className="primary-button" type="button" onClick={() => approveTransferProof(order, discountInput[order.id])}>
-                            <CheckCircle2 size={16} /> Approve
-                          </button>
-                          <button className="danger-button" type="button" onClick={() => rejectTransferProof(order)}>
-                            <XCircle size={16} /> Reject
-                          </button>
-                        </div>
-                      </div>
-                    ) : !isCashMethod(order.paymentMethod) && order.paymentStatus === "unpaid" ? (
-                      <p className="payment-instruction">Waiting for customer to upload transfer proof...</p>
-                    ) : !isCashMethod(order.paymentMethod) && order.paymentStatus === "rejected" ? (
-                      <div className="transfer-proof-section">
-                        <p className="form-error">Payment proof was rejected. Ask customer to re-upload.</p>
-                        <button
-                          className="ghost-button" type="button"
-                          onClick={() => updateStaffOrder(order.id, { paymentStatus: "unpaid" })}
-                        >
-                          Reset to awaiting proof
-                        </button>
-                      </div>
-                    ) : isCashMethod(order.paymentMethod) ? (
-                      <div className="cash-payment-section">
-                        <p className="payment-instruction">
-                          Customer chose <strong>{order.paymentMethod}</strong>
-                        </p>
-                        <p className="payment-instruction">
-                          Collect <strong>{money(order.totalAmount - Number(discountInput[order.id] || 0))}</strong> from customer.
-                        </p>
-                        {canApplyDiscount ? (
-                          <label className="field compact discount-field">
-                            <span>Discount ({currentRegion().currency})</span>
-                            <input
-                              type="number" min="0" step="1"
-                              value={discountInput[order.id] || ""}
-                              onChange={(e) => setDiscountInput((prev) => ({ ...prev, [order.id]: e.target.value }))}
-                              placeholder="0"
-                            />
-                          </label>
-                        ) : null}
-                        <button className="primary-button" type="button" onClick={() => processCashPayment(order, discountInput[order.id])}>
-                          Confirm Cash — Collect {money(order.totalAmount - Number(discountInput[order.id] || 0))}
-                        </button>
-                      </div>
-                    ) : null}
-                  </div>
-                ) : null}
-              </div>
-            </PermissionGuard>
-          </article>
-        ))}
-      </section>
+                  <span className="oc-total">{money(order.totalAmount)}</span>
+                </div>
+                <div className="oc-status">
+                  <StatusBadge value={q?.preparing ? "preparing" : order.orderStatus} label={queueStatus(order, queue)} />
+                  <StatusBadge type="payment" value={order.paymentStatus} />
+                  {q ? <span>about {q.waitMinutes} min</span> : null}
+                </div>
+                <OrderItemList items={order.items} />
+                <PermissionGuard permission={PERMISSIONS.ORDERS_UPDATE}>
+                  {["received", "accepted", "preparing"].includes(order.orderStatus) ? (
+                    <div className="oc-actions">
+                      <button type="button" className="oc-main" onClick={() => changeOrderStatus(order, "ready")}>
+                        <CheckCircle2 size={18} /> Done
+                      </button>
+                      <button type="button" className="oc-quiet oc-danger" onClick={() => changeOrderStatus(order, "rejected")}>
+                        Reject
+                      </button>
+                    </div>
+                  ) : null}
+                  {showPayment ? (
+                    <section className="oc-pay" aria-label="Payment">
+                      <p className="oc-pay-title">Payment</p>
+                      {paymentStep(order)}
+                    </section>
+                  ) : null}
+                </PermissionGuard>
+              </article>
+            )
+          })}
+        </section>
+      )}
 
       {rejectTarget ? (
-        <div className="modal-shell" role="dialog" aria-modal="true">
-          <form className="admin-form admin-edit-modal" onSubmit={(e) => { e.preventDefault(); confirmReject() }}>
-            <button className="icon-button modal-close" type="button" onClick={() => setRejectTarget(null)}>
-              <X size={20} />
-            </button>
-            <h2>Reject Order</h2>
-            <label className="field">
-              <span>Reason (optional)</span>
-              <textarea
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                placeholder="e.g. Out of stock, kitchen closed..."
-                rows={3}
-              />
+        <Modal title={`Reject Table ${rejectTarget.tableNumber}'s order?`} className="confirm-dialog" onClose={() => setRejectTarget(null)}>
+          <form className="oc-dialog-form" onSubmit={(e) => { e.preventDefault(); confirmReject() }}>
+            <label>
+              Reason (optional)
+              <textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} placeholder="e.g. Out of stock, kitchen closed" rows={3} />
             </label>
             <div className="row-actions">
               <button className="danger-button" type="submit">Reject Order</button>
               <button className="ghost-button" type="button" onClick={() => setRejectTarget(null)}>Cancel</button>
             </div>
           </form>
-        </div>
+        </Modal>
       ) : null}
     </div>
   )

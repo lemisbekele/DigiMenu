@@ -23,6 +23,7 @@ vi.mock("../services/dataService", () => ({
   fetchKitchenCapacity: vi.fn(() => Promise.resolve(2)),
   sendPushToCustomer: vi.fn(),
   formatCustomizations: vi.fn(() => ""),
+  itemChanges: vi.fn(() => []),
   formatIngredientSelections: vi.fn((item) => `Ingredients: ${(item.ingredients || []).join(", ") || "None"}`),
   money: vi.fn((value) => `ETB ${Number(value || 0).toFixed(2)}`),
   observeOrders: vi.fn((callback) => {

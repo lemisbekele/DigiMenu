@@ -267,6 +267,15 @@ export function ingredientSelectionDetails(item) {
   return { allIngredients, selectedIngredients, removedIngredients }
 }
 
+// What the customer changed on an item, for staff screens: "No onion", "Milk Option: Oat Milk".
+export function itemChanges(item) {
+  const removed = ingredientSelectionDetails(item).removedIngredients
+  const options = Object.entries(item.customizations || {})
+    .filter(([label, picks]) => label !== "Ingredients" && Array.isArray(picks) && picks.length)
+    .map(([label, picks]) => `${label}: ${picks.map((p) => p.name).join(", ")}`)
+  return [removed.length ? `No ${removed.join(", ")}` : "", ...options].filter(Boolean)
+}
+
 export function formatIngredientSelections(item, ingredientsLabel = "Ingredients", removedLabel = "Removed") {
   const { allIngredients, selectedIngredients, removedIngredients } = ingredientSelectionDetails(item)
   if (!allIngredients.length) return `${ingredientsLabel}: None`

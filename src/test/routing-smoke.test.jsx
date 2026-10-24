@@ -268,7 +268,7 @@ describe("routing smoke test", () => {
   it("opens POS for cashier", async () => {
     signInAs("cashier")
     await renderApp("/abyssinia-roast/pos")
-    expect(await screen.findByText("Cashier Dashboard", {}, { timeout: 10000 })).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Payments", level: 1 }, { timeout: 10000 })).toBeInTheDocument()
   })
 
   it("opens dashboard for admin", async () => {
@@ -424,7 +424,7 @@ describe("routing smoke test", () => {
     expect(window.location.pathname).toBe("/test-coffee-2/admin/login")
     expect(mockAuth.user).toBeNull()
     expect(screen.queryByText("Platform Overview")).not.toBeInTheDocument()
-    expect(screen.queryByText("Cashier Dashboard")).not.toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: "Payments", level: 1 })).not.toBeInTheDocument()
   }, 20000)
 
   it("sends a signed-in superadmin from a cafe admin area to the platform dashboard", async () => {
@@ -435,7 +435,7 @@ describe("routing smoke test", () => {
     // must never open a cafe staff/admin area for a superadmin — it bounces
     // them to their own console instead.
     expect(await screen.findByText("Platform Overview", {}, { timeout: 10000 })).toBeInTheDocument()
-    expect(screen.queryByText("Cashier Dashboard")).not.toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: "Payments", level: 1 })).not.toBeInTheDocument()
   })
 
   it("blocks a signed-in cafe admin from the platform dashboard", async () => {

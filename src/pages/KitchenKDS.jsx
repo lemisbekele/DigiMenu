@@ -5,7 +5,7 @@ import { useCafeSlug } from "../hooks/useCafeSlug"
 import { useKitchenQueue } from "../hooks/useKitchenQueue"
 import { beep, newOrderIds, soundReady, unlockSound } from "../services/kitchenAlerts"
 import {
-  ingredientSelectionDetails,
+  itemChanges,
   observeOrders,
   sendPushToCustomer,
   updateStaffOrder,
@@ -73,12 +73,7 @@ function Ticket({ order, now, position, station, onDone }) {
         {(order.items || []).map((item, i) => {
           const drink = isDrink(item)
           const dimmed = (station === "food" && drink) || (station === "drinks" && !drink)
-          // Kitchens only need what changed: removed ingredients and chosen options.
-          const removed = ingredientSelectionDetails(item).removedIngredients
-          const options = Object.entries(item.customizations || {})
-            .filter(([label, picks]) => label !== "Ingredients" && Array.isArray(picks) && picks.length)
-            .map(([label, picks]) => `${label}: ${picks.map((p) => p.name).join(", ")}`)
-          const extras = [removed.length ? `No ${removed.join(", ")}` : "", ...options].filter(Boolean)
+          const extras = itemChanges(item)
           return (
             <li key={i} className={dimmed ? "kq-dim" : ""}>
               <span className="kq-qty">{item.quantity || 1}×</span>
