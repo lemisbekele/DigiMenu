@@ -2,14 +2,19 @@ import { toUserMessage } from "../services/userMessages"
 import { useConfirm } from "../hooks/useConfirm"
 import { useEffect, useState } from "react"
 import {
-  Banknote, Check, Landmark, Loader2, LogOut, Pencil,
-  Plus, ShieldCheck, Smartphone, Trash2, X,
+  Banknote, Check, Landmark, Loader2, Pencil,
+  Plus, Smartphone, Trash2,
 } from "lucide-react"
 import { LogoutButton } from "../components/LogoutButton"
+import { Modal } from "../components/Modal"
+import { DEFAULT_KITCHEN_CAPACITY } from "../services/kitchenQueue"
+import "./staff.css"
 import { RegionalSettings } from "../components/RegionalSettings"
 import { useAuth } from "../context/authContextValue"
 import {
   deletePaymentOption,
+  fetchKitchenCapacity,
+  saveKitchenCapacity,
   observePaymentOptions,
   savePaymentOption,
 } from "../services/dataService"
@@ -41,6 +46,7 @@ export function AdminSettings() {
   const [saveSuccess, setSaveSuccess] = useState("")
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [formOpen, setFormOpen] = useState(false)
 
   useEffect(() => {
     return observePaymentOptions((data) => {
@@ -56,8 +62,7 @@ export function AdminSettings() {
     setForm(option)
     setSaveError("")
     setSaveSuccess("")
-    // Bring the form into view on small screens where it stacks below.
-    document.getElementById("payment-form")?.scrollIntoView({ behavior: "smooth", block: "start" })
+    setFormOpen(true)
   }
 
   const resetForm = () => {
@@ -75,7 +80,8 @@ export function AdminSettings() {
     try {
       await savePaymentOption(form)
       setForm(blankPayment)
-      setSaveSuccess(wasEdit ? "Payment option updated." : "Payment option added.")
+      setFormOpen(false)
+      setSaveSuccess(wasEdit ? "Payment method updated." : "Payment method added.")
     } catch (error) {
       setSaveError(toUserMessage(error, "Payment option could not be saved."))
     } finally {
@@ -87,7 +93,7 @@ export function AdminSettings() {
     if (!(await confirm("Customers will no longer see it at checkout.", { title: "Remove payment option?", confirmLabel: "Remove" }))) return
     try {
       await deletePaymentOption(id)
-      setSaveSuccess("Payment option removed.")
+      setSaveSuccess("Payment method removed.")
       if (form.id === id) resetForm()
     } catch (err) {
       setSaveError(toUserMessage(err, "Could not delete payment option."))
@@ -97,172 +103,157 @@ export function AdminSettings() {
   const activeCount = paymentOptions.filter((o) => o.active).length
 
   return (
-    <div className="admin-stack settings-page">
+    <div className="oc-page">
       {confirmDialog}
-      <div className="admin-head settings-head">
+      <header className="oc-head">
         <div>
-          <p className="eyebrow">Customer payment</p>
-          <h2>Settings</h2>
-          <p className="admin-hint">
-            Manage checkout payment methods and your account security.
-          </p>
+          <h1>Settings</h1>
+          <p>Region, payments, kitchen and your account.</p>
         </div>
-        {loading ? null : (
-          <span className="settings-count" title={`${activeCount} visible to customers`}>
-            {activeCount}/{paymentOptions.length} active
-          </span>
-        )}
-      </div>
+      </header>
 
-      <RegionalSettings />
-      <div className="settings-grid admin-grid">
-        {/* ---------- Configured payment methods ---------- */}
-        <section className="settings-panel settings-list-panel" aria-label="Configured payment options">
-          <div className="settings-section-head">
+      <div className="ad-stack">
+        <RegionalSettings />
+
+        <section className="ad-section" aria-labelledby="payments-heading">
+          <div className="ad-section-head">
             <div>
-              <p className="eyebrow">Checkout</p>
-              <h3>Payment options</h3>
+              <h2 id="payments-heading">Payment methods</h2>
+              <p>{loading ? "Loading…" : `${activeCount} of ${paymentOptions.length} shown to customers at checkout.`}</p>
             </div>
-            {!loading ? <span className="settings-count">{paymentOptions.length}</span> : null}
+            <button className="oc-head-action" type="button" onClick={() => { resetForm(); setSaveSuccess(""); setFormOpen(true) }}>
+              <Plus size={18} /> Add method
+            </button>
           </div>
-
-          {saveSuccess && !saveError ? <p className="success-note settings-note">{saveSuccess}</p> : null}
-          {loadError ? <p className="form-error">{loadError}</p> : null}
-
+          {saveSuccess && !saveError ? <p className="ad-success" role="status">{saveSuccess}</p> : null}
+          {loadError ? <p className="form-error" role="alert">{loadError}</p> : null}
+          {saveError && !formOpen ? <p className="form-error" role="alert">{saveError}</p> : null}
           {loading ? (
-            <div className="empty-state">
-              <Loader2 size={24} className="spin" />
-              <p>Loading payment options…</p>
-            </div>
+            <p className="ad-row-sub"><Loader2 size={16} className="spin" /> Loading payment methods…</p>
           ) : paymentOptions.length === 0 ? (
-            <div className="empty-state settings-empty-state">
-              <Landmark size={28} style={{ opacity: 0.35 }} />
-              <p style={{ margin: 0 }}>No payment options configured yet.</p>
-              <span style={{ fontSize: "0.86rem", opacity: 0.7 }}>
-                Add one with the form — customers see it at checkout instantly.
-              </span>
+            <div className="oc-empty">
+              <Landmark size={28} strokeWidth={1.5} />
+              <strong>No payment methods yet</strong>
+              <p>Customers can still pay cash. Add a bank or mobile wallet to accept transfers.</p>
             </div>
           ) : (
-            <ul className="settings-option-list" role="list">
+            <div className="ad-list">
               {paymentOptions.map((option) => (
-                <li key={option.id}>
-                  <article
-                    className={`payment-option-row settings-payment-card${form.id === option.id ? " is-editing" : ""}`}
-                  >
-                    <div className="settings-payment-main">
-                      <span className={`settings-type-icon ${option.active ? "" : "muted"}`} aria-hidden="true">
-                        <PaymentTypeIcon type={option.type} />
-                      </span>
-                      <div className="settings-payment-info">
-                        <h3>
-                          {option.name || option.type}
-                          <span className={`badge ${option.active ? "approved" : "pending"}`}>
-                            {option.active ? "active" : "hidden"}
-                          </span>
-                        </h3>
-                        <p>{option.type}{option.accountNumber ? ` · ${option.accountNumber}` : ""}</p>
-                        {option.accountHolder ? <p>{option.accountHolder}</p> : null}
-                        {option.instructions ? <p className="settings-instructions">{option.instructions}</p> : null}
-                      </div>
-                    </div>
-                    <div className="row-actions settings-row-actions">
-                      <button
-                        className="settings-edit-button"
-                        type="button"
-                        onClick={() => (form.id === option.id ? resetForm() : startEdit(option))}
-                        aria-label={`${form.id === option.id ? "Cancel editing" : "Edit"} ${option.name || option.type}`}
-                        aria-pressed={form.id === option.id}
-                      >
-                        {form.id === option.id ? (<><X size={14} /> Cancel</>) : (<><Pencil size={14} /> Edit</>)}
-                      </button>
-                      <button
-                        className="icon-button danger"
-                        type="button"
-                        onClick={() => handleDelete(option.id)}
-                        aria-label={`Delete ${option.name || option.type}`}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </article>
-                </li>
+                <article key={option.id} className={`ad-row${option.active ? "" : " is-muted"}`}>
+                  <span className="ad-thumb" style={{ display: "grid", placeItems: "center", width: 44, height: 44 }} aria-hidden="true">
+                    <PaymentTypeIcon type={option.type} />
+                  </span>
+                  <div className="ad-row-main">
+                    <h3 className="ad-row-title">
+                      {option.name || option.type}
+                      {option.active ? null : <span className="badge pending" style={{ marginLeft: 8 }}>Hidden</span>}
+                    </h3>
+                    <p className="ad-row-sub">
+                      {option.type}{option.accountNumber ? ` · ${option.accountNumber}` : ""}{option.accountHolder ? ` · ${option.accountHolder}` : ""}
+                    </p>
+                  </div>
+                  <div className="ad-row-actions">
+                    <button className="ad-icon" type="button" onClick={() => startEdit(option)} aria-label={`Edit ${option.name || option.type}`} title="Edit">
+                      <Pencil size={18} />
+                    </button>
+                    <button className="ad-icon oc-danger" type="button" onClick={() => handleDelete(option.id)} aria-label={`Delete ${option.name || option.type}`} title="Delete">
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </article>
               ))}
-            </ul>
+            </div>
           )}
         </section>
 
-        {/* ---------- Side column ---------- */}
-        <div className="settings-side">
-          <form
-            id="payment-form"
-            className="admin-form settings-panel settings-form-panel"
-            onSubmit={submit}
-          >
-            <div className="settings-form-heading">
-              <div>
-                <p className="eyebrow">{form.id ? "Editing method" : "New method"}</p>
-                <h2>{form.id ? form.name || "Edit payment option" : "Add payment option"}</h2>
-              </div>
-              {form.id ? <span className="settings-editing-badge"><Pencil size={13} /> Editing</span> : null}
-            </div>
-            <p className="settings-form-context">
-              {form.id ? "Update this payment option, then save your changes." : "Add a payment method customers can use at checkout."}
-            </p>
+        <KitchenQueueSection />
 
-            <div className="two-col">
-              <label className="field">
-                <span>Type</span>
+        <section className="ad-section" aria-labelledby="account-heading">
+          <div className="ad-section-head">
+            <div>
+              <h2 id="account-heading">Your account</h2>
+              <p>Change your password or sign out of this device.</p>
+            </div>
+            <LogoutButton />
+          </div>
+          <ChangePasswordSection />
+        </section>
+      </div>
+
+      {formOpen ? (
+        <Modal title={form.id ? `Edit ${form.name || "payment method"}` : "Add a payment method"} busy={saving} onClose={() => { setFormOpen(false); resetForm() }}>
+          <form className="ad-form" onSubmit={submit}>
+            <div className="ad-fields">
+              <label className="ad-field">
+                Type
                 <input maxLength={80} list="payment-types" value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value })} placeholder="Bank, Telebirr, Cash" required />
               </label>
-              <label className="field">
-                <span>Customer-facing name *</span>
+              <label className="ad-field">
+                Name customers see
                 <input maxLength={120} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="e.g. CBE Business" required />
               </label>
             </div>
-            <label className="field">
-              <span>Account / phone number</span>
+            <label className="ad-field">
+              Account or phone number
               <input value={form.accountNumber} onChange={(event) => setForm({ ...form, accountNumber: event.target.value })} required={!/cash/i.test(form.type)} maxLength={80} />
-              <small className="form-help">Required for bank transfers and mobile wallets; optional for cash.</small>
+              <small>Needed for bank transfers and mobile wallets.</small>
             </label>
-            <label className="field">
-              <span>Account holder</span>
+            <label className="ad-field">
+              Account holder
               <input value={form.accountHolder} onChange={(event) => setForm({ ...form, accountHolder: event.target.value })} maxLength={120} required={!/cash/i.test(form.type)} />
             </label>
-            <label className="field">
-              <span>Instructions</span>
-              <textarea rows="3" maxLength={500} value={form.instructions || ""} onChange={(event) => setForm({ ...form, instructions: event.target.value })} placeholder="Shown to customers before they transfer" />
+            <label className="ad-field">
+              Instructions for customers
+              <textarea rows="3" maxLength={500} value={form.instructions || ""} onChange={(event) => setForm({ ...form, instructions: event.target.value })} placeholder="Shown before they transfer" />
             </label>
-            <label className="auto-ready-toggle">
+            <label className="ad-switch">
               <input type="checkbox" checked={Boolean(form.active)} onChange={(event) => setForm({ ...form, active: event.target.checked })} />
-              <span>Show to customers</span>
+              <span aria-hidden="true" />
+              Show at checkout
             </label>
-
             <datalist id="payment-types"><option value="Bank" /><option value="Mobile wallet" /><option value="Cash" /></datalist>
-            <div className="settings-form-actions">
-              {form.id ? (
-                <button className="ghost-button" type="button" onClick={resetForm} disabled={saving}>
-                  Cancel
-                </button>
-              ) : null}
+            {saveError ? <p className="form-error" role="alert">{saveError}</p> : null}
+            <div className="row-actions">
               <button className="primary-button" type="submit" disabled={saving}>
                 {saving ? <Loader2 size={16} className="spin" /> : form.id ? <Check size={16} /> : <Plus size={16} />}
-                {saving ? "Saving…" : form.id ? "Save changes" : "Add option"}
+                {saving ? "Saving…" : form.id ? "Save changes" : "Add method"}
               </button>
+              <button className="ghost-button" type="button" onClick={() => { setFormOpen(false); resetForm() }} disabled={saving}>Cancel</button>
             </div>
-            {saveError ? <p className="form-error">{saveError}</p> : null}
           </form>
-
-          <ChangePasswordSection />
-
-          <section className="settings-panel settings-session-panel">
-            <p className="eyebrow"><LogOut size={13} style={{ verticalAlign: -1 }} /> Session</p>
-            <h2>Account access</h2>
-            <p className="admin-hint">Sign out securely from this device when you are finished.</p>
-            <LogoutButton />
-          </section>
-        </div>
-      </div>
+        </Modal>
+      ) : null}
     </div>
+  )
+}
+
+// Same per-cafe setting as the kitchen settings page, so owners can find it here too.
+function KitchenQueueSection() {
+  const [capacity, setCapacity] = useState(DEFAULT_KITCHEN_CAPACITY)
+  const [note, setNote] = useState(null)
+  useEffect(() => { fetchKitchenCapacity().then(setCapacity).catch(() => {}) }, [])
+  const change = async (value) => {
+    setCapacity(value)
+    try {
+      await saveKitchenCapacity(value)
+      setNote({ ok: true, text: "Saved." })
+    } catch (err) {
+      setNote({ ok: false, text: toUserMessage(err, "Could not save this setting.") })
+    }
+  }
+  return (
+    <section className="ad-section" aria-labelledby="kitchen-heading">
+      <div className="ad-section-head">
+        <div>
+          <h2 id="kitchen-heading">Kitchen</h2>
+          <p>How many orders the kitchen makes at once. The oldest this many show as Preparing; customers' wait times use it.</p>
+        </div>
+        <select className="ad-select" value={capacity} onChange={(e) => change(Number(e.target.value))} aria-label="Orders in progress at once">
+          {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => <option key={n} value={n}>{n} at once</option>)}
+        </select>
+      </div>
+      {note ? <p className={note.ok ? "ad-success" : "form-error"} role={note.ok ? "status" : "alert"}>{note.text}</p> : null}
+    </section>
   )
 }
 
@@ -316,47 +307,27 @@ function ChangePasswordSection() {
   }
 
   return (
-    <form className="admin-form settings-panel settings-security-panel" onSubmit={handlePasswordSubmit}>
-      <p className="eyebrow"><ShieldCheck size={13} style={{ verticalAlign: -1 }} /> Security</p>
-      <h2>Change password</h2>
-      <label className="field">
-        <span>Current password</span>
-        <input
-          type="password"
-          required
-          autoComplete="current-password"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          placeholder="Enter current password"
-        />
-      </label>
-      <label className="field">
-        <span>New password</span>
-        <input
-          type="password"
-          required
-          autoComplete="new-password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          placeholder="At least 6 chars (1 uppercase, 1 number/symbol)"
-        />
-      </label>
-      <label className="field">
-        <span>Confirm new password</span>
-        <input
-          type="password"
-          required
-          autoComplete="new-password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          placeholder="Re-enter new password"
-        />
-      </label>
-      <button className="primary-button" type="submit" disabled={loading}>
-        {loading ? "Updating…" : "Update password"}
-      </button>
-      {error ? <p className="form-error">{error}</p> : null}
-      {success ? <p className="success-note" style={{ fontSize: "0.85rem" }}>{success}</p> : null}
+    <form className="ad-form" onSubmit={handlePasswordSubmit} aria-label="Change password">
+      <div className="ad-fields">
+        <label className="ad-field">
+          Current password
+          <input type="password" required autoComplete="current-password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
+        </label>
+        <label className="ad-field">
+          New password
+          <input type="password" required autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+          <small>6+ characters, 1 capital, 1 number or symbol.</small>
+        </label>
+        <label className="ad-field">
+          Repeat new password
+          <input type="password" required autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+        </label>
+      </div>
+      {error ? <p className="form-error" role="alert">{error}</p> : null}
+      {success ? <p className="ad-success" role="status">{success}</p> : null}
+      <div>
+        <button className="oc-quiet" type="submit" disabled={loading}>{loading ? "Updating…" : "Change password"}</button>
+      </div>
     </form>
   )
 }

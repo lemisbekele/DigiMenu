@@ -1,4 +1,4 @@
-/* Orders and Payments screens (AdminOrders.jsx, CashierDashboard.jsx). Theme values only — docs/design-guide.md. */
+/* Shared staff screen styles: Orders, Payments, Menu, Tables, Team, Settings. Theme values only — docs/design-guide.md. */
 .oc-page { display: flex; flex-direction: column; gap: var(--space-4); color: var(--text); }
 
 .oc-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-3); }
@@ -91,6 +91,7 @@
   font-weight: var(--weight-bold);
   cursor: pointer;
 }
+.oc-main { white-space: nowrap; min-width: max-content; }
 .oc-main:hover:not(:disabled) { background: var(--brand-hover); }
 .oc-main:disabled { opacity: 0.6; cursor: wait; }
 .oc-quiet {
@@ -180,4 +181,106 @@
 @media (max-width: 640px) {
   .oc-grid { grid-template-columns: 1fr; }
   .oc-head h1 { font-size: var(--text-lg); }
+}
+
+/* ---------- Admin screens: Menu, Tables, Team, Settings ---------- */
+.oc-head-action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap);
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--brand);
+  color: var(--on-brand);
+  font: inherit;
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+}
+.oc-head-action:hover:not(:disabled) { background: var(--brand-hover); }
+.oc-head-action:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Sections: a titled card that groups one job. */
+.ad-section { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-5); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+.ad-section-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--space-3); }
+.ad-section-head h2 { margin: 0; font-size: var(--text-lg); font-weight: var(--weight-bold); }
+.ad-section-head p { margin: var(--space-1) 0 0; color: var(--muted); font-size: var(--text-sm); }
+.ad-stack { display: flex; flex-direction: column; gap: var(--space-4); max-width: 880px; }
+
+/* List rows: media, text, actions. */
+.ad-list { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); overflow: hidden; }
+.ad-row { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-top: 1px solid var(--border-soft); }
+.ad-row:first-child { border-top: 0; }
+.ad-row.is-muted { opacity: 0.6; }
+.ad-thumb { flex: none; width: 56px; height: 56px; overflow: hidden; border-radius: var(--radius-sm); background: var(--surface-2); }
+.ad-row-main { flex: 1; min-width: 0; }
+.ad-row-title { margin: 0; font-size: var(--text-md); font-weight: var(--weight-bold); overflow-wrap: anywhere; }
+.ad-row-sub { margin: 2px 0 0; color: var(--muted); font-size: var(--text-sm); overflow-wrap: anywhere; }
+.ad-row-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-2); }
+.ad-icon {
+  display: inline-grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-2);
+  cursor: pointer;
+}
+.ad-icon:hover { color: var(--text); border-color: var(--border-strong); }
+.ad-icon.oc-danger { color: var(--danger); }
+.ad-icon:focus-visible, .oc-head-action:focus-visible, .ad-switch input:focus-visible + span { outline: 3px solid var(--brand-bright); outline-offset: 2px; }
+
+/* On/off switch with a visible label. */
+.ad-switch { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--tap); color: var(--text-2); font-size: var(--text-sm); font-weight: var(--weight-bold); cursor: pointer; }
+.ad-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.ad-switch span { position: relative; width: 40px; height: 24px; border-radius: 999px; background: var(--border-strong); transition: background 0.15s; }
+.ad-switch span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow-sm); transition: transform 0.15s; }
+.ad-switch input:checked + span { background: var(--brand); }
+.ad-switch input:checked + span::after { transform: translateX(16px); }
+@media (prefers-reduced-motion: reduce) { .ad-switch span, .ad-switch span::after { transition: none; } }
+
+/* Forms. */
+.ad-form { display: flex; flex-direction: column; gap: var(--space-3); }
+.ad-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3); }
+.ad-field { display: grid; gap: var(--space-1); color: var(--text-2); font-size: var(--text-sm); font-weight: var(--weight-bold); }
+.ad-field input, .ad-field select, .ad-field textarea, .ad-select {
+  min-height: var(--tap);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: var(--weight-regular);
+}
+.ad-field textarea { min-height: 90px; padding: var(--space-2) var(--space-3); }
+.ad-field input:focus, .ad-field select:focus, .ad-field textarea:focus, .ad-select:focus { outline: 3px solid var(--brand-soft); border-color: var(--brand); }
+.ad-field small { color: var(--muted); font-weight: var(--weight-regular); }
+.ad-success { margin: 0; padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--success-bg); color: var(--success); font-size: var(--text-sm); font-weight: var(--weight-bold); }
+
+/* Team seat bar. */
+.ad-seats { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+.ad-seats-bar { flex: 1 1 160px; height: 8px; border-radius: 999px; background: var(--surface-3); overflow: hidden; }
+.ad-seats-bar span { display: block; height: 100%; border-radius: inherit; background: var(--brand); }
+.ad-seats.is-full .ad-seats-bar span { background: var(--warning); }
+.ad-seats p { margin: 0; color: var(--text-2); font-size: var(--text-sm); }
+
+/* Tables: QR cards. */
+.ad-qr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--space-4); }
+.ad-qr-card { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+.ad-qr-card h3 { margin: 0; font-size: var(--text-lg); font-weight: var(--weight-bold); }
+.ad-qr-code { display: grid; place-items: center; padding: var(--space-3); border-radius: var(--radius-sm); background: #fff; } /* QR must stay black on white to scan */
+.ad-qr-code svg { width: 100%; max-width: 200px; height: auto; }
+.ad-qr-url { margin: 0; color: var(--muted); font-size: var(--text-sm); overflow-wrap: anywhere; }
+.ad-qr-card .oc-actions { flex-wrap: wrap; }
+.ad-qr-card details summary { color: var(--text-2); font-size: var(--text-sm); font-weight: var(--weight-bold); cursor: pointer; }
+.ad-qr-card details[open] summary { margin-bottom: var(--space-3); }
+
+@media (max-width: 640px) {
+  .ad-section { padding: var(--space-4); }
+  .ad-row { flex-wrap: wrap; }
+  .ad-row-actions { width: 100%; justify-content: flex-start; }
 }

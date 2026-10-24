@@ -4,7 +4,6 @@ import { Printer, Download, Share2, Trash2, Check, Save } from "lucide-react"
 import { QRCodeSVG } from "qrcode.react"
 import { useParams } from "react-router-dom"
 import { tableUrl } from "../services/tableUrl"
-import { BrandLogo } from "./BrandLogo"
 
 function escapeHtml(value = "") {
   return String(value)
@@ -22,6 +21,7 @@ export function TableQrCard({ table, onDelete, onSave }) {
   const [printNote, setPrintNote] = useState(table.printNote || "")
   const [saving, setSaving] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [saveError, setSaveError] = useState("")
   const url = tableUrl(table.tableNumber, cafeSlug)
 
   useEffect(() => {
@@ -33,9 +33,11 @@ export function TableQrCard({ table, onDelete, onSave }) {
     event.preventDefault()
     if (!onSave) return
     setSaving(true)
+    setSaveError("")
     try {
       await onSave({ ...table, printTitle, printNote })
     } catch {
+      setSaveError("Could not save the printed text. Please retry.")
     } finally {
       setSaving(false)
     }
@@ -251,85 +253,59 @@ export function TableQrCard({ table, onDelete, onSave }) {
   }
 
   return (
-    <article className="qr-card a5-preview-card">
+    <article className="ad-qr-card">
       {confirmDialog}
-      <div className="a5-card-inner">
-        <div className="a5-card-header">
-          <span className="a5-badge">A5 Print Format</span>
-          <h3 className="a5-table-label">{table.label || `Table ${table.tableNumber}`}</h3>
-        </div>
-
-        <div className="qr-wrap enlarged-qr-container" id={`qr-${table.id}`}>
-          <QRCodeSVG
-            id={`qr-svg-${table.id}`}
-            value={url}
-            size={220}
-            level="H"
-            includeMargin={true}
-            bgColor="#FFFFFF"
-            fgColor="#111827"
-          />
-        </div>
-
-        <div className="a5-url-display">
-          <span>{url}</span>
-        </div>
-
-        {onSave ? <form className="qr-copy-form compact-form" onSubmit={savePrintCopy}>
-          <div className="form-fields-row">
-            <label>QR heading<input maxLength={120}
-              value={printTitle}
-              onChange={(event) => setPrintTitle(event.target.value)}
-              placeholder="Custom heading (e.g. Scan to Order)"
-            /></label>
-            <label>QR instructions<input maxLength={300}
-              value={printNote}
-              onChange={(event) => setPrintNote(event.target.value)}
-              placeholder="Custom instruction note..."
-            /></label>
-          </div>
-          <button className="secondary-button save-copy-btn" type="submit" disabled={saving}>
-            <Save size={14} />
-            {saving ? "Saving..." : "Save details"}
-          </button>
-        </form> : null}
-
-        <div className="qr-action-toolbar">
-          <button className="primary-button action-btn" type="button" onClick={handlePrint} title="Print A5 Card">
-            <Printer size={16} />
-            <span>Print A5</span>
-          </button>
-
-          <button className="ghost-button action-btn" type="button" onClick={handleDownload} title="Download SVG">
-            <Download size={16} />
-            <span>Download</span>
-          </button>
-
-          <button className="ghost-button action-btn" type="button" onClick={handleShare} title="Share Link">
-            {copied ? <Check size={16} style={{ color: "var(--brand-ink)" }} /> : <Share2 size={16} />}
-            <span>{copied ? "Copied!" : "Share"}</span>
-          </button>
-
-          {onDelete ? (
-            <button
-              className="icon-button danger action-btn-delete"
-              type="button"
-              onClick={async () => {
-                if (!(await confirm(`Delete Table ${table.tableNumber} and its QR code? Links printed on existing cards will stop working.`, { title: "Delete table?" }))) return
-                onDelete(table.id)
-              }}
-              title="Delete Table"
-            >
-              <Trash2 size={16} />
-            </button>
-          ) : null}
-        </div>
-
-        <div className="powered-by-row">
-          <span>Powered by</span>
-          <BrandLogo size="medium" />
-        </div>
+      <h3>{table.label || `Table ${table.tableNumber}`}</h3>
+      <div className="ad-qr-code" id={`qr-${table.id}`}>
+        <QRCodeSVG id={`qr-svg-${table.id}`} value={url} size={220} level="H" includeMargin={true} bgColor="#FFFFFF" fgColor="#111827" />
       </div>
+      <p className="ad-qr-url">{url}</p>
+
+      <div className="oc-actions">
+        <button className="oc-main" type="button" onClick={handlePrint}>
+          <Printer size={18} /> Print
+        </button>
+        <button className="ad-icon" type="button" onClick={handleDownload} aria-label="Download QR code" title="Download">
+          <Download size={18} />
+        </button>
+        <button className="ad-icon" type="button" onClick={handleShare} aria-label={copied ? "Link copied" : "Copy or share link"} title={copied ? "Copied" : "Copy link"}>
+          {copied ? <Check size={18} /> : <Share2 size={18} />}
+        </button>
+        {onDelete ? (
+          <button
+            className="ad-icon oc-danger"
+            type="button"
+            aria-label={`Delete ${table.label || `Table ${table.tableNumber}`}`}
+            title="Delete table"
+            onClick={async () => {
+              if (!(await confirm(`Delete Table ${table.tableNumber} and its QR code? Links printed on existing cards will stop working.`, { title: "Delete table?" }))) return
+              onDelete(table.id)
+            }}
+          >
+            <Trash2 size={18} />
+          </button>
+        ) : null}
+      </div>
+
+      {onSave ? (
+        <details>
+          <summary>Edit the printed text</summary>
+          <form className="ad-form" onSubmit={savePrintCopy}>
+            <label className="ad-field">
+              Heading
+              <input maxLength={120} value={printTitle} onChange={(event) => setPrintTitle(event.target.value)} placeholder="Scan to Order" />
+            </label>
+            <label className="ad-field">
+              Instructions
+              <input maxLength={300} value={printNote} onChange={(event) => setPrintNote(event.target.value)} placeholder="Point your phone camera to view the menu" />
+            </label>
+            <button className="oc-quiet" type="submit" disabled={saving}>
+              <Save size={16} /> {saving ? "Saving…" : "Save text"}
+            </button>
+            {saveError ? <p className="form-error" role="alert">{saveError}</p> : null}
+          </form>
+        </details>
+      ) : null}
     </article>
   )
 }

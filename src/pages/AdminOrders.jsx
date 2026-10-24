@@ -8,7 +8,7 @@ import { queueStatus } from "../services/kitchenQueue"
 import { OptimizedImage } from "../components/OptimizedImage"
 import { OrderItemList } from "../components/OrderItemList"
 import { Modal } from "../components/Modal"
-import "./orders.css"
+import "./staff.css"
 import { PermissionGuard } from "../components/PermissionGuard"
 import { useRBAC } from "../context/rbacContextValue"
 import {

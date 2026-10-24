@@ -493,7 +493,7 @@ describe("routing smoke test", () => {
     const { fetchSubscriptionRequests } = await import("../services/subscriptionService")
     await fetchSubscriptionRequests(null, true)
     await renderApp("/test-coffee-2/users")
-    expect(await screen.findByText("User Management", {}, { timeout: 10000 })).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Team", level: 1 }, { timeout: 10000 })).toBeInTheDocument()
     expect(await screen.findByText("tc-admin@test-coffee-2.com", {}, { timeout: 10000 })).toBeInTheDocument()
     expect(screen.queryByText("sunrise-admin@sunrise-cafe.com")).not.toBeInTheDocument()
   }, 20000)

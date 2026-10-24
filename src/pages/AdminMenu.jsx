@@ -2,11 +2,12 @@ import { toUserMessage } from "../services/userMessages"
 import { useConfirm } from "../hooks/useConfirm"
 import { currentRegion } from "../services/regionalSettings"
 import { useEffect, useMemo, useState } from "react"
-import { Edit3, Globe, Plus, Save, Trash2 } from "lucide-react"
+import { Edit3, Globe, Plus, Save, Search, Trash2 } from "lucide-react"
 import { useLanguage } from "../context/languageContextValue"
 import { useRBAC } from "../context/rbacContextValue"
 import { Modal } from "../components/Modal"
 import "./menu-editor.css"
+import "./staff.css"
 import { ImageUploader } from "../components/ImageUploader"
 import { OptimizedImage } from "../components/OptimizedImage"
 import {
@@ -156,6 +157,16 @@ export function AdminMenu() {
     setCaloriesError("")
   }
 
+  // Both used to fail silently; a failure now shows in the page's error line.
+  const toggleAvailable = async (item, available) => {
+    try { await updateMenuAvailability(item.id, available) } catch (error) { setLoadError(toUserMessage(error, "Could not change availability. Please retry.")) }
+  }
+
+  const removeItem = async (item) => {
+    if (!(await confirm(`Delete "${item.name}" permanently? This cannot be undone.`, { title: "Delete menu item?" }))) return
+    try { await deleteMenuItem(item.id) } catch (error) { setLoadError(toUserMessage(error, "Could not delete this item. Please retry.")) }
+  }
+
   const submit = async (event) => {
     event.preventDefault()
     if (saving) return
@@ -188,78 +199,85 @@ export function AdminMenu() {
   }
 
   return (
-    <div className="admin-stack">
+    <div className="oc-page">
       {confirmDialog}
-      <section>
-        <div className="admin-head">
-          <div>
-            <p className="eyebrow">{t("catalog")}</p>
-            <h2>{t("menuItems")}</h2>
-            {loadError ? <p className="form-error">{loadError}</p> : null}
+      <header className="oc-head">
+        <div>
+          <h1>Menu</h1>
+          <p>{items.length} items · {items.filter((item) => item.available).length} on the menu now</p>
+        </div>
+        <button className="oc-head-action" type="button" onClick={() => {
+          setCaloriesError("")
+          setSaveError("")
+          setPendingBlob(null)
+          setForm({ ...blankItem, category: categoryFilter === "All" ? "" : categoryFilter })
+        }}>
+          <Plus size={18} /> Add item
+        </button>
+      </header>
+      {loadError ? <p className="form-error" role="alert">{loadError}</p> : null}
+
+      <section className="oc-toolbar">
+        <label className="oc-search">
+          <Search size={18} />
+          <input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder={t("searchItems")} aria-label={t("searchItems")} />
+        </label>
+        <div className="oc-chips" role="group" aria-label={t("filterCategory")}>
+          {categories.map((category) => (
+            <button key={category} type="button" className="oc-chip" aria-pressed={categoryFilter === category}
+              onClick={() => { setCategoryFilter(category); setSubcategoryFilter("All") }}>
+              {category === "All" ? t("all") : category}
+            </button>
+          ))}
+        </div>
+        {categoryFilter !== "All" && subcategories.length > 2 ? (
+          <div className="oc-chips" role="group" aria-label={t("filterSubcategory")}>
+            {subcategories.map((subcategory) => (
+              <button key={subcategory} type="button" className="oc-chip" aria-pressed={subcategoryFilter === subcategory} onClick={() => setSubcategoryFilter(subcategory)}>
+                {subcategory === "All" ? t("all") : subcategory}
+              </button>
+            ))}
           </div>
-          <button className="primary-button" type="button" onClick={() => {
-            setCaloriesError("")
-            setSaveError("")
-            setPendingBlob(null)
-            setForm({ ...blankItem, category: categoryFilter === "All" ? "" : categoryFilter })
-          }}>
-            <Plus size={18} />
-            Add item
-          </button>
+        ) : null}
+      </section>
+
+      {filteredItems.length === 0 ? (
+        <div className="oc-empty">
+          <Search size={32} strokeWidth={1.5} />
+          <strong>{t("noItemsFound")}</strong>
+          <p>Try another category or search, or add a new item.</p>
         </div>
-        <div className="admin-filter-bar">
-          <label className="field">
-            <span>{t("searchItems")}</span>
-            <input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} />
-          </label>
-          <label className="field">
-            <span>{t("filterCategory")}</span>
-            <select value={categoryFilter} onChange={(event) => {
-              setCategoryFilter(event.target.value)
-              setSubcategoryFilter("All")
-            }}>
-              {categories.map((category) => <option key={category} value={category}>{category === "All" ? t("all") : category}</option>)}
-            </select>
-          </label>
-          <label className="field">
-            <span>{t("filterSubcategory")}</span>
-            <select value={subcategoryFilter} onChange={(event) => setSubcategoryFilter(event.target.value)}>
-              {subcategories.map((subcategory) => <option key={subcategory} value={subcategory}>{subcategory === "All" ? t("all") : subcategory}</option>)}
-            </select>
-          </label>
-        </div>
-        <div className="admin-list">
-          {filteredItems.length === 0 ? <div className="empty-state">{t("noItemsFound")}</div> : null}
+      ) : (
+        <div className="ad-list">
           {filteredItems.map((item) => (
-            <article className="menu-row" key={item.id}>
-              <OptimizedImage src={item.imageUrl} alt={item.name} aspectRatio="1/1" style={{ width: 64, height: 64, borderRadius: 6, flexShrink: 0 }} />
-              <div className="menu-row-info">
-                <h3>{item.name}</h3>
-                <p>{item.category}{item.subcategory ? ` / ${item.subcategory}` : ""} · {money(item.price)} · {item.estimatedMinutes || 0} {t("minutes")}</p>
-                <p>
-                  {t("ingredientsLabel")}: {(item.ingredients || []).join(", ") || t("none")}
-                  <span className="calorie-badge">{item.calories || 0} kcal</span>
+            <article className={`ad-row${item.available ? "" : " is-muted"}`} key={item.id}>
+              <div className="ad-thumb">
+                <OptimizedImage src={item.imageUrl} alt="" aspectRatio="1/1" />
+              </div>
+              <div className="ad-row-main">
+                <h3 className="ad-row-title">{item.name}</h3>
+                <p className="ad-row-sub">
+                  {money(item.price)} · {item.category}{item.subcategory ? ` / ${item.subcategory}` : ""}
+                  {item.estimatedMinutes ? ` · ${item.estimatedMinutes} ${t("minutes")}` : ""}
                 </p>
               </div>
-              <div className="menu-row-actions">
-                <label className="switch">
-                  <input checked={item.available} type="checkbox" onChange={(event) => updateMenuAvailability(item.id, event.target.checked)} />
-                  <span />
+              <div className="ad-row-actions">
+                <label className="ad-switch">
+                  <input checked={Boolean(item.available)} type="checkbox" onChange={(event) => toggleAvailable(item, event.target.checked)} />
+                  <span aria-hidden="true" />
+                  On menu
                 </label>
-                <button className="icon-button" type="button" onClick={() => edit(item)} aria-label={t("editItem")}>
+                <button className="ad-icon" type="button" onClick={() => edit(item)} aria-label={`${t("editItem")}: ${item.name}`} title={t("editItem")}>
                   <Edit3 size={18} />
                 </button>
-                <button className="icon-button danger" type="button" onClick={async () => {
-                  if (!(await confirm(`Delete "${item.name}" permanently? This cannot be undone.`, { title: "Delete menu item?" }))) return
-                  deleteMenuItem(item.id)
-                }} aria-label={t("removeItem")}>
+                <button className="ad-icon oc-danger" type="button" onClick={() => removeItem(item)} aria-label={`${t("removeItem")}: ${item.name}`} title={t("removeItem")}>
                   <Trash2 size={18} />
                 </button>
               </div>
             </article>
           ))}
         </div>
-      </section>
+      )}
 
       {form ? (
         <Modal title={form.id ? "Edit menu item" : "Add a menu item"} className="menu-editor-dialog" busy={saving} onClose={() => { setForm(null); setPendingBlob(null) }}>
