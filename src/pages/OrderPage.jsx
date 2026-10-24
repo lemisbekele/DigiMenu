@@ -1,8 +1,9 @@
 import { toUserMessage } from "../services/userMessages"
+import "./customer-menu.css"
 import { formatDateTime } from "../services/regionalSettings"
 import { useEffect, useRef, useState } from "react"
-import { ArrowLeft, ArrowUpRight, Check, CheckCircle2, Clock, Coffee, CookingPot, Copy, Flame, Info, Receipt, RotateCcw, TimerOff, XCircle } from "lucide-react"
-import { Link, useParams } from "react-router-dom"
+import { ArrowLeft, Check, CheckCircle2, Clock, Coffee, CookingPot, Copy, Flame, Info, Receipt, RotateCcw, TimerOff, XCircle } from "lucide-react"
+import { Link, useParams, useSearchParams } from "react-router-dom"
 import { NotificationSettings } from "../components/NotificationSettings"
 import { StatusBadge } from "../components/StatusBadge"
 import { useLanguage } from "../context/languageContextValue"
@@ -12,7 +13,7 @@ import { DEFAULT_BILLING_SETTINGS } from "../services/billingSettings"
 import { ImageUploader } from "../components/ImageUploader"
 import { showBrowserNotification } from "../services/notificationService"
 import { isOrderReady } from "../services/kitchenAlerts"
-import { formatCustomizations, formatIngredientSelections, money, observeBillingSettings, observeOrder, observePaymentOptions, updateCustomerOrder, uploadPaymentProof, caloriesLabel, cartLineCalories, isSafeStorageUrl } from "../services/dataService"
+import { cartLineTotal, itemChanges, money, observeBillingSettings, observeOrder, observePaymentOptions, updateCustomerOrder, uploadPaymentProof, caloriesLabel, cartLineCalories, isSafeStorageUrl } from "../services/dataService"
 import { OptimizedImage } from "../components/OptimizedImage"
 import { usePaymentConfirmedPopup } from "../hooks/usePaymentConfirmedPopup"
 
@@ -51,6 +52,15 @@ function isCashPayment(method) {
 
 export function OrderPage() {
   const { orderId } = useParams()
+  const [searchParams, setSearchParams] = useSearchParams()
+  // Shown once after placing an order; the marker is then dropped so a refresh doesn't repeat it.
+  const [justPlaced] = useState(() => searchParams.get("placed") === "1")
+  useEffect(() => {
+    if (!searchParams.has("placed")) return
+    const next = new URLSearchParams(searchParams)
+    next.delete("placed")
+    setSearchParams(next, { replace: true })
+  }, [searchParams, setSearchParams])
   const cafeSlug = useCafeSlug()
   const { t } = useLanguage()
   const [order, setOrder] = useState(null)
@@ -193,6 +203,11 @@ export function OrderPage() {
         <NotificationSettings orderId={orderId} role="customer" buttonLabel={t("enableReadyNotification")} compact />
       </div>
 
+      {justPlaced && !ready ? (
+        <div className="order-placed-banner" role="status">
+          <CheckCircle2 size={20} /> {t("orderSentToKitchen", "Order sent to the kitchen. This page updates by itself.")}
+        </div>
+      ) : null}
       {!["ready", "paid", "rejected"].includes(order.orderStatus) ? (
         <div className="order-time-bar">
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -340,13 +355,13 @@ export function OrderPage() {
               <div className="bank-step-section">
                 <div className="bank-step-header">
                   <span className="step-badge">Cash</span>
-                  <h4>Cash Payment &mdash; Pending Cashier Confirmation</h4>
+                  <h4>Pay with cash</h4>
                 </div>
                 <div className="bank-details-box">
                   <div className="bank-instructions-box">
                     <Clock size={18} style={{ color: "var(--warning)", flexShrink: 0, marginTop: 2 }} />
                     <p style={{ margin: 0 }}>
-                      Please hand cash payment of <strong>{money(order.totalAmount)}</strong> to the cashier or staff at the counter. The cashier will confirm receipt directly from the POS/KDS interface.
+                      Pay <strong>{money(order.totalAmount)}</strong> at the counter. Staff will mark your order as paid.
                     </p>
                   </div>
                 </div>
@@ -508,7 +523,7 @@ export function OrderPage() {
 
       <section className="summary-panel">
         <p className="eyebrow" style={{ marginBottom: 8 }}>
-          {order.items?.length || 0} items <ArrowUpRight size={14} style={{ verticalAlign: "middle", opacity: 0.5 }} />
+          {order.items?.length === 1 ? "1 item" : `${order.items?.length || 0} items`}
         </p>
         {(order.items || []).map((item, index) => (
           <div className="summary-line" key={`${item.itemId}-${index}`}>
@@ -521,13 +536,11 @@ export function OrderPage() {
                   <Flame size={12} /> {caloriesLabel(cartLineCalories(item))}
                 </p>
               ) : null}
-              {item.estimatedMinutes ? <p>{t("estimatedTime")}: {item.estimatedMinutes} {t("minutes")}</p> : null}
-              <p>{formatIngredientSelections(item, t("ingredients"), t("removed"))}</p>
-              {formatCustomizations(item.customizations, t("noSelection"), { Ingredients: t("ingredients") }) ? (
-                <p>{formatCustomizations(item.customizations, t("noSelection"), { Ingredients: t("ingredients") })}</p>
-              ) : null}
+              {itemChanges(item).map((text) => <p key={text}>{text}</p>)}
+              {item.notes ? <p className="cart-note">{t("note")}: {item.notes}</p> : null}
             </div>
-            <strong className="summary-line-price">{money((Number(item.price) || 0) * Number(item.quantity || 1))}</strong>
+            {/* Includes paid extras (e.g. oat milk), so the lines add up to the total. */}
+            <strong className="summary-line-price">{money(cartLineTotal(item))}</strong>
           </div>
         ))}
         <div className="total-row">

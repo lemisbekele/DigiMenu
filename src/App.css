@@ -8150,8 +8150,6 @@ svg {
 
   .admin-head,
   .card-foot,
-  .drawer-head,
-  .total-row,
   .row-actions,
   .admin-action-row,
   .form-row-inline,
@@ -8163,7 +8161,6 @@ svg {
 
   .admin-head > *,
   .card-foot > *,
-  .drawer-head > *,
   .row-actions > *,
   .admin-action-row > *,
   .form-row-inline > *,
