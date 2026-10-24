@@ -204,7 +204,7 @@ function App() {
                             <Route path="cashier" element={<CafeRoleAlias target="pos" />} />
                             <Route path="kds" element={<GatedStaffRoute role={ROLES.BARISTA} feature="kds"><KitchenKDS /></GatedStaffRoute>} />
                             <Route path="barista" element={<CafeRoleAlias target="kds" />} />
-                            <Route path="kds/settings" element={<GatedStaffRoute role={ROLES.BARISTA} feature="kds"><KitchenSettings /></GatedStaffRoute>} />
+                            <Route path="kds/settings" element={<GatedStaffRoute role={[ROLES.BARISTA, ROLES.ADMIN, ROLES.MANAGER]} feature="kds"><KitchenSettings /></GatedStaffRoute>} />
                             <Route path="history" element={<GatedStaffRoute role={ROLES.BARISTA} feature="orderHistory"><KitchenHistory /></GatedStaffRoute>} />
                             <Route path="inventory" element={<GatedStaffRoute role={[ROLES.ADMIN, ROLES.MANAGER, ROLES.BARISTA]} feature="inventory"><KitchenInventory /></GatedStaffRoute>} />
                             <Route path="tables" element={<GatedStaffRoute role={[ROLES.ADMIN, ROLES.MANAGER, ROLES.CASHIER]} feature="tables"><AdminTables /></GatedStaffRoute>} />

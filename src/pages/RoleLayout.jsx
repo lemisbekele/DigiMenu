@@ -9,7 +9,6 @@ import { NotificationCenter } from "../components/NotificationCenter"
 import { LanguageToggle } from "../components/LanguageToggle"
 import { BrandLogo } from "../components/BrandLogo"
 import { ForcePasswordChangeModal } from "../components/ForcePasswordChangeModal"
-import { useAutoReadyWatcher } from "../hooks/useAutoReadyWatcher"
 
 const ICON_MAP = {
   LayoutDashboard, CreditCard, FileText,
@@ -27,7 +26,6 @@ export function RoleLayout({ children }) {
   // Lowercase so /cafe/POS and /cafe/KDS count as focused workspaces too.
   const isFocusedWorkspace = /\/[^/]+\/(?:pos|kds)\/?$/.test(location.pathname.toLowerCase())
   const hasRoleNavigation = !isFocusedWorkspace
-  useAutoReadyWatcher()
 
   const cafePath = (to) => cafeSlug ? `/${cafeSlug}/${to}` : "/404"
 

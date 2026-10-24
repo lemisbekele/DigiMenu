@@ -993,3 +993,14 @@ export function observeCafeUsers(cafeSlug, callback, onError) {
 }
 
 export { isSafeStorageUrl }
+
+export async function fetchKitchenCapacity(cafeSlug = currentCafeSlug()) {
+  const { data, error } = await supabase.rpc("get_kitchen_capacity", { p_cafe_slug: cafeSlug })
+  if (error) throw new Error(error.message || "Could not load kitchen settings.")
+  return Number(data) || 2
+}
+
+export async function saveKitchenCapacity(capacity) {
+  const { error } = await supabase.rpc("set_kitchen_capacity", { p_cafe_slug: requireCurrentCafeSlug(), p_capacity: Number(capacity) })
+  if (error) throw new Error(error.message || "Could not save kitchen settings.")
+}

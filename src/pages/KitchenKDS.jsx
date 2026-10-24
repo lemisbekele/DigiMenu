@@ -3,7 +3,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   ChefHat,
-  ClipboardCheck,
   Clock,
   Coffee,
   CookingPot,
@@ -16,6 +15,8 @@ import {
 import { Link } from "react-router-dom"
 import { useCafeSlug } from "../hooks/useCafeSlug"
 import { beep, newOrderIds, soundReady, unlockSound } from "../services/kitchenAlerts"
+import { OPEN_STATUSES } from "../services/kitchenQueue"
+import { useKitchenQueue } from "../hooks/useKitchenQueue"
 import {
   formatCustomizations,
   formatIngredientSelections,
@@ -24,12 +25,12 @@ import {
   updateStaffOrder,
 } from "../services/dataService"
 
-// Active KDS steps (received & preparing are active on board; accepting auto-starts preparing)
-const STEPS = ["received", "preparing"]
+// Columns are worked out from the queue: the oldest N open orders are "preparing", the rest wait in line.
+const STEPS = OPEN_STATUSES
 
 const TABS = [
-  { key: "received", label: "Pending", icon: Clock },
   { key: "preparing", label: "Preparing", icon: CookingPot },
+  { key: "received", label: "In line", icon: Clock },
 ]
 
 const STATIONS = [
@@ -104,18 +105,6 @@ function orderCreatedMs(order) {
   return new Date(order.createdAt || Date.now()).getTime()
 }
 
-function preparingStartedMs(order) {
-  if (order.preparedAtMs) return order.preparedAtMs
-  if (order.preparedAt) return new Date(order.preparedAt).getTime()
-  if (order.acceptedAtMs) return order.acceptedAtMs
-  if (order.acceptedAt) return new Date(order.acceptedAt).getTime()
-  return orderCreatedMs(order)
-}
-
-function autoReadyTargetMs(order) {
-  return Number(order.autoReadyAt || 0) > 0 ? Number(order.autoReadyAt) : null
-}
-
 function formatTime(totalSecs) {
   const m = Math.floor(totalSecs / 60)
   const s = totalSecs % 60
@@ -128,32 +117,13 @@ function elapsedColor(secs) {
   return "kds-timer-ok"
 }
 
-function countdownColor(remainingSecs) {
-  if (remainingSecs > 600) return "kds-timer-ok"
-  if (remainingSecs > 300) return "kds-timer-warn"
-  return "kds-timer-urgent"
-}
-
-function TicketTimer({ sinceMs, targetMs }) {
+function TicketTimer({ sinceMs }) {
   const [now, setNow] = useState(Date.now)
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), 1000)
     return () => window.clearInterval(id)
   }, [])
-
-  if (targetMs) {
-    const remaining = Math.max(0, Math.ceil((targetMs - now) / 1000))
-    return (
-      <div className="kds-ticket-timer-group">
-        <span className="kds-timer-label">Est. Ready</span>
-        <div className={`kds-ticket-timer ${countdownColor(remaining)}`}>
-          <Clock size={16} />
-          <span>{formatTime(remaining)}</span>
-        </div>
-      </div>
-    )
-  }
 
   const secs = Math.max(0, Math.floor((now - sinceMs) / 1000))
   return (
@@ -183,8 +153,8 @@ function EmptyState({ status, station }) {
       <p>
         {status === "received"
           ? station === "all"
-            ? "No pending orders"
-            : `No pending ${station} orders`
+            ? "Nobody waiting in line"
+            : `No ${station} orders in line`
           : station === "all"
           ? "No orders in progress"
           : `No ${station} orders in progress`}
@@ -259,29 +229,11 @@ export function KitchenKDS() {
     }, (message) => { setLoadError(message); setLoaded(true) })
   }, [])
 
-  // Accepting an order records when staff picked it up (for tracking) and auto-starts preparing.
-  const acceptOrder = useCallback(async (order) => {
-    const eptMinutes = Math.max(1, Number(order.estimatedReadyMinutes || 15))
-    const now = new Date().toISOString()
-    const nowMs = Date.now()
-    await updateStaffOrder(order.id, {
-      orderStatus: "preparing",
-      acceptedAt: now,
-      acceptedAtMs: nowMs,
-      preparedAt: now,
-      preparedAtMs: nowMs,
-      // Countdown is a reminder only; staff can switch auto-ready on per order.
-      autoReadyEnabled: false,
-      autoReadyAt: nowMs + eptMinutes * 60 * 1000,
-    })
-  }, [])
-
   const markReady = useCallback(async (order) => {
     await updateStaffOrder(order.id, {
       orderStatus: "ready",
       readyAt: new Date().toISOString(),
       readyAtMs: Date.now(),
-      autoReadyEnabled: false,
     })
     sendPushToCustomer(order.id)
   }, [])
@@ -338,20 +290,17 @@ export function KitchenKDS() {
   }, [orders])
 
   // Filter columns by active steps and station selection
+  // The queue is worked out over all open orders, then filtered by station for display.
+  const queue = useKitchenQueue(orders, cafeSlug)
   const columns = useMemo(() => {
-    const active = orders.filter((o) => STEPS.includes(o.orderStatus))
-
-    const filtered = active.filter((order) => matchesStation(order, stationFilter))
-
+    const inQueue = orders
+      .filter((o) => queue.has(o.id) && matchesStation(o, stationFilter))
+      .sort((a, b) => queue.get(a.id).position - queue.get(b.id).position)
     return {
-      received: filtered
-        .filter((o) => o.orderStatus === "received")
-        .sort((a, b) => orderCreatedMs(a) - orderCreatedMs(b)),
-      preparing: filtered
-        .filter((o) => o.orderStatus === "preparing")
-        .sort((a, b) => preparingStartedMs(b) - preparingStartedMs(a)),
+      preparing: inQueue.filter((o) => queue.get(o.id).preparing),
+      received: inQueue.filter((o) => !queue.get(o.id).preparing),
     }
-  }, [orders, stationFilter])
+  }, [orders, queue, stationFilter])
 
   const totalActiveOrders = columns.received.length + columns.preparing.length
 
@@ -494,13 +443,7 @@ export function KitchenKDS() {
                   <EmptyState status={tab.key} station={stationFilter} />
                 ) : (
                   items.map((order, idx) => {
-                    const createdMs = orderCreatedMs(order)
-                    const prepMs = preparingStartedMs(order)
-                    const targetMs = tab.key === "preparing" ? autoReadyTargetMs(order) : null
-                    const sinceMs =
-                      tab.key === "received"
-                        ? createdMs
-                        : prepMs
+                    const sinceMs = orderCreatedMs(order)
 
                     return (
                       <article
@@ -527,7 +470,8 @@ export function KitchenKDS() {
                           )}
                         </div>
 
-                        <TicketTimer sinceMs={sinceMs} targetMs={targetMs} />
+                        <TicketTimer sinceMs={sinceMs} />
+                        {tab.key === "received" ? <span className="kds-ticket-id">#{queue.get(order.id).position + 1} in line</span> : null}
 
                         <ul className="kds-ticket-items">
                           {(order.items || []).map((item, i) => {
@@ -581,30 +525,13 @@ export function KitchenKDS() {
                         </ul>
 
                         <div className="kds-ticket-actions">
-                          {order.orderStatus === "received" && (
-                            <button
-                              className="kds-btn kds-btn-amber"
-                              type="button"
-                              onClick={() => acceptOrder(order).catch(() => setLoadError("Could not accept the order. Please retry."))}
-                            >
-                              <ClipboardCheck size={18} /> Accept & Auto-Start
-                            </button>
-                          )}
-
-                          {order.orderStatus === "preparing" && (
-                            <div className="kds-action-group">
-                              <button
-                                className="kds-btn kds-btn-green"
-                                type="button"
-                                onClick={() => markReady(order).catch(() => setLoadError("Could not mark this order ready. Please retry."))}
-                              >
-                                <CheckCircle2 size={18} /> Mark as Ready
-                              </button>
-                              <span className="kds-auto-note">
-                                <Clock size={12} /> Auto-ready enabled
-                              </span>
-                            </div>
-                          )}
+                          <button
+                            className="kds-btn kds-btn-green"
+                            type="button"
+                            onClick={() => markReady(order).catch(() => setLoadError("Could not mark this order done. Please retry."))}
+                          >
+                            <CheckCircle2 size={18} /> Done
+                          </button>
                         </div>
                       </article>
                     )

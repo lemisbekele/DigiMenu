@@ -66,8 +66,12 @@ export function MyOrdersPage() {
           <div className="my-orders-list">
             {active.map((record) => {
               const live = liveById[record.id]
-              const status = live?.orderStatus || "received"
-              const statusLabel = t(status) || status
+              const inQueue = live?.queuePosition != null
+              const preparing = inQueue && live.queuePosition < Number(live.kitchenCapacity || 2)
+              const status = preparing ? "preparing" : live?.orderStatus || "received"
+              const statusLabel = inQueue && !preparing
+                ? `#${live.queuePosition + 1} ${t("inLine", "in line")} · ~${live.waitMinutes} ${t("minutes")}`
+                : t(status) || status
               return (
                 <article className="summary-panel order-card" key={record.id}>
                   <div className="order-card-top">

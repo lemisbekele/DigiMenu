@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Bell, Globe, Moon, Sun, Volume2 } from "lucide-react"
+import { Bell, ChefHat, Globe, Moon, Sun, Volume2 } from "lucide-react"
 import { LogoutButton } from "../components/LogoutButton"
 import { useLanguage } from "../context/languageContextValue"
 import {
@@ -7,6 +7,8 @@ import {
   requestPermission,
   subscribeToPush,
 } from "../services/notificationService"
+import { fetchKitchenCapacity, saveKitchenCapacity } from "../services/dataService"
+import { DEFAULT_KITCHEN_CAPACITY } from "../services/kitchenQueue"
 
 const STORAGE_PREFIX = "kitchen-settings-"
 
@@ -31,6 +33,20 @@ export function KitchenSettings() {
   const [darkMode, setDarkMode] = useState(() => loadSetting("darkMode", false))
   const [message, setMessage] = useState("")
   const [messageType, setMessageType] = useState("")
+  const [capacity, setCapacity] = useState(DEFAULT_KITCHEN_CAPACITY)
+  const [capacityNote, setCapacityNote] = useState("")
+
+  useEffect(() => { fetchKitchenCapacity().then(setCapacity).catch(() => {}) }, [])
+
+  const changeCapacity = async (value) => {
+    setCapacity(value)
+    try {
+      await saveKitchenCapacity(value)
+      setCapacityNote("Saved for the whole cafe.")
+    } catch (err) {
+      setCapacityNote(err.message)
+    }
+  }
 
   useEffect(() => {
     if (darkMode) {
@@ -94,6 +110,18 @@ export function KitchenSettings() {
         {message ? (
           <p className={messageType === "error" ? "form-error" : "success-note"} style={{ marginTop: 8 }}>{message}</p>
         ) : null}
+      </section>
+
+      <section className="admin-form settings-panel kds-settings-section">
+        <p className="eyebrow"><ChefHat size={13} style={{ verticalAlign: -1 }} /> Kitchen queue</p>
+        <h2>Orders in progress at once</h2>
+        <label className="field" style={{ marginTop: 8 }}>
+          <span>The oldest this many orders show as "Preparing"; the rest wait in line. Customers' wait times use this number.</span>
+          <select value={capacity} onChange={(e) => changeCapacity(Number(e.target.value))}>
+            {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => <option key={n} value={n}>{n}</option>)}
+          </select>
+        </label>
+        {capacityNote ? <p className="admin-hint" role="status">{capacityNote}</p> : null}
       </section>
 
       <section className="admin-form settings-panel kds-settings-section">

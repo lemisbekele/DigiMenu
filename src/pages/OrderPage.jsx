@@ -1,7 +1,7 @@
 import { toUserMessage } from "../services/userMessages"
 import { formatDateTime } from "../services/regionalSettings"
 import { useEffect, useRef, useState } from "react"
-import { ArrowLeft, ArrowUpRight, Check, CheckCircle2, ClipboardCheck, Clock, Coffee, CookingPot, Copy, Flame, Info, Receipt, RotateCcw, TimerOff, XCircle } from "lucide-react"
+import { ArrowLeft, ArrowUpRight, Check, CheckCircle2, Clock, Coffee, CookingPot, Copy, Flame, Info, Receipt, RotateCcw, TimerOff, XCircle } from "lucide-react"
 import { Link, useParams } from "react-router-dom"
 import { NotificationSettings } from "../components/NotificationSettings"
 import { StatusBadge } from "../components/StatusBadge"
@@ -15,14 +15,6 @@ import { isOrderReady } from "../services/kitchenAlerts"
 import { formatCustomizations, formatIngredientSelections, money, observeBillingSettings, observeOrder, observePaymentOptions, updateCustomerOrder, uploadPaymentProof, caloriesLabel, cartLineCalories, isSafeStorageUrl } from "../services/dataService"
 import { OptimizedImage } from "../components/OptimizedImage"
 import { usePaymentConfirmedPopup } from "../hooks/usePaymentConfirmedPopup"
-
-function formatCountdown(targetMs, now) {
-  const remaining = Math.max(0, Number(targetMs || 0) - now)
-  const totalSeconds = Math.ceil(remaining / 1000)
-  const minutes = Math.floor(totalSeconds / 60)
-  const seconds = totalSeconds % 60
-  return `${minutes}:${String(seconds).padStart(2, "0")}`
-}
 
 function formatTime(date) {
   if (!date) return ""
@@ -47,7 +39,6 @@ function orderTimestamp(order, status) {
 
 const stepMeta = {
   received: { icon: Receipt, labelKey: "received", timeKey: "placedAt", color: "#6b7280" },
-  accepted: { icon: ClipboardCheck, labelKey: "accepted", timeKey: "acceptedTime", color: "#2563eb" },
   preparing: { icon: CookingPot, labelKey: "preparing", timeKey: "preparingTime", color: "#d97706" },
   ready: { icon: Coffee, labelKey: "ready", timeKey: "readyTime", color: "var(--brand)" },
 }
@@ -70,7 +61,6 @@ export function OrderPage() {
   const [selectedMethod, setSelectedMethod] = useState("")
   const [proofError, setProofError] = useState("")
   const [copiedAccount, setCopiedAccount] = useState(false)
-  const [clock, setClock] = useState(Date.now())
   const previousStatus = useRef(null)
   const tRef = useRef(t)
   useEffect(() => {
@@ -106,10 +96,6 @@ export function OrderPage() {
     if (order?.paymentMethod) setSelectedMethod(order.paymentMethod)
   }, [order?.paymentMethod])
   const { popup: paymentConfirmedPopup } = usePaymentConfirmedPopup(order)
-  useEffect(() => {
-    const id = window.setInterval(() => setClock(Date.now()), 1000)
-    return () => window.clearInterval(id)
-  }, [])
 
   if (loading) {
     return (
@@ -174,9 +160,12 @@ export function OrderPage() {
     )
   }
 
-  const steps = ["received", "accepted", "preparing", "ready"]
+  // "Preparing" comes from the kitchen queue: the oldest N open orders (server-worked-out position).
+  const steps = ["received", "preparing", "ready"]
   const ready = isOrderReady(order)
-  const statusIndex = ready ? steps.length - 1 : steps.indexOf(order.orderStatus)
+  const inQueue = order.queuePosition != null
+  const preparing = inQueue && order.queuePosition < Number(order.kitchenCapacity || 2)
+  const statusIndex = ready ? 2 : preparing ? 1 : inQueue ? 0 : steps.indexOf(order.orderStatus)
   const isPaid = order.paymentStatus === "paid" || order.orderStatus === "paid"
 
   const handleProofBlob = async (blob) => {
@@ -211,19 +200,11 @@ export function OrderPage() {
             <strong>{t("estimatedReadyTime")}</strong>
           </span>
           <span>
-            {(() => {
-              const estMins = Math.max(1, Number(order.estimatedReadyMinutes || 15))
-              if (["received", "accepted"].includes(order.orderStatus)) {
-                return <span>~{estMins} {t("minutes")}</span>
-              }
-              if (order.orderStatus === "preparing") {
-                if (order.autoReadyAt) {
-                  return <strong className="countdown">Ready in {formatCountdown(order.autoReadyAt, clock)}</strong>
-                }
-                return <span>~{estMins} {t("minutes")}</span>
-              }
-              return null
-            })()}
+            {preparing
+              ? <strong>{t("beingPrepared", "Being prepared")} · ~{order.waitMinutes} {t("minutes")}</strong>
+              : inQueue
+              ? <strong>#{order.queuePosition + 1} {t("inLine", "in line")} · ~{order.waitMinutes} {t("minutes")}</strong>
+              : <span>~{Math.max(1, Number(order.estimatedReadyMinutes || 15))} {t("minutes")}</span>}
           </span>
         </div>
       ) : null}
