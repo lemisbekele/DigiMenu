@@ -37,7 +37,16 @@ Deno.serve(async (request) => {
       try {
         await webpush.sendNotification(subscription, JSON.stringify(event), { TTL: 300, timeout: 5000 })
         sent++
-      } catch { /* An expired browser subscription must not abort other recipients. */ }
+      } catch (error) {
+        // 404/410 mean the browser dropped this subscription; remove it so the table does not only grow.
+        // The caller was already authorized for this order above, so the service role is used only for this delete.
+        const status = (error as { statusCode?: number })?.statusCode
+        if ((status === 404 || status === 410) && row.id) {
+          await createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } })
+            .from("push_subscriptions").delete().eq("id", row.id)
+        }
+        /* An expired browser subscription must not abort other recipients. */
+      }
     }
     return Response.json({ sent }, { headers })
   } catch {

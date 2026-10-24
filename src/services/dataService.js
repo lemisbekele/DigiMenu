@@ -576,10 +576,10 @@ export async function deletePaymentOption(optionId) {
 }
 
 const orderObservers = new Map()
-export function observeOrders(callback, onError) {
+export function observeOrders(callback, onError, scopeOverride) {
   const slug = requireCurrentCafeSlug()
   const path = window.location.pathname.toLowerCase()
-  const scope = /\/(kds|orders)\/?$/.test(path) ? "active" : /\/pos\/?$/.test(path) ? "cashier" : "all"
+  const scope = scopeOverride || (/\/(kds|orders)\/?$/.test(path) ? "active" : /\/pos\/?$/.test(path) ? "cashier" : "all")
   const key = `${slug}:${scope}`
   let entry = orderObservers.get(key)
   if (!entry) {
@@ -590,7 +590,7 @@ export function observeOrders(callback, onError) {
       if (orderObservers.get(key) !== entry) return
       entry.rows = rows
       entry.listeners.forEach((listener) => listener.callback(rows))
-    }, (error) => entry.listeners.forEach((listener) => listener.onError?.(error)), "orders", scope === "all" ? 30000 : 5000)
+    }, (error) => entry.listeners.forEach((listener) => listener.onError?.(error)), "orders", scope === "all" || scope === "recent" ? 30000 : 5000)
   }
   const listener = { callback, onError }
   entry.listeners.add(listener)

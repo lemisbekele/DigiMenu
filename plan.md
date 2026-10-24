@@ -2,7 +2,7 @@
 
 > **Note:** This project was originally planned with Firebase but has been fully migrated to Supabase.
 > All backend operations now use Supabase (Auth, PostgreSQL, Storage, Realtime).
-> See `supabase-migration.sql` for the database schema.
+> See `supabase/migrations/` for the database schema.
 
 ## Architecture Overview
 
