@@ -3,7 +3,6 @@ import {
   validateImage,
   extFromMime,
   formatBytes,
-  computeFileHash,
   isImageTypeSupported,
 } from "./imageOptimizer"
 
@@ -36,19 +35,5 @@ describe("Image Optimizer Pipeline", () => {
     expect(formatBytes(500)).toBe("500 B")
     expect(formatBytes(2048)).toBe("2.0 KB")
     expect(formatBytes(1572864)).toBe("1.5 MB")
-  })
-
-  it("generates deterministic SHA-256 hash for file deduplication", async () => {
-    const content = "cafe-image-test-bytes"
-    const file1 = new File([content], "img1.jpg", { type: "image/jpeg" })
-    const file2 = new File([content], "img2.jpg", { type: "image/jpeg" })
-
-    const hash1 = await computeFileHash(file1)
-    const hash2 = await computeFileHash(file2)
-
-    expect(hash1).toBeDefined()
-    expect(typeof hash1).toBe("string")
-    expect(hash1.length).toBe(64)
-    expect(hash1).toBe(hash2)
   })
 })

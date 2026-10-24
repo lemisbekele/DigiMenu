@@ -5,6 +5,7 @@ import {
   formatCustomizations,
   formatIngredientSelections,
   getLocalizedMenuLabel,
+  menuImagePaths,
   money,
 } from "./dataService"
 
@@ -68,3 +69,19 @@ describe("formatters and i18n fallbacks", () => {
   })
 })
 
+
+describe("menuImagePaths", () => {
+  const base = "https://x.supabase.co/storage/v1/object/public/cafe-assets/menuImages"
+  it("lists the photo and its copies, but only for this cafe's own uploads", () => {
+    expect(menuImagePaths(`${base}/lemi-coffee/123.webp`, "lemi-coffee")).toEqual([
+      "menuImages/lemi-coffee/123.webp",
+      "menuImages/lemi-coffee/123_thumb.webp",
+      "menuImages/lemi-coffee/123_sm.webp",
+      "menuImages/lemi-coffee/123_lg.webp",
+    ])
+    expect(menuImagePaths(`${base}/other-cafe/123.webp`, "lemi-coffee")).toBeNull()
+    expect(menuImagePaths("https://images.unsplash.com/photo.webp", "lemi-coffee")).toBeNull()
+    expect(menuImagePaths(`${base}/lemi-coffee/123.webp`, "")).toBeNull()
+    expect(menuImagePaths("", "lemi-coffee")).toBeNull()
+  })
+})

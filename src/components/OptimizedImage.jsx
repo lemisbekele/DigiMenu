@@ -16,7 +16,7 @@ function buildSrcSet(src) {
   }
 
   const basePath = src.replace(/\.webp$/, "")
-  return `${basePath}_thumb.webp 200w, ${basePath}_sm.webp 400w, ${basePath} 800w`
+  return `${basePath}_thumb.webp 200w, ${basePath}_sm.webp 400w, ${basePath}.webp 800w`
 }
 
 export function OptimizedImage({

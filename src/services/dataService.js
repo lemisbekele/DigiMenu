@@ -3,10 +3,9 @@ import { supabase, customerStorageClient } from "./supabase"
 import { newOrderToken, orderTokens, saveOrderToken } from "./orderAccess"
 import i18n from "../i18n"
 import { DEFAULT_BILLING_SETTINGS } from "./billingSettings"
-import { optimizeImage, computeFileHash, generateResponsiveVariants, validateImage } from "./imageOptimizer"
+import { optimizeImage, generateResponsiveVariants, validateImage } from "./imageOptimizer"
 import { assertPlanFeature } from "./planService"
 import { formatMoney } from "./regionalSettings"
-const uploadDeduplicationCache = new Map()
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 
@@ -37,10 +36,32 @@ export function billingSettingsId(cafeSlug) {
 async function storageUpload(path, blob, contentType) {
   const { error } = await supabase.storage
     .from(STORAGE_BUCKET)
-    .upload(path, blob, { contentType, upsert: true })
+    // Every upload gets a new file name, so browsers may keep it for a year.
+    .upload(path, blob, { contentType, upsert: true, cacheControl: "31536000" })
   if (error) throw new Error(`Image upload failed: ${error.message}`)
   const { data: urlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path)
   return urlData?.publicUrl || ""
+}
+
+// Storage paths for a menu photo and its smaller copies, or null when the URL is not
+// this cafe's own uploaded photo (outside links such as seed photos are left alone).
+export function menuImagePaths(url, cafeSlug) {
+  const marker = `/storage/v1/object/public/${STORAGE_BUCKET}/`
+  const path = String(url || "").split(marker)[1]?.split("?")[0]
+  if (!cafeSlug || !path || !path.startsWith(`menuImages/${cafeSlug}/`) || !path.endsWith(".webp")) return null
+  const base = path.replace(/\.webp$/, "")
+  // _lg is from older uploads, before the unused 1200px copy was dropped.
+  return [path, ...["thumb", "sm", "lg"].map((v) => `${base}_${v}.webp`)]
+}
+
+// Best effort: a failed cleanup never blocks the save.
+async function removeMenuImageFiles(url) {
+  const paths = menuImagePaths(url, currentCafeSlug())
+  if (!paths) return
+  // Never delete a photo another menu item still shows.
+  const { count } = await supabase.from("menu_items").select("id", { count: "exact", head: true }).eq("cafe_slug", currentCafeSlug()).eq("image_url", url)
+  if (count !== 0) return
+  await supabase.storage.from(STORAGE_BUCKET).remove(paths).catch(() => {})
 }
 
 function toCamelCase(value) {
@@ -351,7 +372,6 @@ export async function logoutAdmin() {
   if (error) {
     await supabase.auth.signOut({ scope: "local" })
   }
-  uploadDeduplicationCache.clear()
   proofUrlCache.clear()
   for (const key of ["cafe-user-roles", "cafe_subscription_requests", "cafe_current_slug", "cafe-notifications", "cafe_platform_announcements"]) localStorage.removeItem(key)
 }
@@ -763,8 +783,10 @@ export async function saveMenuItem(item, imageFile) {
   const payload = stripUndefined(sanitizeMenuItem({ ...cleanItem, imageUrl }))
   if (item.id) {
     const { id, ...rest } = payload
+    const { data: before } = await supabase.from("menu_items").select("image_url").eq("id", id).eq("cafe_slug", requireCurrentCafeSlug()).maybeSingle()
     const { error } = await supabase.from("menu_items").update(toSnakeCase(rest)).eq("id", id).eq("cafe_slug", requireCurrentCafeSlug())
     if (error) throw error
+    if (before?.image_url && before.image_url !== payload.imageUrl) await removeMenuImageFiles(before.image_url)
     await writeAuditLog("menuItem.update", { id, name: payload.name })
     return id
   }
@@ -776,8 +798,9 @@ export async function saveMenuItem(item, imageFile) {
 
 export async function deleteMenuItem(itemId) {
   assertPlanFeature("menuManagement")
-  const { error } = await supabase.from("menu_items").delete().eq("id", itemId).eq("cafe_slug", requireCurrentCafeSlug())
+  const { data: deleted, error } = await supabase.from("menu_items").delete().eq("id", itemId).eq("cafe_slug", requireCurrentCafeSlug()).select("image_url")
   if (error) throw error
+  await Promise.all((deleted || []).map((row) => removeMenuImageFiles(row.image_url)))
   await writeAuditLog("menuItem.delete", { id: itemId })
 }
 
@@ -819,20 +842,6 @@ export async function uploadAsset(path, file, { onProgress, signal, generateVari
       ? path.replace(/^(menuImages|paymentProofs)\//, `$1/${slug}/`)
       : path
 
-  // SHA-256 Deduplication check. The cache key is scoped to the acting cafe
-  // so identical files uploaded by different tenants never share a URL.
-  let hash = ""
-  try {
-    hash = await computeFileHash(file)
-    const cacheKey = `${scopedPath}:${hash}`
-    if (uploadDeduplicationCache.has(cacheKey)) {
-      return uploadDeduplicationCache.get(cacheKey)
-    }
-    hash = cacheKey
-  } catch {
-    // Continue if hashing fails
-  }
-
   const isPaymentProof = path.startsWith("paymentProofs/")
   const blob = await optimizeImage(file, {
     maxWidth: isPaymentProof ? 1200 : 800,
@@ -855,18 +864,11 @@ export async function uploadAsset(path, file, { onProgress, signal, generateVari
     try {
       const variants = await generateResponsiveVariants(file)
       for (const [variantKey, variantBlob] of Object.entries(variants)) {
-        if (variantKey !== "md") {
-          const variantPath = `${scopedPath}_${variantKey}.${ext}`
-          await storageUpload(variantPath, variantBlob, mime).catch(() => {})
-        }
+        await storageUpload(`${scopedPath}_${variantKey}.${ext}`, variantBlob, mime).catch(() => {})
       }
     } catch {
       // Ignore variant errors, main asset is uploaded
     }
-  }
-
-  if (hash) {
-    uploadDeduplicationCache.set(hash, publicUrl)
   }
 
   return publicUrl
