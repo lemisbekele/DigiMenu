@@ -9451,3 +9451,21 @@ html.dark-mode .menu-item-editor-money-input {
 .auth-form-panel .ghost-button { background: var(--surface-2); border-color: var(--border-strong); color: var(--text-2); }
 .auth-form-panel .ghost-button:hover { background: var(--brand-soft); color: var(--brand-ink); }
 .eyebrow { color: var(--brand-ink); }
+
+/* Shown on the kitchen screen until a tap allows the new-order sound. */
+.kds-sound-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  margin-bottom: 12px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--warning);
+  color: #1a1a1a;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}

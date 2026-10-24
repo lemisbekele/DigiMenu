@@ -101,7 +101,7 @@ export function OwnerDashboard() {
   const [auditLogs, setAuditLogs] = useState([])
   const [loadError, setLoadError] = useState("")
 
-  useEffect(() => { return observeOrders(setOrders, setLoadError) }, [])
+  useEffect(() => { return observeOrders(setOrders, setLoadError, "recent") }, [])
   useEffect(() => { if (role === ROLES.ADMIN) return observeCafeUsers(cafeSlug, setUsers) }, [cafeSlug, role])
   useEffect(() => {
     return observeAuditLogs((logs) => setAuditLogs((logs || []).slice(0, 6)), setLoadError)
@@ -225,7 +225,7 @@ export function OwnerDashboard() {
       </div>
 
       <div className="stat-grid">
-        <StatCard icon={ShoppingCart} label="Total Orders" value={stats.totalOrders} color="var(--brand)" />
+        <StatCard icon={ShoppingCart} label="Orders (31 days)" value={stats.totalOrders} color="var(--brand)" />
         <StatCard icon={Activity} label="Active Orders" value={stats.activeOrders} color="var(--warning)" />
         <StatCard icon={ChefHat} label="Ready" value={stats.readyOrders} color="var(--brand-ink)" />
         <StatCard icon={ClipboardList} label="Paid" value={stats.paidOrders} color="var(--brand-ink)" />

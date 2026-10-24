@@ -1,7 +1,10 @@
 import { currentRegion, formatDateTime } from "../services/regionalSettings"
 import { useEffect, useRef, useState } from "react"
-import { Banknote, CheckCircle2, ClipboardCheck, Landmark, LayoutGrid, List, Search, TimerOff, X, XCircle } from "lucide-react"
+import { Banknote, CheckCircle2, Landmark, LayoutGrid, List, Search, X, XCircle } from "lucide-react"
 import { StatusBadge } from "../components/StatusBadge"
+import { useKitchenQueue } from "../hooks/useKitchenQueue"
+import { useCafeSlug } from "../hooks/useCafeSlug"
+import { queueStatus } from "../services/kitchenQueue"
 import { OptimizedImage } from "../components/OptimizedImage"
 import { PermissionGuard } from "../components/PermissionGuard"
 import { useRBAC } from "../context/rbacContextValue"
@@ -38,8 +41,8 @@ function isCashMethod(method) {
 export function AdminOrders() {
   const { can } = useRBAC()
   const [orders, setOrders] = useState([])
+  const queue = useKitchenQueue(orders, useCafeSlug())
   const [alerts, setAlerts] = useState([])
-  const [clock, setClock] = useState(Date.now())
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [paymentFilter, setPaymentFilter] = useState("all")
@@ -59,11 +62,6 @@ export function AdminOrders() {
     document.title = unreadCount ? `(${unreadCount}) DigiMenu Admin` : originalTitle.current
     return () => { document.title = originalTitle.current }
   }, [unreadCount])
-
-  useEffect(() => {
-    const id = window.setInterval(() => setClock(Date.now()), 1000)
-    return () => window.clearInterval(id)
-  }, [])
 
   useEffect(() => {
     return observePaymentOptions((opts) => setPaymentOptions(opts.filter((o) => o.active)))
@@ -119,7 +117,6 @@ export function AdminOrders() {
               title: "Order Ready",
             })
             notifyOrderEvent(order, NOTIFICATION_EVENTS.ORDER_READY)
-            sendPushToCustomer(order.id, "Your order is ready!", `Your order at Table ${order.tableNumber} is ready. Please collect it from the counter.`)
           } else if (prev.orderStatus !== "paid" && order.orderStatus === "paid") {
             notifyOrderEvent(order, NOTIFICATION_EVENTS.ORDER_PAID)
           } else if (prev.orderStatus !== "rejected" && order.orderStatus === "rejected") {
@@ -133,8 +130,6 @@ export function AdminOrders() {
     }, setLoadError)
   }, [])
 
-  const readyDelayMs = (order) => Math.max(0, Number(order.estimatedReadyMinutes || 0)) * 60 * 1000
-
   const changeOrderStatus = (order, orderStatus) => {
     if (order.orderStatus === "rejected" || order.orderStatus === "paid") return
     if (orderStatus === "rejected") {
@@ -142,47 +137,17 @@ export function AdminOrders() {
       setRejectReason("")
       return
     }
-    if (orderStatus === "paid" && order.orderStatus !== "ready") return
-    if (!["preparing", "ready"].includes(orderStatus)) return
+    if (orderStatus !== "ready") return
     updateStaffOrder(order.id, {
       orderStatus,
-      autoReadyAt:
-        orderStatus === "preparing"
-          ? Date.now() + readyDelayMs(order)
-          : orderStatus === "ready" ? null : order.autoReadyAt || null,
-      preparedAt: orderStatus === "preparing" ? new Date().toISOString() : order.preparedAt || null,
-      preparedAtMs: orderStatus === "preparing" ? Date.now() : order.preparedAtMs || 0,
-      readyAt: orderStatus === "ready" ? new Date().toISOString() : order.readyAt || null,
-      paidAt: orderStatus === "paid" ? new Date().toISOString() : order.paidAt || null,
-      paymentStatus: orderStatus === "paid" ? "paid" : order.paymentStatus,
-    })
-    if (orderStatus === "paid") {
-      writeAuditLog("order.payment.processed", { id: order.id, tableNumber: order.tableNumber, totalAmount: order.totalAmount })
-    }
-  }
-
-  // Accepting an order records when staff picked it up (for tracking) and auto-starts preparing.
-  const acceptOrder = (order) => {
-    if (order.orderStatus !== "received") return
-    const now = new Date().toISOString()
-    const nowMs = Date.now()
-    updateStaffOrder(order.id, {
-      orderStatus: "preparing",
-      autoReadyAt: nowMs + readyDelayMs(order),
-      autoReadyEnabled: true,
-      acceptedAt: now,
-      acceptedAtMs: nowMs,
-      preparedAt: now,
-      preparedAtMs: nowMs,
-    })
+      readyAt: new Date().toISOString(),
+      readyAtMs: Date.now(),
+    }).then(() => sendPushToCustomer(order.id)).catch((err) => setLoadError(err.message))
   }
 
   const confirmReject = () => {
     if (!rejectTarget) return
-    updateStaffOrder(rejectTarget.id, {
-      orderStatus: "rejected",
-      autoReadyAt: null,
-    })
+    updateStaffOrder(rejectTarget.id, { orderStatus: "rejected" })
     writeAuditLog("order.rejected", { id: rejectTarget.id, tableNumber: rejectTarget.tableNumber, reason: rejectReason })
     setRejectTarget(null)
     setRejectReason("")
@@ -225,19 +190,6 @@ export function AdminOrders() {
     writeAuditLog("order.paymentProof.rejected", { id: order.id, tableNumber: order.tableNumber })
   }
 
-  const toggleAutoReady = (order, enabled) => {
-    if (order.orderStatus === "rejected") return
-    updateStaffOrder(order.id, {
-      autoReadyEnabled: enabled,
-      autoReadyAt: enabled && order.orderStatus === "preparing" ? Date.now() + readyDelayMs(order) : null,
-    })
-  }
-
-  const formatCountdown = (target) => {
-    const totalSeconds = Math.ceil(Math.max(0, Number(target || 0) - clock) / 1000)
-    return `${Math.floor(totalSeconds / 60)}:${String(totalSeconds % 60).padStart(2, "0")}`
-  }
-
   const visibleOrders = orders.filter((order) => {
     const baseMatch = order.orderStatus !== "paid" && order.orderStatus !== "rejected"
     const orderFields = [
@@ -249,7 +201,7 @@ export function AdminOrders() {
     ]
     const searchMatch = !normalizeSearch(search) || normalizeSearch(orderFields.join(" ")).includes(normalizeSearch(search))
     return baseMatch && searchMatch &&
-      (statusFilter === "all" || order.orderStatus === statusFilter) &&
+      (statusFilter === "all" || (statusFilter === "inLine" ? queue.has(order.id) && !queue.get(order.id).preparing : statusFilter === "preparing" ? Boolean(queue.get(order.id)?.preparing) : order.orderStatus === statusFilter)) &&
       (paymentFilter === "all" || order.paymentStatus === paymentFilter)
   })
 
@@ -286,7 +238,7 @@ export function AdminOrders() {
           <span>Status</span>
           <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
             <option value="all">All statuses</option>
-            <option value="received">Received</option>
+            <option value="inLine">In line</option>
             <option value="preparing">Preparing</option>
             <option value="ready">Ready</option>
             <option value="rejected">Rejected</option>
@@ -352,17 +304,15 @@ export function AdminOrders() {
                 <p>{formatDateTime(orderCreatedAt(order), { dateStyle: undefined })}</p>
               </div>
               <div className="order-top-right">
-                {order.autoReadyAt && order.orderStatus === "preparing" ? (
-                  <span className="countdown-pill">Remaining {formatCountdown(order.autoReadyAt)}</span>
-                ) : order.estimatedReadyMinutes && order.orderStatus === "received" ? (
-                  <span className="countdown-pill muted-pill">{order.estimatedReadyMinutes} min</span>
+                {queue.has(order.id) ? (
+                  <span className="countdown-pill muted-pill">~{queue.get(order.id).waitMinutes} min</span>
                 ) : null}
                 <strong>{money(order.totalAmount)}</strong>
                 <StatusBadge type="payment" value={order.paymentStatus} />
               </div>
             </div>
             <div className="order-status-strip">
-              <StatusBadge value={order.orderStatus} />
+              <StatusBadge value={queue.get(order.id)?.preparing ? "preparing" : order.orderStatus} label={queueStatus(order, queue)} />
             </div>
             <ul>
               {(order.items || []).map((item, index) => (
@@ -379,28 +329,9 @@ export function AdminOrders() {
               <div className={`admin-controls ${order.orderStatus === "ready" ? "payment-active" : ""}`}>
                 {["received", "preparing"].includes(order.orderStatus) ? (
                   <div className="admin-action-row">
-                    {order.orderStatus === "received" ? (
-                      <button type="button" className="primary-button compact-btn" onClick={() => acceptOrder(order)}>
-                        <ClipboardCheck size={16} /> Accept
-                      </button>
-                    ) : (
-                      <button type="button" className="primary-button compact-btn" onClick={() => changeOrderStatus(order, "ready")}>
-                        <CheckCircle2 size={16} /> Mark Ready
-                      </button>
-                    )}
-                    {order.autoReadyAt && order.orderStatus === "preparing" ? (
-                      <span className="muted auto-ready-time">Ready at {formatDateTime(order.autoReadyAt, { dateStyle: undefined })}</span>
-                    ) : null}
-                    {order.orderStatus === "preparing" && order.autoReadyAt ? (
-                      <button
-                        type="button"
-                        className="ghost-button compact-btn"
-                        title={order.autoReadyEnabled === false ? "Auto-ready is off for this order" : "Stop the automatic ready timer"}
-                        onClick={() => toggleAutoReady(order, order.autoReadyEnabled === false)}
-                      >
-                        <TimerOff size={14} /> Auto-ready {order.autoReadyEnabled === false ? "off" : "on"}
-                      </button>
-                    ) : null}
+                    <button type="button" className="primary-button compact-btn" onClick={() => changeOrderStatus(order, "ready")}>
+                      <CheckCircle2 size={16} /> Done
+                    </button>
                     <button type="button" className="danger-button reject-btn" onClick={() => changeOrderStatus(order, "rejected")}>
                       Reject
                     </button>

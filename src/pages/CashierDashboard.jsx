@@ -19,14 +19,9 @@ import {
   notifyOrderEvent,
   isDuplicateNotification,
 } from "../services/notificationService"
-
-function formatCountdown(targetMs, now) {
-  const remaining = Math.max(0, Number(targetMs || 0) - now)
-  const totalSeconds = Math.ceil(remaining / 1000)
-  const minutes = Math.floor(totalSeconds / 60)
-  const seconds = totalSeconds % 60
-  return `${minutes}:${String(seconds).padStart(2, "0")}`
-}
+import { useKitchenQueue } from "../hooks/useKitchenQueue"
+import { useCafeSlug } from "../hooks/useCafeSlug"
+import { queueStatus } from "../services/kitchenQueue"
 
 // Payment methods may be stored as the option type ("Cash") or a legacy
 // display name ("Cash (Pay on hand)") — match both.
@@ -36,19 +31,14 @@ function isCashMethod(method) {
 
 export function CashierDashboard() {
   const [orders, setOrders] = useState([])
+  const queue = useKitchenQueue(orders, useCafeSlug())
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState("all")
   const [rejectingOrder, setRejectingOrder] = useState(null)
   const [rejectionReason, setRejectionReason] = useState("")
-  const [clock, setClock] = useState(Date.now())
   const previousOrders = useRef(new Map())
   const [toasts, setToasts] = useState([])
   const initialized = useRef(false)
-
-  useEffect(() => {
-    const id = window.setInterval(() => setClock(Date.now()), 1000)
-    return () => window.clearInterval(id)
-  }, [])
 
   const pushToast = (title, body, event, orderId, priority = "normal") => {
     const toastId = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
@@ -364,12 +354,8 @@ export function CashierDashboard() {
                   Method: {order.paymentMethod || "Not selected"}
                 </p>
                 <p style={{ margin: "4px 0", fontSize: "0.85rem", opacity: 0.8 }}>
-                  Status: <span style={{ textTransform: "capitalize", fontWeight: 600 }}>{order.orderStatus}</span>
-                  {order.autoReadyAt && order.orderStatus === "preparing" ? (
-                    <span className="countdown-pill" style={{ marginLeft: 8, background: "#fff8e6", color: "#d97706", fontWeight: 700 }}>
-                      Remaining {formatCountdown(order.autoReadyAt, clock)}
-                    </span>
-                  ) : null}
+                  Status: <span style={{ textTransform: "capitalize", fontWeight: 600 }}>{queueStatus(order, queue)}</span>
+                  {queue.has(order.id) ? <span className="countdown-pill" style={{ marginLeft: 8 }}>~{queue.get(order.id).waitMinutes} min</span> : null}
                 </p>
               </div>
 

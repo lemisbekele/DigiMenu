@@ -16,7 +16,11 @@ vi.mock("../context/rbacContextValue", () => ({
   }),
 }))
 
+vi.mock("../hooks/useCafeSlug", () => ({ useCafeSlug: () => "cafe" }))
+
 vi.mock("../services/dataService", () => ({
+  fetchKitchenCapacity: vi.fn(() => Promise.resolve(2)),
+  sendPushToCustomer: vi.fn(),
   formatCustomizations: vi.fn(() => ""),
   formatIngredientSelections: vi.fn((item) => `Ingredients: ${(item.ingredients || []).join(", ") || "None"}`),
   money: vi.fn((value) => `ETB ${Number(value || 0).toFixed(2)}`),
@@ -86,15 +90,21 @@ describe("AdminOrders", () => {
     expect(screen.queryByText("Table 4")).not.toBeInTheDocument()
   })
 
-  it("rejects orders and disables auto-ready controls on rejected orders", async () => {
+  it("shows one Done button per open order and marks it ready", async () => {
+    const user = userEvent.setup()
+    render(<AdminOrders />)
+
+    expect(screen.queryByText(/Accept/)).not.toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: /Done/ }))
+    expect(mocks.updateStaffOrder).toHaveBeenCalledWith("ORD-1", expect.objectContaining({ orderStatus: "ready" }))
+  })
+
+  it("rejects orders", async () => {
     const user = userEvent.setup()
     render(<AdminOrders />)
 
     await user.click(screen.getByText("Reject"))
     await user.click(screen.getByRole("button", { name: "Reject Order" }))
-    expect(mocks.updateStaffOrder).toHaveBeenCalledWith("ORD-1", expect.objectContaining({
-      autoReadyAt: null,
-      orderStatus: "rejected",
-    }))
+    expect(mocks.updateStaffOrder).toHaveBeenCalledWith("ORD-1", { orderStatus: "rejected" })
   })
 })

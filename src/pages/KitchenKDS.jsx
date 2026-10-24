@@ -3,7 +3,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   ChefHat,
-  ClipboardCheck,
   Clock,
   Coffee,
   CookingPot,
@@ -15,19 +14,23 @@ import {
 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useCafeSlug } from "../hooks/useCafeSlug"
+import { beep, newOrderIds, soundReady, unlockSound } from "../services/kitchenAlerts"
+import { OPEN_STATUSES } from "../services/kitchenQueue"
+import { useKitchenQueue } from "../hooks/useKitchenQueue"
 import {
   formatCustomizations,
   formatIngredientSelections,
   observeOrders,
+  sendPushToCustomer,
   updateStaffOrder,
 } from "../services/dataService"
 
-// Active KDS steps (received & preparing are active on board; accepting auto-starts preparing)
-const STEPS = ["received", "preparing"]
+// Columns are worked out from the queue: the oldest N open orders are "preparing", the rest wait in line.
+const STEPS = OPEN_STATUSES
 
 const TABS = [
-  { key: "received", label: "Pending", icon: Clock },
   { key: "preparing", label: "Preparing", icon: CookingPot },
+  { key: "received", label: "In line", icon: Clock },
 ]
 
 const STATIONS = [
@@ -102,18 +105,6 @@ function orderCreatedMs(order) {
   return new Date(order.createdAt || Date.now()).getTime()
 }
 
-function preparingStartedMs(order) {
-  if (order.preparedAtMs) return order.preparedAtMs
-  if (order.preparedAt) return new Date(order.preparedAt).getTime()
-  if (order.acceptedAtMs) return order.acceptedAtMs
-  if (order.acceptedAt) return new Date(order.acceptedAt).getTime()
-  return orderCreatedMs(order)
-}
-
-function autoReadyTargetMs(order) {
-  return Number(order.autoReadyAt || 0) > 0 ? Number(order.autoReadyAt) : null
-}
-
 function formatTime(totalSecs) {
   const m = Math.floor(totalSecs / 60)
   const s = totalSecs % 60
@@ -126,32 +117,13 @@ function elapsedColor(secs) {
   return "kds-timer-ok"
 }
 
-function countdownColor(remainingSecs) {
-  if (remainingSecs > 600) return "kds-timer-ok"
-  if (remainingSecs > 300) return "kds-timer-warn"
-  return "kds-timer-urgent"
-}
-
-function TicketTimer({ sinceMs, targetMs }) {
+function TicketTimer({ sinceMs }) {
   const [now, setNow] = useState(Date.now)
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), 1000)
     return () => window.clearInterval(id)
   }, [])
-
-  if (targetMs) {
-    const remaining = Math.max(0, Math.ceil((targetMs - now) / 1000))
-    return (
-      <div className="kds-ticket-timer-group">
-        <span className="kds-timer-label">Est. Ready</span>
-        <div className={`kds-ticket-timer ${countdownColor(remaining)}`}>
-          <Clock size={16} />
-          <span>{formatTime(remaining)}</span>
-        </div>
-      </div>
-    )
-  }
 
   const secs = Math.max(0, Math.floor((now - sinceMs) / 1000))
   return (
@@ -181,8 +153,8 @@ function EmptyState({ status, station }) {
       <p>
         {status === "received"
           ? station === "all"
-            ? "No pending orders"
-            : `No pending ${station} orders`
+            ? "Nobody waiting in line"
+            : `No ${station} orders in line`
           : station === "all"
           ? "No orders in progress"
           : `No ${station} orders in progress`}
@@ -202,16 +174,32 @@ export function KitchenKDS() {
     return localStorage.getItem("kds_muted") === "true"
   })
 
-  const prevCount = useRef(0)
-  const audioRef = useRef(null)
+  const previousIds = useRef(null)
+  const [soundBlocked, setSoundBlocked] = useState(true)
   const kanbanRef = useRef(null)
   const activeTabRef = useRef(activeTab)
   activeTabRef.current = activeTab
 
+  // Sound needs one tap after each page load; any tap on the screen unlocks it.
   useEffect(() => {
-    audioRef.current = new Audio(
-      "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACAf39/f4B/f3+AgH9/f3+Af39/gIB/f39/gH9/f4CAf39/f4B/f3+AgH9/f4B/f39/gIB/f3+AgH9/f4B/f3+AgH9/f4B/f3+AgH9/f39/gIB/f39/gIB/f39/gH9/f4B/f39/gIB/f3+Af39/gIB/f3+Af39/gIB/f3+Af39/gIB/f3+AgH9/f4B/f3+AgH9/f4B/f39/gH9/f4B/f39/gH9/fw==",
-    )
+    const unlock = () => unlockSound().then((ok) => setSoundBlocked(!ok))
+    unlock()
+    window.addEventListener("pointerdown", unlock)
+    return () => window.removeEventListener("pointerdown", unlock)
+  }, [])
+
+  // Keep the kitchen tablet screen on; the browser drops the lock when the tab is hidden.
+  useEffect(() => {
+    let lock = null
+    const request = () => {
+      if (document.visibilityState === "visible") navigator.wakeLock?.request("screen").then((l) => { lock = l }).catch(() => {})
+    }
+    request()
+    document.addEventListener("visibilitychange", request)
+    return () => {
+      document.removeEventListener("visibilitychange", request)
+      lock?.release().catch(() => {})
+    }
   }, [])
 
   const toggleMute = () => {
@@ -230,31 +218,15 @@ export function KitchenKDS() {
   // Real-time Supabase subscription
   useEffect(() => {
     return observeOrders((nextOrders) => {
-      const activeNext = nextOrders.filter((o) => STEPS.includes(o.orderStatus))
-      if (activeNext.length > prevCount.current && prevCount.current > 0 && !isMutedRef.current) {
-        audioRef.current?.play().catch(() => {})
+      // The first load only records what is already waiting; after that, any new order beeps.
+      if (previousIds.current && newOrderIds(previousIds.current, nextOrders).length && !isMutedRef.current) {
+        if (!beep()) setSoundBlocked(!soundReady())
       }
-      prevCount.current = activeNext.length
+      previousIds.current = new Set(nextOrders.map((o) => o.id))
       setOrders(nextOrders)
       setLoaded(true)
       setLoadError("")
     }, (message) => { setLoadError(message); setLoaded(true) })
-  }, [])
-
-  // Accepting an order records when staff picked it up (for tracking) and auto-starts preparing.
-  const acceptOrder = useCallback(async (order) => {
-    const eptMinutes = Math.max(1, Number(order.estimatedReadyMinutes || 15))
-    const now = new Date().toISOString()
-    const nowMs = Date.now()
-    await updateStaffOrder(order.id, {
-      orderStatus: "preparing",
-      acceptedAt: now,
-      acceptedAtMs: nowMs,
-      preparedAt: now,
-      preparedAtMs: nowMs,
-      autoReadyEnabled: true,
-      autoReadyAt: nowMs + eptMinutes * 60 * 1000,
-    })
   }, [])
 
   const markReady = useCallback(async (order) => {
@@ -262,8 +234,8 @@ export function KitchenKDS() {
       orderStatus: "ready",
       readyAt: new Date().toISOString(),
       readyAtMs: Date.now(),
-      autoReadyEnabled: false,
     })
+    sendPushToCustomer(order.id)
   }, [])
 
   // Calculate real-time active order and item counts per station (received & preparing only)
@@ -318,20 +290,17 @@ export function KitchenKDS() {
   }, [orders])
 
   // Filter columns by active steps and station selection
+  // The queue is worked out over all open orders, then filtered by station for display.
+  const queue = useKitchenQueue(orders, cafeSlug)
   const columns = useMemo(() => {
-    const active = orders.filter((o) => STEPS.includes(o.orderStatus))
-
-    const filtered = active.filter((order) => matchesStation(order, stationFilter))
-
+    const inQueue = orders
+      .filter((o) => queue.has(o.id) && matchesStation(o, stationFilter))
+      .sort((a, b) => queue.get(a.id).position - queue.get(b.id).position)
     return {
-      received: filtered
-        .filter((o) => o.orderStatus === "received")
-        .sort((a, b) => orderCreatedMs(a) - orderCreatedMs(b)),
-      preparing: filtered
-        .filter((o) => o.orderStatus === "preparing")
-        .sort((a, b) => preparingStartedMs(b) - preparingStartedMs(a)),
+      preparing: inQueue.filter((o) => queue.get(o.id).preparing),
+      received: inQueue.filter((o) => !queue.get(o.id).preparing),
     }
-  }, [orders, stationFilter])
+  }, [orders, queue, stationFilter])
 
   const totalActiveOrders = columns.received.length + columns.preparing.length
 
@@ -357,6 +326,11 @@ export function KitchenKDS() {
     <div className="kds-root">
       {loadError ? <p className="form-error" role="alert">{loadError}</p> : null}
       {/* Top Navigation & Controls */}
+      {soundBlocked && !isMuted ? (
+        <button type="button" className="kds-sound-banner" onClick={() => unlockSound().then((ok) => setSoundBlocked(!ok))}>
+          <Volume2 size={18} /> Tap to turn on the new-order sound
+        </button>
+      ) : null}
       <header className="kds-header">
         <div className="kds-header-left">
           <ChefHat size={28} className="kds-title-icon" />
@@ -469,13 +443,7 @@ export function KitchenKDS() {
                   <EmptyState status={tab.key} station={stationFilter} />
                 ) : (
                   items.map((order, idx) => {
-                    const createdMs = orderCreatedMs(order)
-                    const prepMs = preparingStartedMs(order)
-                    const targetMs = tab.key === "preparing" ? autoReadyTargetMs(order) : null
-                    const sinceMs =
-                      tab.key === "received"
-                        ? createdMs
-                        : prepMs
+                    const sinceMs = orderCreatedMs(order)
 
                     return (
                       <article
@@ -502,7 +470,8 @@ export function KitchenKDS() {
                           )}
                         </div>
 
-                        <TicketTimer sinceMs={sinceMs} targetMs={targetMs} />
+                        <TicketTimer sinceMs={sinceMs} />
+                        {tab.key === "received" ? <span className="kds-ticket-id">#{queue.get(order.id).position + 1} in line</span> : null}
 
                         <ul className="kds-ticket-items">
                           {(order.items || []).map((item, i) => {
@@ -556,30 +525,13 @@ export function KitchenKDS() {
                         </ul>
 
                         <div className="kds-ticket-actions">
-                          {order.orderStatus === "received" && (
-                            <button
-                              className="kds-btn kds-btn-amber"
-                              type="button"
-                              onClick={() => acceptOrder(order).catch(() => setLoadError("Could not accept the order. Please retry."))}
-                            >
-                              <ClipboardCheck size={18} /> Accept & Auto-Start
-                            </button>
-                          )}
-
-                          {order.orderStatus === "preparing" && (
-                            <div className="kds-action-group">
-                              <button
-                                className="kds-btn kds-btn-green"
-                                type="button"
-                                onClick={() => markReady(order).catch(() => setLoadError("Could not mark this order ready. Please retry."))}
-                              >
-                                <CheckCircle2 size={18} /> Mark as Ready
-                              </button>
-                              <span className="kds-auto-note">
-                                <Clock size={12} /> Auto-ready enabled
-                              </span>
-                            </div>
-                          )}
+                          <button
+                            className="kds-btn kds-btn-green"
+                            type="button"
+                            onClick={() => markReady(order).catch(() => setLoadError("Could not mark this order done. Please retry."))}
+                          >
+                            <CheckCircle2 size={18} /> Done
+                          </button>
                         </div>
                       </article>
                     )

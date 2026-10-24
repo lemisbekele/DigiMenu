@@ -576,10 +576,10 @@ export async function deletePaymentOption(optionId) {
 }
 
 const orderObservers = new Map()
-export function observeOrders(callback, onError) {
+export function observeOrders(callback, onError, scopeOverride) {
   const slug = requireCurrentCafeSlug()
   const path = window.location.pathname.toLowerCase()
-  const scope = /\/(kds|orders)\/?$/.test(path) ? "active" : /\/pos\/?$/.test(path) ? "cashier" : "all"
+  const scope = scopeOverride || (/\/(kds|orders)\/?$/.test(path) ? "active" : /\/pos\/?$/.test(path) ? "cashier" : "all")
   const key = `${slug}:${scope}`
   let entry = orderObservers.get(key)
   if (!entry) {
@@ -590,7 +590,7 @@ export function observeOrders(callback, onError) {
       if (orderObservers.get(key) !== entry) return
       entry.rows = rows
       entry.listeners.forEach((listener) => listener.callback(rows))
-    }, (error) => entry.listeners.forEach((listener) => listener.onError?.(error)), "orders", scope === "all" ? 30000 : 5000)
+    }, (error) => entry.listeners.forEach((listener) => listener.onError?.(error)), "orders", scope === "all" || scope === "recent" ? 30000 : 5000)
   }
   const listener = { callback, onError }
   entry.listeners.add(listener)
@@ -993,3 +993,14 @@ export function observeCafeUsers(cafeSlug, callback, onError) {
 }
 
 export { isSafeStorageUrl }
+
+export async function fetchKitchenCapacity(cafeSlug = currentCafeSlug()) {
+  const { data, error } = await supabase.rpc("get_kitchen_capacity", { p_cafe_slug: cafeSlug })
+  if (error) throw new Error(error.message || "Could not load kitchen settings.")
+  return Number(data) || 2
+}
+
+export async function saveKitchenCapacity(capacity) {
+  const { error } = await supabase.rpc("set_kitchen_capacity", { p_cafe_slug: requireCurrentCafeSlug(), p_capacity: Number(capacity) })
+  if (error) throw new Error(error.message || "Could not save kitchen settings.")
+}
