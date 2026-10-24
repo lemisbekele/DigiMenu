@@ -262,7 +262,7 @@ describe("routing smoke test", () => {
   it("opens KDS for barista", async () => {
     signInAs("barista")
     await renderApp("/abyssinia-roast/kds")
-    expect(await screen.findByText("Kitchen KDS", {}, { timeout: 10000 })).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Kitchen", level: 1 }, { timeout: 10000 })).toBeInTheDocument()
   }, 15000)
 
   it("opens POS for cashier", async () => {
@@ -293,7 +293,7 @@ describe("routing smoke test", () => {
   it("bounces barista from POS to KDS", async () => {
     signInAs("barista")
     await renderApp("/abyssinia-roast/pos")
-    expect(await screen.findByText("Kitchen KDS", {}, { timeout: 10000 })).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Kitchen", level: 1 }, { timeout: 10000 })).toBeInTheDocument()
   })
 
   it("renders provider stack with a simple route", async () => {

@@ -260,7 +260,9 @@ export function formatCustomizations(customizations = {}, noneLabel = "None", la
 
 export function ingredientSelectionDetails(item) {
   const allIngredients = item.ingredients || []
-  const selectedIngredients = (item.customizations?.Ingredients || []).map((entry) => entry.name)
+  // No ingredient choice recorded means the customer kept everything; never report it as all removed.
+  const chosen = item.customizations?.Ingredients
+  const selectedIngredients = chosen ? chosen.map((entry) => entry.name) : allIngredients
   const removedIngredients = allIngredients.filter((ingredient) => !selectedIngredients.includes(ingredient))
   return { allIngredients, selectedIngredients, removedIngredients }
 }

@@ -5,6 +5,7 @@ import {
   formatCustomizations,
   formatIngredientSelections,
   getLocalizedMenuLabel,
+  ingredientSelectionDetails,
   menuImagePaths,
   money,
 } from "./dataService"
@@ -83,5 +84,12 @@ describe("menuImagePaths", () => {
     expect(menuImagePaths("https://images.unsplash.com/photo.webp", "lemi-coffee")).toBeNull()
     expect(menuImagePaths(`${base}/lemi-coffee/123.webp`, "")).toBeNull()
     expect(menuImagePaths("", "lemi-coffee")).toBeNull()
+  })
+})
+
+describe("ingredientSelectionDetails", () => {
+  it("treats a missing ingredient choice as nothing removed", () => {
+    expect(ingredientSelectionDetails({ ingredients: ["Milk", "Sugar"] }).removedIngredients).toEqual([])
+    expect(ingredientSelectionDetails({ ingredients: ["Milk", "Sugar"], customizations: { Ingredients: [{ name: "Milk" }] } }).removedIngredients).toEqual(["Sugar"])
   })
 })
