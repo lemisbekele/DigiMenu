@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react"
 import { ImageOff, Utensils } from "lucide-react"
+import { toImageCdn } from "../services/imageCdn"
 
 // In-memory cache of already loaded image URLs to prevent skeleton flashes on re-renders
 const loadedUrlsCache = new Set()
@@ -33,7 +34,9 @@ export function OptimizedImage({
   onClick,
   ...rest
 }) {
-  const cleanSrc = src && typeof src === "string" && src.trim() !== "" ? src.trim() : null
+  const rawSrc = src && typeof src === "string" && src.trim() !== "" ? src.trim() : null
+  // srcSet is worked out from the Supabase address, then both move to the image CDN when one is set.
+  const cleanSrc = toImageCdn(rawSrc)
   const isAlreadyLoaded = cleanSrc ? loadedUrlsCache.has(cleanSrc) : false
 
   const [isLoaded, setIsLoaded] = useState(isAlreadyLoaded)
@@ -81,7 +84,7 @@ export function OptimizedImage({
     setHasError(false)
   }
 
-  const computedSrcSet = !srcSetFailed ? (srcSet || (cleanSrc ? buildSrcSet(cleanSrc) : undefined)) : undefined
+  const computedSrcSet = !srcSetFailed ? toImageCdn(srcSet || (rawSrc ? buildSrcSet(rawSrc) : undefined)) : undefined
 
   const handleError = () => {
     if (computedSrcSet && !srcSetFailed) {
