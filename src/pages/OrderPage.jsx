@@ -11,6 +11,7 @@ import { useCafeSlug } from "../hooks/useCafeSlug"
 import { DEFAULT_BILLING_SETTINGS } from "../services/billingSettings"
 import { ImageUploader } from "../components/ImageUploader"
 import { showBrowserNotification } from "../services/notificationService"
+import { isOrderReady } from "../services/kitchenAlerts"
 import { formatCustomizations, formatIngredientSelections, money, observeBillingSettings, observeOrder, observePaymentOptions, updateCustomerOrder, uploadPaymentProof, caloriesLabel, cartLineCalories, isSafeStorageUrl } from "../services/dataService"
 import { OptimizedImage } from "../components/OptimizedImage"
 import { usePaymentConfirmedPopup } from "../hooks/usePaymentConfirmedPopup"
@@ -78,16 +79,12 @@ export function OrderPage() {
 
   useEffect(() => {
     return observeOrder(orderId, (nextOrder) => {
-      if (
-        nextOrder?.orderStatus === "ready" &&
-        previousStatus.current &&
-        previousStatus.current !== "ready"
-      ) {
+      if (isOrderReady(nextOrder) && previousStatus.current && !isOrderReady(previousStatus.current)) {
         if ("Notification" in window && Notification.permission === "granted") {
           showBrowserNotification(tRef.current("orderReadyTitle"), { body: tRef.current("orderReadyBody") })
         }
       }
-      previousStatus.current = nextOrder?.orderStatus || null
+      previousStatus.current = nextOrder || null
       setOrder(nextOrder)
       setLoading(false)
     }, (message) => {
@@ -178,7 +175,8 @@ export function OrderPage() {
   }
 
   const steps = ["received", "accepted", "preparing", "ready"]
-  const statusIndex = steps.indexOf(order.orderStatus)
+  const ready = isOrderReady(order)
+  const statusIndex = ready ? steps.length - 1 : steps.indexOf(order.orderStatus)
   const isPaid = order.paymentStatus === "paid" || order.orderStatus === "paid"
 
   const handleProofBlob = async (blob) => {
@@ -274,7 +272,7 @@ export function OrderPage() {
         </div>
       </section>
 
-      {order.orderStatus === "ready" ? (
+      {ready ? (
         <section className="summary-panel success-order-panel" role="status">
           <span className="success-order-icon"><CheckCircle2 size={26} /></span>
           <div>

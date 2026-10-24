@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react"
-import { observeOrders, updateStaffOrder } from "../services/dataService"
+import { observeOrders, sendPushToCustomer, updateStaffOrder } from "../services/dataService"
 import { notifyOrderEvent, NOTIFICATION_EVENTS } from "../services/notificationService"
 
 /**
@@ -44,7 +44,10 @@ export function useAutoReadyWatcher() {
           autoReadyAt: 0,
           readyAt: new Date().toISOString(),
           readyAtMs: Date.now(),
-        }).then(() => notifyOrderEvent(order, NOTIFICATION_EVENTS.ORDER_READY))
+        }).then(() => {
+          notifyOrderEvent(order, NOTIFICATION_EVENTS.ORDER_READY)
+          sendPushToCustomer(order.id)
+        })
           .catch((err) => {
             // Another screen already did it; don't retry or notify again.
             if (!/no longer preparing/i.test(err?.message || "")) firedRef.current.delete(order.id)

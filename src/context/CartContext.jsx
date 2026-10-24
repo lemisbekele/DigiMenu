@@ -2,12 +2,18 @@ import { useEffect, useMemo, useState } from "react"
 import { CartContext } from "./cartContextValue"
 import { cartLineTotal, totalCalories } from "../services/dataService"
 
+const CART_MAX_AGE_MS = 6 * 60 * 60 * 1000
+
 export function CartProvider({ children }) {
   const key = `cafe-cart:${window.location.pathname.split('/').filter(Boolean)[0] || ''}`
+  // localStorage survives the QR browser closing; a cart older than 6 hours is a past visit, so drop it.
   const [items, setItems] = useState(() => {
-    try { const saved = JSON.parse(sessionStorage.getItem(key) || '[]'); return Array.isArray(saved) ? saved : [] } catch { return [] }
+    try {
+      const saved = JSON.parse(localStorage.getItem(key) || 'null')
+      return saved && Array.isArray(saved.items) && Date.now() - saved.savedAt < CART_MAX_AGE_MS ? saved.items : []
+    } catch { return [] }
   })
-  useEffect(() => { try { sessionStorage.setItem(key, JSON.stringify(items)) } catch {} }, [key, items])
+  useEffect(() => { try { localStorage.setItem(key, JSON.stringify({ items, savedAt: Date.now() })) } catch {} }, [key, items])
   const [cartOpen, setCartOpen] = useState(false)
 
   const value = useMemo(() => {

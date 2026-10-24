@@ -15,10 +15,12 @@ import {
 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useCafeSlug } from "../hooks/useCafeSlug"
+import { beep, newOrderIds, soundReady, unlockSound } from "../services/kitchenAlerts"
 import {
   formatCustomizations,
   formatIngredientSelections,
   observeOrders,
+  sendPushToCustomer,
   updateStaffOrder,
 } from "../services/dataService"
 
@@ -202,16 +204,32 @@ export function KitchenKDS() {
     return localStorage.getItem("kds_muted") === "true"
   })
 
-  const prevCount = useRef(0)
-  const audioRef = useRef(null)
+  const previousIds = useRef(null)
+  const [soundBlocked, setSoundBlocked] = useState(true)
   const kanbanRef = useRef(null)
   const activeTabRef = useRef(activeTab)
   activeTabRef.current = activeTab
 
+  // Sound needs one tap after each page load; any tap on the screen unlocks it.
   useEffect(() => {
-    audioRef.current = new Audio(
-      "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACAf39/f4B/f3+AgH9/f3+Af39/gIB/f39/gH9/f4CAf39/f4B/f3+AgH9/f4B/f39/gIB/f3+AgH9/f4B/f3+AgH9/f4B/f3+AgH9/f39/gIB/f39/gIB/f39/gH9/f4B/f39/gIB/f3+Af39/gIB/f3+Af39/gIB/f3+Af39/gIB/f3+AgH9/f4B/f3+AgH9/f4B/f39/gH9/f4B/f39/gH9/fw==",
-    )
+    const unlock = () => unlockSound().then((ok) => setSoundBlocked(!ok))
+    unlock()
+    window.addEventListener("pointerdown", unlock)
+    return () => window.removeEventListener("pointerdown", unlock)
+  }, [])
+
+  // Keep the kitchen tablet screen on; the browser drops the lock when the tab is hidden.
+  useEffect(() => {
+    let lock = null
+    const request = () => {
+      if (document.visibilityState === "visible") navigator.wakeLock?.request("screen").then((l) => { lock = l }).catch(() => {})
+    }
+    request()
+    document.addEventListener("visibilitychange", request)
+    return () => {
+      document.removeEventListener("visibilitychange", request)
+      lock?.release().catch(() => {})
+    }
   }, [])
 
   const toggleMute = () => {
@@ -230,11 +248,11 @@ export function KitchenKDS() {
   // Real-time Supabase subscription
   useEffect(() => {
     return observeOrders((nextOrders) => {
-      const activeNext = nextOrders.filter((o) => STEPS.includes(o.orderStatus))
-      if (activeNext.length > prevCount.current && prevCount.current > 0 && !isMutedRef.current) {
-        audioRef.current?.play().catch(() => {})
+      // The first load only records what is already waiting; after that, any new order beeps.
+      if (previousIds.current && newOrderIds(previousIds.current, nextOrders).length && !isMutedRef.current) {
+        if (!beep()) setSoundBlocked(!soundReady())
       }
-      prevCount.current = activeNext.length
+      previousIds.current = new Set(nextOrders.map((o) => o.id))
       setOrders(nextOrders)
       setLoaded(true)
       setLoadError("")
@@ -252,7 +270,8 @@ export function KitchenKDS() {
       acceptedAtMs: nowMs,
       preparedAt: now,
       preparedAtMs: nowMs,
-      autoReadyEnabled: true,
+      // Countdown is a reminder only; staff can switch auto-ready on per order.
+      autoReadyEnabled: false,
       autoReadyAt: nowMs + eptMinutes * 60 * 1000,
     })
   }, [])
@@ -264,6 +283,7 @@ export function KitchenKDS() {
       readyAtMs: Date.now(),
       autoReadyEnabled: false,
     })
+    sendPushToCustomer(order.id)
   }, [])
 
   // Calculate real-time active order and item counts per station (received & preparing only)
@@ -357,6 +377,11 @@ export function KitchenKDS() {
     <div className="kds-root">
       {loadError ? <p className="form-error" role="alert">{loadError}</p> : null}
       {/* Top Navigation & Controls */}
+      {soundBlocked && !isMuted ? (
+        <button type="button" className="kds-sound-banner" onClick={() => unlockSound().then((ok) => setSoundBlocked(!ok))}>
+          <Volume2 size={18} /> Tap to turn on the new-order sound
+        </button>
+      ) : null}
       <header className="kds-header">
         <div className="kds-header-left">
           <ChefHat size={28} className="kds-title-icon" />

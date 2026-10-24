@@ -11,7 +11,6 @@ import {
   money,
   observeOrders,
   observePaymentOptions,
-  sendPushToCustomer,
   updateStaffOrder,
   writeAuditLog,
   isSafeStorageUrl,
@@ -119,7 +118,6 @@ export function AdminOrders() {
               title: "Order Ready",
             })
             notifyOrderEvent(order, NOTIFICATION_EVENTS.ORDER_READY)
-            sendPushToCustomer(order.id, "Your order is ready!", `Your order at Table ${order.tableNumber} is ready. Please collect it from the counter.`)
           } else if (prev.orderStatus !== "paid" && order.orderStatus === "paid") {
             notifyOrderEvent(order, NOTIFICATION_EVENTS.ORDER_PAID)
           } else if (prev.orderStatus !== "rejected" && order.orderStatus === "rejected") {
@@ -169,7 +167,7 @@ export function AdminOrders() {
     updateStaffOrder(order.id, {
       orderStatus: "preparing",
       autoReadyAt: nowMs + readyDelayMs(order),
-      autoReadyEnabled: true,
+      autoReadyEnabled: false,
       acceptedAt: now,
       acceptedAtMs: nowMs,
       preparedAt: now,
