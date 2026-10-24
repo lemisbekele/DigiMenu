@@ -6,10 +6,10 @@
 .oc-head p { margin: var(--space-1) 0 0; color: var(--muted); font-size: var(--text-sm); }
 
 /* Totals row (Payments). */
-.oc-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-3); }
-.oc-stat { padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+.oc-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--space-3); }
+.oc-stat { container-type: inline-size; padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
 .oc-stat span { display: block; color: var(--muted); font-size: var(--text-sm); }
-.oc-stat strong { display: block; margin-top: var(--space-1); font-size: var(--text-xl); font-weight: var(--weight-bold); font-variant-numeric: tabular-nums; }
+.oc-stat strong { display: block; margin-top: var(--space-1); font-size: clamp(var(--text-md), 13cqi, var(--text-xl)); font-weight: var(--weight-bold); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* Toolbar: search plus filter chips. */
 .oc-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
@@ -284,3 +284,25 @@
   .ad-row { flex-wrap: wrap; }
   .ad-row-actions { width: 100%; justify-content: flex-start; }
 }
+
+/* Dashboard. */
+.ad-dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: var(--space-4); align-items: start; }
+.ad-bars { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--space-2); align-items: end; height: 160px; }
+.ad-bar { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: var(--space-1); height: 100%; }
+.ad-bar-fill { width: 100%; max-width: 36px; border-radius: var(--radius-sm) var(--radius-sm) 2px 2px; background: var(--brand); }
+.ad-bar-label { color: var(--muted); font-size: var(--text-sm); }
+.ad-rank { display: flex; flex-direction: column; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.ad-rank li { display: grid; grid-template-columns: minmax(0, 1.2fr) 1fr auto; align-items: center; gap: var(--space-3); font-size: var(--text-sm); }
+.ad-rank-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: var(--weight-bold); }
+.ad-rank-bar { height: 8px; border-radius: 999px; background: var(--surface-3); overflow: hidden; }
+.ad-rank-bar span { display: block; height: 100%; border-radius: inherit; background: var(--brand); }
+.oc-stat span + span { margin-top: var(--space-1); }
+@media (max-width: 640px) { .ad-dash-grid { grid-template-columns: 1fr; } }
+
+/* Inventory quick count. */
+.ad-stepper { display: inline-flex; align-items: center; gap: var(--space-2); }
+.ad-stepper .ad-icon { width: 36px; height: 36px; }
+.ad-stepper .ad-icon:disabled { opacity: 0.4; cursor: not-allowed; }
+.ad-qty { min-width: 72px; text-align: center; color: var(--text-2); font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+.ad-qty strong { color: var(--text); font-size: var(--text-lg); }
+.oc-stat.is-text strong { white-space: normal; overflow: visible; font-size: var(--text-md); line-height: 1.3; }

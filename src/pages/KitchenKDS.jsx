@@ -4,6 +4,7 @@ import { Link } from "react-router-dom"
 import { useCafeSlug } from "../hooks/useCafeSlug"
 import { useKitchenQueue } from "../hooks/useKitchenQueue"
 import { beep, newOrderIds, soundReady, unlockSound } from "../services/kitchenAlerts"
+import { isDrink, matchesStation } from "../services/kitchenQueue"
 import {
   itemChanges,
   observeOrders,
@@ -24,23 +25,6 @@ const STATIONS = [
   { key: "food", label: "Food" },
   { key: "drinks", label: "Drinks" },
 ]
-
-const DRINK_KEYWORDS = [
-  "coffee", "latte", "espresso", "cappuccino", "macchiato", "tea", "matcha", "smoothie", "juice",
-  "beverage", "drink", "cold brew", "iced", "frappe", "milkshake", "soda", "water", "cocktail",
-  "barista", "mocha", "americano", "flat white", "cortado", "brew", "chai", "drip", "pour over",
-]
-
-function isDrink(item) {
-  const text = `${item?.name || ""} ${item?.category || ""} ${item?.subcategory || ""}`.toLowerCase()
-  return DRINK_KEYWORDS.some((kw) => text.includes(kw))
-}
-
-function matchesStation(order, station) {
-  if (station === "all") return true
-  const items = order.items || []
-  return station === "drinks" ? items.some(isDrink) : items.some((i) => !isDrink(i))
-}
 
 function orderCreatedMs(order) {
   return Number(order.createdAtMs) || new Date(order.createdAt || Date.now()).getTime()

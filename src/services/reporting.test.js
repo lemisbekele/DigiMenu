@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { buildReport, buildSalesCsv, orderItems, reportRange, csvEscape } from "./reporting"
+import { buildReport, buildSalesCsv, lastDays, orderItems, reportRange, csvEscape } from "./reporting"
 
 const orders = [
   {
@@ -82,3 +82,11 @@ describe("sales reporting", () => {
   })
 })
 
+
+describe("lastDays", () => {
+  it("lists every day up to today, oldest first, across a month end", () => {
+    const days = lastDays(7, "2026-11-02")
+    expect(days.map((d) => d.key)).toEqual(["2026-10-27", "2026-10-28", "2026-10-29", "2026-10-30", "2026-10-31", "2026-11-01", "2026-11-02"])
+    expect(new Set(days.map((d) => d.label)).size).toBe(7)
+  })
+})

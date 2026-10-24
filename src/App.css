@@ -1484,6 +1484,21 @@ legend,
     margin: 0 0 4px;
   }
 
+  /* Narrow icon rail: logo mark only, and Sign out as icon + small label like the links. */
+  .role-barista .sidebar-user .digimenu-brand-name { display: none; }
+  .role-barista .admin-sidebar > div:last-child { width: 100%; padding: 8px 0 !important; }
+  .role-barista .admin-sidebar .sidebar-signout {
+    flex-direction: column;
+    gap: 4px !important;
+    padding: 10px 4px !important;
+    font-size: 0 !important;
+  }
+  .role-barista .admin-sidebar .sidebar-signout::after {
+    content: attr(data-label);
+    font-size: 0.62rem;
+    line-height: 1.1;
+  }
+
   .role-barista .admin-sidebar a::after {
     content: attr(data-label);
     display: block;
