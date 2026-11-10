@@ -12,6 +12,7 @@ services:
         VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-http://localhost:54321}
         VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH}
         VITE_VAPID_PUBLIC_KEY: ${VITE_VAPID_PUBLIC_KEY:-BC5wWIqmLKv8oYpF1D4K-vIAWqjmiaxiqB_b1V9QrD1-DQD9m8zwTiS8zfoRRiyWG5zFpwroJxQiFYyFr4BO8Ps}
+        VITE_IMAGE_CDN_URL: ${VITE_IMAGE_CDN_URL:-}
     container_name: digimenu-web
     ports:
       - "${PORT:-3010}:80"

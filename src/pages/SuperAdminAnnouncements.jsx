@@ -75,7 +75,7 @@ export function SuperAdminAnnouncements() {
         <button
           type="button"
           onClick={() => { setShowModal(true); setError("") }}
-          className="sa-btn sa-btn-primary"
+          className="primary-button"
         >
           + New Announcement
         </button>
@@ -116,7 +116,7 @@ export function SuperAdminAnnouncements() {
               <button
                 type="button"
                 onClick={() => handleDelete(ann)}
-                className="sa-btn sa-btn-danger"
+                className="danger-button"
               >
                 Delete
               </button>
@@ -182,7 +182,7 @@ export function SuperAdminAnnouncements() {
             </label>
             <div className="sa-modal-actions">
               <button type="button" onClick={() => setShowModal(false)} className="sa-ghost">Cancel</button>
-              <button type="submit" disabled={busy} className="sa-btn sa-btn-primary">
+              <button type="submit" disabled={busy} className="primary-button">
                 {busy ? "Broadcasting..." : "Broadcast"}
               </button>
             </div>

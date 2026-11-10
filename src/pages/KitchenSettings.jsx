@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Bell, ChefHat, Globe, Moon, Sun, Volume2 } from "lucide-react"
 import { LogoutButton } from "../components/LogoutButton"
 import { useLanguage } from "../context/languageContextValue"
+import { useTheme } from "../context/themeContextValue"
 import {
   getPermission,
   requestPermission,
@@ -30,7 +31,9 @@ export function KitchenSettings() {
 
   const [soundAlerts, setSoundAlerts] = useState(() => loadSetting("soundAlerts", true))
   const [desktopNotifs, setDesktopNotifs] = useState(() => loadSetting("desktopNotifs", true))
-  const [darkMode, setDarkMode] = useState(() => loadSetting("darkMode", false))
+  // Same theme setting as the rest of the app, so it survives reloads and matches every screen.
+  const { theme, setTheme } = useTheme()
+  const darkMode = theme === "dark"
   const [message, setMessage] = useState("")
   const [messageType, setMessageType] = useState("")
   const [capacity, setCapacity] = useState(DEFAULT_KITCHEN_CAPACITY)
@@ -47,14 +50,6 @@ export function KitchenSettings() {
       setCapacityNote(err.message)
     }
   }
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark-mode")
-    } else {
-      document.documentElement.classList.remove("dark-mode")
-    }
-  }, [darkMode])
 
   const toggle = (key, value, setter) => {
     setter(value)
@@ -103,7 +98,7 @@ export function KitchenSettings() {
             <Bell size={16} /> Desktop push notifications
           </label>
           <label className="auto-ready-toggle">
-            <input type="checkbox" checked={darkMode} onChange={(e) => toggle("darkMode", e.target.checked, setDarkMode)} />
+            <input type="checkbox" checked={darkMode} onChange={(e) => setTheme(e.target.checked ? "dark" : "light")} />
             {darkMode ? <Moon size={16} /> : <Sun size={16} />} Dark mode
           </label>
         </div>

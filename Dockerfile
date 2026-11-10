@@ -12,17 +12,21 @@ COPY . .
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_ANON_KEY
 ARG VITE_VAPID_PUBLIC_KEY
+ARG VITE_IMAGE_CDN_URL
 ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
     VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY \
-    VITE_VAPID_PUBLIC_KEY=$VITE_VAPID_PUBLIC_KEY
+    VITE_VAPID_PUBLIC_KEY=$VITE_VAPID_PUBLIC_KEY \
+    VITE_IMAGE_CDN_URL=$VITE_IMAGE_CDN_URL
 
 RUN npm run build
 
 # ---------- Runtime stage ----------
 FROM nginx:1.27-alpine
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Files in templates/ get ${PORT} filled in and are written to conf.d/ when the container starts.
+ENV PORT=80
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 COPY --from=build /app/dist /usr/share/nginx/html
 
 EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=3s \
-  CMD wget -qO- http://127.0.0.1/ >/dev/null || exit 1
+  CMD wget -qO- http://127.0.0.1:${PORT}/ >/dev/null || exit 1

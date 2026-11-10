@@ -192,7 +192,7 @@ describe("url case handling", () => {
   it("signed-in barista lands on the KDS at /lemi-coffee/Barista (capitalized)", async () => {
     signInAs("barista")
     await renderApp("/lemi-coffee/Barista")
-    expect(await screen.findByText("Kitchen KDS", {}, { timeout: 10000 })).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Kitchen", level: 1 }, { timeout: 10000 })).toBeInTheDocument()
   })
 
   it("capitalized public menu /lemi-coffee/Menu stays public (no login wall)", async () => {
@@ -220,7 +220,7 @@ describe("url case handling", () => {
     fireEvent.change(screen.getByLabelText("Password"), { target: { value: "barista-pass" } })
     fireEvent.click(screen.getByRole("button", { name: "Sign in" }))
 
-    expect(await screen.findByText("Kitchen KDS", {}, { timeout: 10000 })).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Kitchen", level: 1 }, { timeout: 10000 })).toBeInTheDocument()
     expect(screen.queryByRole("heading", { name: "Sign in" })).not.toBeInTheDocument()
   }, 20000)
 })

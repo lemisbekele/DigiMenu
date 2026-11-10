@@ -1,4 +1,5 @@
 import { DistributionChart, FeedState } from "../components/PlatformCharts"
+import { useConfirm } from "../hooks/useConfirm"
 import { cafeDistribution } from "../services/platformMetrics"
 import { isSubscriptionActive } from "../services/planService"
 import { toUserMessage } from "../services/userMessages"
@@ -27,6 +28,7 @@ const statusLabel = (status) => {
 }
 
 export function SuperAdminCafes() {
+  const [confirm, confirmDialog] = useConfirm()
   const [cafes, setCafes] = useState([])
   const [cafesLoading, setCafesLoading] = useState(true)
   const [cafesError, setCafesError] = useState(false)
@@ -94,14 +96,14 @@ export function SuperAdminCafes() {
       await updateCafeStatus(cafe.id, status)
       await load()
     } catch (err) {
-      alert(toUserMessage(err, "Could not update cafe status."))
+      setNotice({ type: "error", text: toUserMessage(err, "Could not update cafe status.") })
     } finally {
       setLoading(false)
     }
   }
 
   const handleDelete = async (cafe) => {
-    const confirmed = window.confirm(`Permanently delete ${cafe.name}? This removes its profile, subscription, tenant data, stored files, and every associated user account (including the owner's login). This cannot be undone.`)
+    const confirmed = await confirm(`This removes its profile, subscription, tenant data, stored files, and every associated user account (including the owner's login). This cannot be undone.`, { title: `Permanently delete ${cafe.name}?`, confirmLabel: "Delete cafe" })
     if (!confirmed) return
     setLoading(true)
     setNotice(null)
@@ -129,7 +131,7 @@ export function SuperAdminCafes() {
       setOwnerModal(null)
       setOwnerEmail("")
     } catch (err) {
-      alert(toUserMessage(err, "Could not update owner email."))
+      setNotice({ type: "error", text: toUserMessage(err, "Could not update owner email.") })
     } finally { setLoading(false) }
   }
 
@@ -156,6 +158,7 @@ export function SuperAdminCafes() {
 
   return (
     <div className="sa-page sa-cafes-page">
+      {confirmDialog}
       <div className="sa-head">
         <h1>Cafe Management</h1>
         <p>
@@ -277,7 +280,7 @@ export function SuperAdminCafes() {
                             href={`/${cafe.slug}/menu`}
                             target="_blank"
                             rel="noreferrer"
-                            className="sa-btn sa-btn-sm"
+                            className="ghost-button compact-btn"
                             title="Open Live Menu"
                             style={{ textDecoration: "none" }}
                           >
@@ -287,7 +290,7 @@ export function SuperAdminCafes() {
                             type="button"
                             title="Change assigned package"
                             onClick={() => { setPackageModal(cafe); setSelectedPlanKey(sub?.plan_key || "") }}
-                            className="sa-btn sa-btn-sm"
+                            className="ghost-button compact-btn"
                           >
                             <Package size={14} /> Package
                           </button>
@@ -295,7 +298,7 @@ export function SuperAdminCafes() {
                             type="button"
                             title="Edit owner email"
                             onClick={() => { setOwnerModal(cafe); setOwnerEmail(cafe.owner_email || "") }}
-                            className="sa-btn sa-btn-sm"
+                            className="ghost-button compact-btn"
                           >
                             <Pencil size={14} /> Owner
                           </button>
@@ -305,7 +308,7 @@ export function SuperAdminCafes() {
                               disabled={loading}
                               onClick={() => handleStatus(cafe, "suspended")}
                               title="Suspend cafe access"
-                              className="sa-btn sa-btn-sm sa-btn-warn"
+                              className="ghost-button compact-btn"
                             >
                               <XCircle size={14} /> Suspend
                             </button>
@@ -315,7 +318,7 @@ export function SuperAdminCafes() {
                               disabled={loading}
                               onClick={() => handleStatus(cafe, "active")}
                               title="Restore cafe access"
-                              className="sa-btn sa-btn-sm sa-btn-success"
+                              className="primary-button compact-btn"
                             >
                               <CheckCircle2 size={14} /> Restore
                             </button>
@@ -325,7 +328,7 @@ export function SuperAdminCafes() {
                             disabled={loading}
                             onClick={() => handleDelete(cafe)}
                             title="Permanently delete cafe"
-                            className="sa-btn sa-btn-sm sa-btn-danger"
+                            className="danger-button compact-btn"
                           >
                             <Trash2 size={14} /> Delete
                           </button>
@@ -356,7 +359,7 @@ export function SuperAdminCafes() {
             </label>
             <div className="sa-modal-actions">
               <button type="button" onClick={() => setOwnerModal(null)} className="sa-ghost">Cancel</button>
-              <button type="submit" disabled={loading} className="sa-btn sa-btn-primary">Save</button>
+              <button type="submit" disabled={loading} className="primary-button">Save</button>
             </div>
           </form>
         </div>
@@ -390,7 +393,7 @@ export function SuperAdminCafes() {
               <button
                 type="submit"
                 disabled={loading || !selectedPlanKey}
-                className="sa-btn sa-btn-primary"
+                className="primary-button"
               >
                 {loading ? "Saving..." : "Change Package"}
               </button>

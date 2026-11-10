@@ -1,11 +1,14 @@
 import { toUserMessage } from "../services/userMessages"
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { Search, Shield, CheckCircle, XCircle, Plus, Trash2, AlertTriangle } from "lucide-react"
+import { Search, Shield, CheckCircle, XCircle, Plus, Trash2 } from "lucide-react"
 import { useRBAC } from "../context/rbacContextValue"
 import { ROLE_LABELS, ROLES, syncRoleToSupabase, setUserDisabled, PERMISSIONS } from "../services/roleService"
 import { createAuthUser, deleteAuthUser, observeCafeUsers } from "../services/dataService"
 import { useAuth } from "../context/authContextValue"
 import { usePlan } from "../context/planContextValue"
+import { useConfirm } from "../hooks/useConfirm"
+import { Modal } from "../components/Modal"
+import "./staff.css"
 
 function normalize(v) {
   return String(v || "").toLowerCase().trim()
@@ -13,7 +16,8 @@ function normalize(v) {
 
 export function UserManagement() {
   const { can } = useRBAC()
-  const { cafeSlug } = useAuth()
+  const [confirm, confirmDialog] = useConfirm()
+  const { cafeSlug, user: me } = useAuth()
   const { plan, packages, subscriptionStatus } = usePlan()
   const assignableRoles = Object.entries(ROLE_LABELS).filter(([key]) => key !== ROLES.SUPERADMIN)
 
@@ -23,9 +27,8 @@ export function UserManagement() {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ email: "", password: "", role: ROLES.BARISTA, displayName: "" })
   const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState("")
-  const [editingUser, setEditingUser] = useState(null)
-  const [deleteTarget, setDeleteTarget] = useState(null)
+  // { ok, text }: success and error are told apart by flag, not by guessing from the wording.
+  const [message, setMessage] = useState(null)
 
   const activePackage = useMemo(
     () => (packages || []).find((pkg) => pkg?.id === plan) || null,
@@ -60,10 +63,10 @@ export function UserManagement() {
     try {
       await syncRoleToSupabase(uid, email, role)
       setUsers((prev) => prev.map((u) => (u.id === uid ? { ...u, role } : u)))
-      setMessage(`Role updated for ${email}`)
-      setTimeout(() => setMessage(""), 3000)
+      setMessage({ ok: true, text: `Role updated for ${email}.` })
+      setTimeout(() => setMessage(null), 3000)
     } catch (err) {
-      setMessage(toUserMessage(err, "Could not update role."))
+      setMessage({ ok: false, text: toUserMessage(err, "Could not update role.") })
     }
   }, [])
 
@@ -73,47 +76,46 @@ export function UserManagement() {
       await setUserDisabled(user.id, nextDisabled)
       setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, disabled: nextDisabled } : u)))
     } catch (err) {
-      setMessage(toUserMessage(err, "Could not toggle user status."))
+      setMessage({ ok: false, text: toUserMessage(err, "Could not turn this account on or off.") })
     }
   }, [])
 
-  const confirmDelete = useCallback(async () => {
-    if (!deleteTarget) return
+  const removeUser = async (user) => {
+    if (!(await confirm(`${user.email} loses access straight away and their account is deleted. This cannot be undone.`, { title: `Delete ${user.displayName}?`, confirmLabel: "Delete permanently" }))) return
     try {
-      await deleteAuthUser(deleteTarget.id)
-      setUsers((prev) => prev.filter((u) => u.id !== deleteTarget.id))
-      setMessage(`User ${deleteTarget.email} deleted permanently.`)
-      setTimeout(() => setMessage(""), 4000)
+      await deleteAuthUser(user.id)
+      setUsers((prev) => prev.filter((u) => u.id !== user.id))
+      setMessage({ ok: true, text: `${user.email} was deleted.` })
+      setTimeout(() => setMessage(null), 4000)
     } catch (err) {
-      setMessage(toUserMessage(err, "Could not delete user."))
+      setMessage({ ok: false, text: toUserMessage(err, "Could not delete this person.") })
     }
-    setDeleteTarget(null)
-  }, [deleteTarget])
+  }
 
   const createUser = useCallback(async (event) => {
     event.preventDefault()
     if (saving) return
     if (!form.displayName.trim()) {
-      setMessage("Enter the staff member’s name.")
+      setMessage({ ok: false, text: "Enter the person’s name." })
       return
     }
     if (userCreationUnavailable) {
-      setMessage(userCreationReason)
+      setMessage({ ok: false, text: userCreationReason })
       return
     }
     setSaving(true)
-    setMessage("")
+    setMessage(null)
     try {
       const uid = await createAuthUser(form.email, form.password, form.displayName, form.role)
       if (uid) {
         setUsers((prev) => [...prev, { id: uid, email: form.email, role: form.role, displayName: form.displayName || form.email.split("@")[0], disabled: false }])
         setShowForm(false)
         setForm({ email: "", password: "", role: ROLES.BARISTA, displayName: "" })
-        setMessage(`User ${form.email} created successfully.`)
+        setMessage({ ok: true, text: `${form.email} was added.` })
       }
-      setTimeout(() => setMessage(""), 3000)
+      setTimeout(() => setMessage(null), 3000)
     } catch (err) {
-      setMessage(toUserMessage(err, "Could not create user."))
+      setMessage({ ok: false, text: toUserMessage(err, "Could not add this person.") })
     } finally {
       setSaving(false)
     }
@@ -131,158 +133,114 @@ export function UserManagement() {
     return matchSearch && matchRole
   })
 
+  const seatPercent = hasStaffLimit ? Math.min(100, Math.round((users.length / staffLimit) * 100)) : 0
+
   return (
-    <div className="admin-stack">
-      <div className="orders-dashboard-head">
+    <div className="oc-page">
+      {confirmDialog}
+      <header className="oc-head">
         <div>
-          <p className="eyebrow">Access control</p>
-          <h2>User Management</h2>
-          <p className="admin-hint">{users.length} accounts · {users.filter((u) => !u.disabled).length} active</p>
+          <h1>Team</h1>
+          <p>{users.length} people · {users.filter((u) => !u.disabled).length} active</p>
         </div>
         <button
-          className="primary-button user-add-button"
+          className="oc-head-action"
           type="button"
-          onClick={() => setShowForm(true)}
+          onClick={() => { setMessage(null); setShowForm(true) }}
           disabled={userCreationUnavailable}
           title={userCreationUnavailable ? userCreationReason : "Add a staff account"}
         >
-          <Plus size={18} /> Add User
+          <Plus size={18} /> Add person
         </button>
-      </div>
+      </header>
 
-      <section className={`staff-seat-summary${userCreationUnavailable ? " is-at-capacity" : ""}`} aria-live="polite">
-        <div>
-          <p className="eyebrow">{activePackage?.name || "Current package"} allowance</p>
-          <h3>Staff accounts</h3>
-          <p>{hasStaffLimit ? "Every cafe account, including disabled accounts, uses one staff seat." : userCreationReason}</p>
-        </div>
-        <div className="staff-seat-usage" aria-label={hasStaffLimit ? `${users.length} of ${staffLimit} staff accounts used` : userCreationReason}>
-          <strong>{hasStaffLimit ? `${users.length}/${staffLimit}` : "—"}</strong>
-          <span>{hasStaffLimit ? `${staffSeatsRemaining} remaining` : "Allocation unavailable"}</span>
+      <section className={`ad-seats${userCreationUnavailable ? " is-full" : ""}`} aria-live="polite">
+        <p><strong>{hasStaffLimit ? `${users.length} of ${staffLimit}` : "—"}</strong> staff accounts used{activePackage?.name ? ` on ${activePackage.name}` : ""}</p>
+        {hasStaffLimit ? <div className="ad-seats-bar" aria-hidden="true"><span style={{ width: `${seatPercent}%` }} /></div> : null}
+        <p>{hasStaffLimit ? (staffSeatsRemaining ? `${staffSeatsRemaining} left` : userCreationReason) : userCreationReason}</p>
+      </section>
+
+      {message && !showForm ? <p className={message.ok ? "ad-success" : "form-error"} role={message.ok ? "status" : "alert"}>{message.text}</p> : null}
+
+      <section className="oc-toolbar">
+        <label className="oc-search">
+          <Search size={18} />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Name or email" aria-label="Search people" />
+        </label>
+        <div className="oc-chips" role="group" aria-label="Role">
+          <button type="button" className="oc-chip" aria-pressed={roleFilter === "all"} onClick={() => setRoleFilter("all")}>Everyone</button>
+          {assignableRoles.map(([key, label]) => (
+            <button key={key} type="button" className="oc-chip" aria-pressed={roleFilter === key} onClick={() => setRoleFilter(key)}>{label}</button>
+          ))}
         </div>
       </section>
 
-      {message ? <p className={`${message.includes("successfully") || message.includes("updated") ? "success-note" : "form-error"}`}>{message}</p> : null}
-
-      <div className="orders-toolbar">
-        <label className="field">
-          <span>Search users</span>
-          <div className="input-with-icon">
-            <Search size={18} />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Email or name..." />
-          </div>
-        </label>
-        <label className="field">
-          <span>Role filter</span>
-          <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
-            <option value="all">All roles</option>
-            {assignableRoles.map(([key, label]) => (
-              <option key={key} value={key}>{label}</option>
-            ))}
-          </select>
-        </label>
-      </div>
+      {filtered.length === 0 ? (
+        <div className="oc-empty">
+          <Search size={32} strokeWidth={1.5} />
+          <strong>No one found</strong>
+          <p>Try another name or role.</p>
+        </div>
+      ) : (
+        <div className="ad-list">
+          {filtered.map((u) => (
+            <article className={`ad-row${u.disabled ? " is-muted" : ""}`} key={u.id}>
+              <div className="ad-row-main">
+                <h3 className="ad-row-title">{u.displayName}{u.disabled ? <span className="badge rejected" style={{ marginLeft: 8 }}>Turned off</span> : null}</h3>
+                <p className="ad-row-sub">{u.email}</p>
+              </div>
+              <div className="ad-row-actions">
+                <select className="ad-select" value={u.role} onChange={(e) => assignRole(u.id, u.email, e.target.value)} aria-label={`Role for ${u.displayName}`}>
+                  {assignableRoles.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+                </select>
+                {u.id === me?.id ? (
+                  <span className="ad-row-sub">You</span>
+                ) : (
+                  <>
+                    <button className="oc-quiet" type="button" onClick={() => toggleDisable(u)}>
+                      {u.disabled ? <><CheckCircle size={16} /> Turn on</> : <><XCircle size={16} /> Turn off</>}
+                    </button>
+                    <button className="ad-icon oc-danger" type="button" onClick={() => removeUser(u)} aria-label={`Delete ${u.displayName}`} title="Delete">
+                      <Trash2 size={18} />
+                    </button>
+                  </>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
 
       {showForm ? (
-        <form className="admin-form" onSubmit={createUser}>
-          <div className="admin-head">
-            <h3>Create new user</h3>
-            <button className="icon-button" type="button" aria-label="Close new user form" disabled={saving} onClick={() => setShowForm(false)}>✕</button>
-          </div>
-          {message && <p className="form-error" role="alert">{message}</p>}
-          <div className="form-grid">
-            <label className="field">
-              <span>Email *</span>
-              <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required maxLength={254} autoComplete="email" placeholder="person@example.com" />
-            </label>
-            <label className="field">
-              <span>Temporary password *</span>
-              <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required minLength={8} autoComplete="new-password" />
-            </label>
-          </div>
-          <div className="two-col">
-            <label className="field">
-              <span>Staff member’s name *</span>
+        <Modal title="Add a person" className="confirm-dialog" busy={saving} onClose={() => setShowForm(false)}>
+          <form className="ad-form" onSubmit={createUser}>
+            <label className="ad-field">
+              Name
               <input value={form.displayName} onChange={(e) => setForm({ ...form, displayName: e.target.value })} required maxLength={120} autoComplete="name" placeholder="Full name" />
             </label>
-            <label className="field">
-              <span>Access role *</span>
-              <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
-                {assignableRoles.map(([key, label]) => (
-                  <option key={key} value={key}>{label}</option>
-                ))}
-              </select>
+            <label className="ad-field">
+              Email
+              <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required maxLength={254} autoComplete="email" placeholder="person@example.com" />
             </label>
-          </div>
-          <p className="form-help">Use at least 8 characters for the temporary password. The new staff member must change it at first sign-in. Assign only the access their work requires.</p>
-          <button className="primary-button" type="submit" disabled={saving}>
-            <Shield size={18} /> {saving ? "Creating..." : "Create User"}
-          </button>
-        </form>
-      ) : null}
-
-      <div className="audit-table-card">
-        {filtered.length === 0 ? <div className="empty-state">No users found.</div> : (
-          <div className="audit-table">
-            <div className="audit-row audit-row-head">
-              <span>User</span>
-              <span>Role</span>
-              <span>Status</span>
-              <span>Actions</span>
-            </div>
-            {filtered.map((u) => (
-              <div className={`audit-row ${u.disabled ? "muted" : ""}`} key={u.id}>
-                <div>
-                  <strong>{u.displayName}</strong>
-                  <p className="muted" style={{ margin: 0, fontSize: "0.82rem" }}>{u.email}</p>
-                </div>
-                <span>
-                  {editingUser === u.id ? (
-                    <select value={u.role} onChange={(e) => { assignRole(u.id, u.email, e.target.value); setEditingUser(null) }} autoFocus>
-                      {assignableRoles.map(([key, label]) => (
-                        <option key={key} value={key}>{label}</option>
-                      ))}
-                    </select>
-                  ) : (
-                    <span className={`badge ${u.role}`}>{ROLE_LABELS[u.role] || u.role}</span>
-                  )}
-                </span>
-                <span>
-                  {u.disabled ? <span className="badge rejected">Disabled</span> : <span className="badge approved">Active</span>}
-                </span>
-                  <div className="row-actions">
-                    <button className="ghost-button small" type="button" onClick={() => setEditingUser(editingUser === u.id ? null : u.id)} title="Change role">
-                      <Shield size={14} />
-                    </button>
-                    <button className="ghost-button small danger" type="button" onClick={() => setDeleteTarget(u)} title="Delete user">
-                      <Trash2 size={14} />
-                    </button>
-                    <button className="ghost-button small" type="button" onClick={() => toggleDisable(u)} title={u.disabled ? "Enable" : "Disable"}>
-                      {u.disabled ? <CheckCircle size={14} /> : <XCircle size={14} />}
-                    </button>
-                  </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {deleteTarget ? (
-        <div className="modal-shell" role="dialog" aria-modal="true">
-          <form className="admin-form admin-edit-modal" onSubmit={(e) => { e.preventDefault(); confirmDelete() }}>
-            <div style={{ textAlign: "center", marginBottom: 16 }}>
-              <AlertTriangle size={40} style={{ color: "var(--danger)" }} />
-            </div>
-            <h2 style={{ textAlign: "center" }}>Delete user?</h2>
-            <p style={{ textAlign: "center", opacity: 0.7 }}>
-              This will permanently delete <strong>{deleteTarget.email}</strong> from both auth and the system. This cannot be undone.
-            </p>
-            <div className="row-actions" style={{ justifyContent: "center", marginTop: 16 }}>
-              <button className="danger-button" type="submit">Delete permanently</button>
-              <button className="ghost-button" type="button" onClick={() => setDeleteTarget(null)}>Cancel</button>
+            <label className="ad-field">
+              Temporary password
+              <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required minLength={8} autoComplete="new-password" />
+              <small>At least 8 characters. They change it the first time they sign in.</small>
+            </label>
+            <label className="ad-field">
+              Role
+              <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
+                {assignableRoles.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+              </select>
+              <small>Give only the access their work needs.</small>
+            </label>
+            {message && !message.ok ? <p className="form-error" role="alert">{message.text}</p> : null}
+            <div className="row-actions">
+              <button className="primary-button" type="submit" disabled={saving}><Shield size={18} /> {saving ? "Adding…" : "Add person"}</button>
+              <button className="ghost-button" type="button" disabled={saving} onClick={() => setShowForm(false)}>Cancel</button>
             </div>
           </form>
-        </div>
+        </Modal>
       ) : null}
     </div>
   )

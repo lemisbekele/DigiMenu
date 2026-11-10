@@ -110,13 +110,13 @@ export function ImageUploader({
           {typeof value === "string" && (value.match(/\.(jpg|jpeg|png|webp|gif)($|\?)/i) || value.includes("supabase") || value.startsWith("blob:")) ? (
             <OptimizedImage src={value} alt={label} fallbackType={activeFallbackType} aspectRatio="1/1" style={{ width: 48, height: 48, borderRadius: 6 }} />
           ) : (
-            <Globe size={22} style={{ color: "#34821b", flexShrink: 0 }} />
+            <Globe size={22} style={{ color: "var(--brand)", flexShrink: 0 }} />
           )}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ fontSize: "0.85rem", color: "#286b14", fontWeight: 600, display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <span style={{ fontSize: "0.85rem", color: "var(--brand-ink)", fontWeight: 600, display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {value}
             </span>
-            <span style={{ fontSize: "0.78rem", color: "#34821b", fontWeight: 700 }}>{activeSavedText}</span>
+            <span style={{ fontSize: "0.78rem", color: "var(--brand)", fontWeight: 700 }}>{activeSavedText}</span>
           </div>
           <button className="icon-button small danger" type="button" onClick={remove} aria-label={`Remove ${label}`}>
             <X size={16} />

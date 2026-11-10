@@ -68,19 +68,6 @@ export function formatBytes(bytes) {
 }
 
 /**
- * Computes a SHA-256 hex hash for a File or Blob to enable client-side deduplication.
- */
-export async function computeFileHash(file) {
-  if (!file || typeof crypto === "undefined" || !crypto.subtle) {
-    return `${file?.name || "file"}_${file?.size || 0}_${Date.now()}`
-  }
-  const buffer = await file.arrayBuffer()
-  const hashBuffer = await crypto.subtle.digest("SHA-256", buffer)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("")
-}
-
-/**
  * Converts any image File or Blob to WebP format using HTML Canvas API.
  * Preserves transparency for PNGs / webp / gifs.
  */
@@ -144,14 +131,12 @@ export async function convertToWebP(file, maxDim = 1200, quality = 0.82) {
 }
 
 /**
- * Generates responsive image variants (thumb, sm, md, lg) in WebP format.
+ * Generates the smaller copies the menu asks for (see OptimizedImage srcSet); the 800px main image is uploaded separately.
  */
 export async function generateResponsiveVariants(file, quality = 0.82) {
   const sizes = {
     thumb: 200,
     sm: 400,
-    md: 800,
-    lg: 1200,
   }
 
   const variants = {}

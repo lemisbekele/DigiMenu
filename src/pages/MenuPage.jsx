@@ -1,30 +1,27 @@
 import { useEffect, useMemo, useState } from "react"
 import {
   Cake,
-  Check,
-  Clock,
   Coffee,
   CupSoda,
   Languages,
-  Lock,
   Moon,
   QrCode,
   Receipt,
   Search,
-  ShoppingBag,
+  Minus,
+  Plus,
   SlidersHorizontal,
   Sparkles,
   Sun,
   UtensilsCrossed,
   X,
 } from "lucide-react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { CartDrawer } from "../components/CartDrawer"
 import { ItemModal } from "../components/ItemModal"
 import { OptimizedImage } from "../components/OptimizedImage"
 import { useCart } from "../context/cartContextValue"
 import { useLanguage } from "../context/languageContextValue"
-import { usePlan } from "../context/planContextValue"
 import { useTable } from "../context/tableContextValue"
 import { useTheme } from "../context/themeContextValue"
 import { useCafeSlug } from "../hooks/useCafeSlug"
@@ -143,9 +140,7 @@ export function MenuPage() {
 
   const { language, setLanguage, t } = useLanguage()
   const { theme, toggleTheme } = useTheme()
-  const { hasFeature } = usePlan()
-  const navigate = useNavigate()
-  const { isItemSelected, toggleItem, itemCount, setCartOpen } = useCart()
+  const { items: cartItems, isItemSelected, toggleItem, updateQuantity } = useCart()
 
   // Observe menu items for current cafe
   useEffect(() => observeMenuItems(setItems, undefined, cafeSlug), [cafeSlug])
@@ -486,24 +481,35 @@ export function MenuPage() {
 
                   <div className="qr-item-footer">
                     <span className="qr-item-price">{formatCardPrice(item.price)}</span>
-                    <button
-                      className={`qr-add-btn ${selected ? "in-cart" : ""}`}
-                      type="button"
-                      disabled={!item.available}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        toggleItem(defaultCartItem(item))
-                      }}
-                      aria-label={`${selected ? t("addedToCart", "Added to Cart") : t("add", "Add")}: ${localized.displayName}`}
-                    >
-                      {selected ? (
-                        <>
-                          <Check size={12} strokeWidth={3} /> {t("addedToCart", "Added")}
-                        </>
-                      ) : (
-                        `+ ${t("add", "Add")}`
-                      )}
-                    </button>
+                    {selected ? (() => {
+                      // In the cart: a stepper, so tapping again adds one more instead of silently removing it.
+                      const line = cartItems.find((entry) => entry.itemId === item.id)
+                      const qty = line?.quantity || 1
+                      return (
+                        <div className="qr-stepper" role="group" aria-label={localized.displayName} onClick={(e) => e.stopPropagation()}>
+                          <button type="button" aria-label={`${t("oneLess", "One less")}: ${localized.displayName}`} onClick={() => updateQuantity(line.cartId, qty - 1)}>
+                            <Minus size={14} strokeWidth={2.5} />
+                          </button>
+                          <span aria-live="polite">{qty}</span>
+                          <button type="button" aria-label={`${t("oneMore", "One more")}: ${localized.displayName}`} onClick={() => updateQuantity(line.cartId, qty + 1)}>
+                            <Plus size={14} strokeWidth={2.5} />
+                          </button>
+                        </div>
+                      )
+                    })() : (
+                      <button
+                        className="qr-add-btn"
+                        type="button"
+                        disabled={!item.available}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleItem(defaultCartItem(item))
+                        }}
+                        aria-label={`${t("add", "Add")}: ${localized.displayName}`}
+                      >
+                        + {t("add", "Add")}
+                      </button>
+                    )}
                   </div>
                 </div>
               </article>

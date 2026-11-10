@@ -1,0 +1,13 @@
+name = "digimenu-images"
+main = "image-worker.js"
+compatibility_date = "2026-10-01"
+
+# Your Supabase project address (the same value as VITE_SUPABASE_URL).
+[vars]
+SUPABASE_URL = "https://your-project-ref.supabase.co"
+
+# Caching only works on your own domain, not on *.workers.dev.
+# Replace with the photo address you chose, e.g. img.yourdomain.com.
+routes = [
+  { pattern = "img.yourdomain.com", custom_domain = true }
+]

@@ -257,129 +257,6 @@ a.sa-stat:hover {
   justify-content: flex-end;
 }
 
-.sa-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid var(--sa-line-2);
-  border-radius: 10px;
-  background: var(--sa-surface);
-  color: var(--sa-ink);
-  font-weight: 700;
-  font-size: 0.92rem;
-  min-height: 40px;
-  padding: 11px 18px;
-  cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
-}
-
-.sa-btn:hover:not(:disabled) {
-  border-color: var(--sa-green);
-  background: rgba(52, 130, 27, 0.08);
-}
-
-.sa-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
-.sa-btn-primary {
-  background: var(--sa-brand);
-  border-color: var(--sa-brand);
-  color: var(--on-brand);
-  font-weight: 800;
-}
-
-.sa-btn-primary:hover:not(:disabled) {
-  background: var(--sa-brand-dark);
-  border-color: var(--sa-brand-dark);
-  color: var(--on-brand);
-}
-
-.sa-btn-success {
-  background: var(--sa-success);
-  border-color: var(--sa-success);
-  color: var(--on-brand);
-  font-weight: 800;
-}
-
-.sa-btn-success:hover:not(:disabled) {
-  background: var(--brand-hover);
-  border-color: var(--brand-hover);
-}
-
-.sa-btn-warn {
-  background: rgba(245, 158, 11, 0.15);
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  color: var(--sa-warn);
-}
-
-.sa-btn-warn:hover:not(:disabled) {
-  background: rgba(245, 158, 11, 0.22);
-  border-color: rgba(245, 158, 11, 0.5);
-}
-
-.sa-btn-danger {
-  background: rgba(220, 38, 38, 0.12);
-  border: 1px solid rgba(220, 38, 38, 0.35);
-  color: var(--sa-error);
-}
-
-.sa-btn-danger:hover:not(:disabled) {
-  background: rgba(220, 38, 38, 0.2);
-  border-color: rgba(220, 38, 38, 0.5);
-}
-
-.sa-btn-solid-danger {
-  background: #ef4444;
-  border-color: #ef4444;
-  color: #ffffff;
-  font-weight: 800;
-}
-
-.sa-btn-solid-danger:hover:not(:disabled) {
-  background: #dc2626;
-  border-color: #dc2626;
-}
-
-.sa-ghost {
-  background: transparent;
-  border: none;
-  color: var(--sa-muted);
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 0.92rem;
-  min-height: 40px;
-  padding: 11px 18px;
-  border-radius: 10px;
-}
-
-.sa-btn-sm {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  border: 1px solid var(--sa-line-2);
-  border-radius: 7px;
-  background: var(--sa-surface);
-  color: var(--sa-ink);
-  font-weight: 700;
-  font-size: 0.78rem;
-  min-height: 28px;
-  padding: 4px 10px;
-  cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
-}
-
-.sa-btn-sm:hover:not(:disabled) {
-  border-color: var(--sa-green);
-  background: rgba(52, 130, 27, 0.08);
-}
-
-.sa-btn-sm:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
 .sa-ghost:hover {
   color: var(--sa-ink);
   background: var(--sa-surface-2);
@@ -1244,17 +1121,6 @@ a.sa-stat:hover {
     font-size: 0.84rem;
   }
 
-  .sa-btn {
-    padding: 9px 12px;
-    font-size: 0.86rem;
-    min-height: 36px;
-  }
-
-  .sa-btn-sm {
-    padding: 4px 10px;
-    font-size: 0.78rem;
-    min-height: 28px;
-  }
 }
 
 /* Request review controls stay readable at every table width. */
@@ -1311,17 +1177,6 @@ a.sa-stat:hover {
 .sa-modal-icon-success {
   background: var(--success-bg);
   color: var(--brand);
-}
-
-.sa-form-error {
-  background: #fff1ef;
-  border: 1px solid #ffd4ce;
-  border-radius: 8px;
-  color: #b42318;
-  font-size: 0.86rem;
-  line-height: 1.4;
-  margin: 12px 0 0;
-  padding: 10px 12px;
 }
 
 @media (max-width: 720px) {
@@ -1460,8 +1315,6 @@ a.sa-stat:hover {
   min-width: 0;
 }
 
-.sa-btn,
-.sa-btn-sm,
 .sa-tab,
 .sa-nav-link {
   line-height: 1.15;

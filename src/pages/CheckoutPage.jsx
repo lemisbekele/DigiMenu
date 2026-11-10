@@ -1,8 +1,9 @@
 import { toUserMessage } from "../services/userMessages"
+import "./customer-menu.css"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { newOrderToken } from "../services/orderAccess"
-import { ArrowLeft, ArrowUpRight, CheckCircle2, Flame, Trash2 } from "lucide-react"
-import { Link, Navigate } from "react-router-dom"
+import { ArrowLeft, Flame, Trash2 } from "lucide-react"
+import { Link, Navigate, useNavigate } from "react-router-dom"
 import { useCart } from "../context/cartContextValue"
 import { useLanguage } from "../context/languageContextValue"
 import { useTable } from "../context/tableContextValue"
@@ -12,12 +13,10 @@ import { saveOrderRecord } from "../services/orderHistoryService"
 import {
   createOrder,
   fetchCustomerOrder,
-  cartLineTotal,
   calculateTotals,
   caloriesLabel,
   cartLineCalories,
-  formatCustomizations,
-  formatIngredientSelections,
+  itemChanges,
   money,
   observeBillingSettings,
   observePaymentOptions,
@@ -34,7 +33,7 @@ export function CheckoutPage() {
   const [billingSettings, setBillingSettings] = useState(DEFAULT_BILLING_SETTINGS)
   const [paymentOptions, setPaymentOptions] = useState([])
   const [paymentMethod, setPaymentMethod] = useState("")
-  const [placedOrder, setPlacedOrder] = useState(null)
+  const navigate = useNavigate()
   const { t } = useLanguage()
 
   useEffect(() => { return observeBillingSettings(setBillingSettings) }, [])
@@ -89,50 +88,14 @@ export function CheckoutPage() {
       const placed = await fetchCustomerOrder(orderId)
       saveOrderRecord(placed)
       clearCart()
-      setPlacedOrder(placed)
+      // Straight to tracking: it shows the order, its progress and how to pay, so no extra confirmation screen.
+      navigate(`/${cafeSlug}/order/${orderId}?table=${tableNumber}&placed=1`, { replace: true })
     } catch (err) {
       setError(toUserMessage(err, "Something went wrong."))
     } finally {
       submittingRef.current = false
       setPlacing(false)
     }
-  }
-
-  if (placedOrder) {
-    return (
-      <main className="page-pad narrow checkout-page confirmation-page">
-        <section className="summary-panel order-confirmation-panel" role="status" aria-live="polite">
-          <span className="success-order-icon"><CheckCircle2 size={30} /></span>
-          <p className="eyebrow" style={{ marginTop: 8 }}>{t("orderPlaced")}</p>
-          <h1 style={{ marginTop: 4 }}>{t("orderShort")} #{placedOrder.id.slice(-6)}</h1>
-          <p style={{ margin: "4px 0 0", opacity: 0.7 }}>{t("table")} {placedOrder.tableNumber} &middot; ~{placedOrder.estimatedReadyMinutes} {t("minutes")}</p>
-
-          <div className="summary-panel confirmation-items" style={{ marginTop: 18 }}>
-            {(placedOrder.items || []).map((item, index) => (
-              <div className="summary-line" key={`${item.name}-${index}`}>
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  {item.quantity} x {item.name}
-                </span>
-                <strong>{money(cartLineTotal(item))}</strong>
-              </div>
-            ))}
-            <div className="total-row grand-total" style={{ marginTop: 8 }}>
-              <span>{t("total")}</span>
-              <strong>{money(placedOrder.totalAmount)}</strong>
-            </div>
-          </div>
-
-          <div className="confirmation-actions" style={{ marginTop: 18 }}>
-            <Link className="primary-button" to={`/${cafeSlug}/order/${placedOrder.id}?table=${placedOrder.tableNumber}`}>
-              <ArrowUpRight size={16} /> {t("trackOrder")}
-            </Link>
-            <Link className="ghost-button" to={`/${cafeSlug}/menu?table=${placedOrder.tableNumber}`}>
-              {t("orderMore")}
-            </Link>
-          </div>
-        </section>
-      </main>
-    )
   }
 
   return (
@@ -146,8 +109,8 @@ export function CheckoutPage() {
         <ArrowLeft size={18} />
       </Link>
 
-      <p className="eyebrow">{t("checkoutEyebrow")}</p>
-      <h1>{t("checkout")} &mdash; {t("table")} {tableNumber}</h1>
+      <h1 className="checkout-title">{t("reviewOrder", "Review your order")}</h1>
+      <p className="checkout-meta">{t("table")} {tableNumber}{estimatedMinutes ? ` · ~${estimatedMinutes} ${t("minutes")}` : ""}</p>
 
       {items.length === 0 ? (
         <section className="summary-panel">
@@ -165,10 +128,6 @@ export function CheckoutPage() {
       ) : (
         <>
           <section className="summary-panel">
-            <p className="eyebrow" style={{ marginBottom: 8 }}>
-              {items.length} {items.length === 1 ? "item" : "items"}
-              {estimatedMinutes ? ` · ~${estimatedMinutes} min` : null}
-            </p>
             {items.map((item) => (
               <div className="summary-line checkout-item" key={item.cartId}>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -180,19 +139,16 @@ export function CheckoutPage() {
                       <Flame size={12} /> {caloriesLabel(cartLineCalories(item))}
                     </p>
                   ) : null}
-                  {item.estimatedMinutes ? <p>{t("estimatedTime")}: {item.estimatedMinutes} {t("minutes")}</p> : null}
-                  <p>{formatIngredientSelections(item, t("ingredients"), t("removed"))}</p>
-                  {formatCustomizations(item.customizations, t("noSelection"), { Ingredients: t("ingredients") }) ? (
-                    <p>{formatCustomizations(item.customizations, t("noSelection"), { Ingredients: t("ingredients") })}</p>
-                  ) : null}
+                  {itemChanges(item).map((text) => <p key={text}>{text}</p>)}
+                  {item.notes ? <p className="cart-note">{t("note")}: {item.notes}</p> : null}
                 </div>
                 <div className="summary-line-actions">
                   <span>{money(lineTotal(item))}</span>
                   <button
-                    className="icon-button small danger"
+                    className="checkout-remove"
                     type="button"
                     onClick={() => removeItem(item.cartId)}
-                    aria-label={t("removeItem")}
+                    aria-label={`${t("removeItem")}: ${item.name}`}
                   >
                     <Trash2 size={16} />
                   </button>
@@ -230,11 +186,16 @@ export function CheckoutPage() {
 
 
 
-          <label className="field"><span>Payment method</span>
-            <select value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)}>
-              {activeMethods.map((method) => <option key={method.id} value={method.type}>{method.name || method.type}</option>)}
-            </select>
-          </label>
+          {/* Big tap targets instead of a dropdown: there are only a few choices. */}
+          <fieldset className="checkout-methods">
+            <legend>{t("paymentMethod", "How will you pay?")}</legend>
+            {activeMethods.map((method) => (
+              <label key={method.id} className="checkout-method">
+                <input type="radio" name="payment-method" value={method.type} checked={paymentMethod === method.type} onChange={() => setPaymentMethod(method.type)} />
+                <span>{method.name || method.type}</span>
+              </label>
+            ))}
+          </fieldset>
           {error ? <p className="form-error" role="alert">{error}</p> : null}
 
           <div className="checkout-sticky-footer">

@@ -35,5 +35,5 @@ export function VisualSummary({ icon: Icon, title, children }) {
 }
 
 export function FeedState({ loading, error }) {
-  return <div className="sa-panel sa-feed-state" role={error ? "alert" : "status"}>{error ? <><strong>This information could not load.</strong><p>Please refresh the page to try again.</p><button type="button" className="sa-btn" onClick={() => window.location.reload()}>Refresh page</button></> : loading ? "Loading platform information…" : null}</div>
+  return <div className="sa-panel sa-feed-state" role={error ? "alert" : "status"}>{error ? <><strong>This information could not load.</strong><p>Please refresh the page to try again.</p><button type="button" className="ghost-button" onClick={() => window.location.reload()}>Refresh page</button></> : loading ? "Loading platform information…" : null}</div>
 }

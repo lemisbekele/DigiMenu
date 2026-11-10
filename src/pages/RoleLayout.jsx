@@ -81,6 +81,8 @@ export function RoleLayout({ children }) {
           <div style={{ marginTop: "auto", padding: "0.75rem", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
             <button
               type="button"
+              className="sidebar-signout"
+              data-label="Sign out"
               onClick={logout}
               style={{
                 width: "100%",

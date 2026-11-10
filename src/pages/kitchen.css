@@ -1,0 +1,219 @@
+/* Kitchen display (KitchenKDS.jsx). Theme values only — see docs/design-guide.md. */
+.kq {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  min-height: 100%;
+  color: var(--text);
+}
+
+.kq-sound-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--tap);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--warning-bg);
+  color: var(--warning);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+}
+
+/* Top bar: title + counts, station switch, sound and settings. */
+.kq-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+.kq-heading { flex: 1 1 auto; min-width: 0; }
+.kq-heading h1 { margin: 0; font-size: var(--text-xl); font-weight: var(--weight-bold); line-height: 1.2; }
+.kq-heading p { margin: var(--space-1) 0 0; color: var(--muted); font-size: var(--text-sm); }
+
+.kq-segmented,
+.kq-mobile-switch {
+  display: inline-flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--surface-3);
+}
+.kq-segmented button,
+.kq-mobile-switch button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: calc(var(--tap) - 8px);
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: calc(var(--radius-sm) - 2px);
+  background: transparent;
+  color: var(--text-2);
+  font: inherit;
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+}
+.kq-segmented button[aria-pressed="true"],
+.kq-mobile-switch button[aria-selected="true"] {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+.kq-count {
+  min-width: 24px;
+  padding: 0 var(--space-2);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  text-align: center;
+}
+
+.kq-icons { display: flex; gap: var(--space-2); }
+.kq-icon {
+  display: inline-grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-2);
+  cursor: pointer;
+}
+.kq-icon:hover { color: var(--text); border-color: var(--border-strong); }
+
+/* Board: two columns on tablets and computers, one switchable column on phones. */
+.kq-mobile-switch { display: none; }
+.kq-board {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+  align-items: start;
+}
+.kq-col h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.kq-tickets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+
+/* Ticket: table number and wait time first, items, one Done button. */
+.kq-ticket {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--success);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.kq-warn { border-top-color: var(--warning); }
+.kq-late { border-top-color: var(--danger); }
+
+.kq-ticket-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.kq-table { font-size: var(--text-xl); font-weight: var(--weight-bold); line-height: 1.1; }
+.kq-wait {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--success);
+}
+.kq-warn .kq-wait { color: var(--warning); }
+.kq-late .kq-wait { color: var(--danger); }
+
+.kq-ticket-meta { display: flex; gap: var(--space-2); margin: calc(var(--space-2) * -1) 0 0; color: var(--muted); font-size: var(--text-sm); }
+.kq-urgent { color: var(--danger); font-weight: var(--weight-bold); }
+
+.kq-items { display: flex; flex-direction: column; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.kq-items li { display: flex; gap: var(--space-3); }
+.kq-items li.kq-dim { opacity: 0.35; }
+.kq-qty { min-width: 2.2em; font-size: var(--text-lg); font-weight: var(--weight-bold); }
+.kq-item { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.kq-name { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: 1.25; }
+.kq-name svg { flex: none; color: var(--muted); }
+.kq-note {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--warning-bg);
+  color: var(--warning);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+}
+.kq-extra { color: var(--text-3); font-size: var(--text-sm); }
+
+.kq-done {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 52px;
+  margin-top: auto;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--brand);
+  color: var(--on-brand);
+  font: inherit;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+}
+.kq-done:hover:not(:disabled) { background: var(--brand-hover); }
+.kq-done:disabled { opacity: 0.6; cursor: wait; }
+.kq-done:focus-visible,
+.kq-icon:focus-visible,
+.kq-segmented button:focus-visible,
+.kq-mobile-switch button:focus-visible { outline: 3px solid var(--brand-bright); outline-offset: 2px; }
+
+.kq-empty {
+  display: grid;
+  place-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--muted);
+  text-align: center;
+}
+.kq-empty p { margin: 0; font-size: var(--text-md); }
+
+.kq-skeleton { min-height: 220px; background: var(--surface-2); border-top-color: var(--border); animation: kq-pulse 1.4s ease-in-out infinite; }
+@keyframes kq-pulse { 50% { opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) { .kq-skeleton { animation: none; } }
+
+@media (max-width: 760px) {
+  .kq { padding: var(--space-3); }
+  .kq-segmented { order: 3; width: 100%; }
+  .kq-segmented button { flex: 1; justify-content: center; }
+  .kq-mobile-switch { display: flex; }
+  .kq-mobile-switch button { flex: 1; justify-content: center; }
+  .kq-board { grid-template-columns: 1fr; }
+  .kq-board[data-mobile="preparing"] [data-col="waiting"],
+  .kq-board[data-mobile="waiting"] [data-col="preparing"] { display: none; }
+  .kq-col h2 { display: none; }
+}
+
+/* Kitchen screens are often large monitors: use the full width. */
+.admin-shell:has(.kq) { max-width: none; }

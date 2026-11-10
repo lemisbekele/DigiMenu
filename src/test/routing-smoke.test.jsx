@@ -262,13 +262,13 @@ describe("routing smoke test", () => {
   it("opens KDS for barista", async () => {
     signInAs("barista")
     await renderApp("/abyssinia-roast/kds")
-    expect(await screen.findByText("Kitchen KDS", {}, { timeout: 10000 })).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Kitchen", level: 1 }, { timeout: 10000 })).toBeInTheDocument()
   }, 15000)
 
   it("opens POS for cashier", async () => {
     signInAs("cashier")
     await renderApp("/abyssinia-roast/pos")
-    expect(await screen.findByText("Cashier Dashboard", {}, { timeout: 10000 })).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Payments", level: 1 }, { timeout: 10000 })).toBeInTheDocument()
   })
 
   it("opens dashboard for admin", async () => {
@@ -293,7 +293,7 @@ describe("routing smoke test", () => {
   it("bounces barista from POS to KDS", async () => {
     signInAs("barista")
     await renderApp("/abyssinia-roast/pos")
-    expect(await screen.findByText("Kitchen KDS", {}, { timeout: 10000 })).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Kitchen", level: 1 }, { timeout: 10000 })).toBeInTheDocument()
   })
 
   it("renders provider stack with a simple route", async () => {
@@ -424,7 +424,7 @@ describe("routing smoke test", () => {
     expect(window.location.pathname).toBe("/test-coffee-2/admin/login")
     expect(mockAuth.user).toBeNull()
     expect(screen.queryByText("Platform Overview")).not.toBeInTheDocument()
-    expect(screen.queryByText("Cashier Dashboard")).not.toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: "Payments", level: 1 })).not.toBeInTheDocument()
   }, 20000)
 
   it("sends a signed-in superadmin from a cafe admin area to the platform dashboard", async () => {
@@ -435,7 +435,7 @@ describe("routing smoke test", () => {
     // must never open a cafe staff/admin area for a superadmin — it bounces
     // them to their own console instead.
     expect(await screen.findByText("Platform Overview", {}, { timeout: 10000 })).toBeInTheDocument()
-    expect(screen.queryByText("Cashier Dashboard")).not.toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: "Payments", level: 1 })).not.toBeInTheDocument()
   })
 
   it("blocks a signed-in cafe admin from the platform dashboard", async () => {
@@ -493,7 +493,7 @@ describe("routing smoke test", () => {
     const { fetchSubscriptionRequests } = await import("../services/subscriptionService")
     await fetchSubscriptionRequests(null, true)
     await renderApp("/test-coffee-2/users")
-    expect(await screen.findByText("User Management", {}, { timeout: 10000 })).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Team", level: 1 }, { timeout: 10000 })).toBeInTheDocument()
     expect(await screen.findByText("tc-admin@test-coffee-2.com", {}, { timeout: 10000 })).toBeInTheDocument()
     expect(screen.queryByText("sunrise-admin@sunrise-cafe.com")).not.toBeInTheDocument()
   }, 20000)

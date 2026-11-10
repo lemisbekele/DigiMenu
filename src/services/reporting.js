@@ -128,3 +128,11 @@ export function buildSalesCsv(report, rangeLabel) {
   return [...summaryRows, ...orderRows].map((row) => row.map(csvEscape).join(",")).join("\n")
 }
 
+
+// The last n calendar days up to todayKey (YYYY-MM-DD), oldest first, so charts show days with no sales too.
+export function lastDays(n, todayKey) {
+  return Array.from({ length: n }, (_, i) => {
+    const key = new Date(Date.parse(`${todayKey}T12:00:00Z`) - (n - 1 - i) * 86400000).toISOString().slice(0, 10)
+    return { key, label: new Date(`${key}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "short", timeZone: "UTC" }) }
+  })
+}

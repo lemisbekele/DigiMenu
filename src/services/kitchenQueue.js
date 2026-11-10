@@ -29,3 +29,21 @@ export function queueStatus(order, queue) {
   if (!q) return order.orderStatus
   return q.preparing ? "preparing" : `in line #${q.position + 1}`
 }
+
+// Food or drink, for the kitchen's All / Food / Drinks switch (kitchen screen and history).
+const DRINK_KEYWORDS = [
+  "coffee", "latte", "espresso", "cappuccino", "macchiato", "tea", "matcha", "smoothie", "juice",
+  "beverage", "drink", "cold brew", "iced", "frappe", "milkshake", "soda", "water", "cocktail",
+  "barista", "mocha", "americano", "flat white", "cortado", "brew", "chai", "drip", "pour over",
+]
+
+export function isDrink(item) {
+  const text = `${item?.name || ""} ${item?.category || ""} ${item?.subcategory || ""}`.toLowerCase()
+  return DRINK_KEYWORDS.some((kw) => text.includes(kw))
+}
+
+export function matchesStation(order, station) {
+  if (station === "all") return true
+  const items = order.items || []
+  return station === "drinks" ? items.some(isDrink) : items.some((i) => !isDrink(i))
+}

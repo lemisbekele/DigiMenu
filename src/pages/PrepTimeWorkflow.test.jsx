@@ -51,7 +51,7 @@ describe("Prep Time Workflow & Manager RBAC", () => {
     mocks.useRBAC.mockReturnValue({ role: "manager" })
     const user = userEvent.setup()
     render(<AdminMenu />)
-    await user.click(screen.getByLabelText("editItem"))
+    await user.click(screen.getByLabelText(/^editItem/))
     await user.type(screen.getByPlaceholderText("Briefly describe flavour, ingredients, or serving style"), "Coffee with milk")
     await user.type(screen.getByPlaceholderText("e.g. 250"), "50")
     await user.type(screen.getByLabelText(/ingredientsLabel/), "Coffee\nMilk, Cocoa\n")
@@ -67,7 +67,7 @@ describe("Prep Time Workflow & Manager RBAC", () => {
 
     render(<AdminMenu />)
 
-    const editBtn = screen.getByLabelText("editItem")
+    const editBtn = screen.getByLabelText(/^editItem/)
     await user.click(editBtn)
 
     expect(screen.getByText("Prep time")).toBeInTheDocument()
@@ -79,7 +79,7 @@ describe("Prep Time Workflow & Manager RBAC", () => {
 
     render(<AdminMenu />)
 
-    const editBtn = screen.getByLabelText("editItem")
+    const editBtn = screen.getByLabelText(/^editItem/)
     await user.click(editBtn)
 
     expect(screen.queryByText("Prep time")).not.toBeInTheDocument()

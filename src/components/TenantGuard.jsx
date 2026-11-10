@@ -151,8 +151,8 @@ export function TenantGuard({ children }) {
     return (
       <main className="auth-page">
         <div className="auth-card" style={{ textAlign: "center", padding: "2rem" }}>
-          <h1 style={{ color: "#ef4444", marginBottom: "0.5rem" }}>Access Denied</h1>
-          <p style={{ color: "#cbd5e1", fontSize: "0.95rem", lineHeight: 1.5, marginBottom: "1.5rem" }}>
+          <h1 style={{ color: "var(--danger)", marginBottom: "0.5rem" }}>Access Denied</h1>
+          <p style={{ color: "var(--muted)", fontSize: "0.95rem", lineHeight: 1.5, marginBottom: "1.5rem" }}>
             {userCafeSlug
               ? <>You are authenticated for <strong>{userCafeSlug}</strong> and cannot access <strong>{currentSlug}</strong>.</>
               : "Your account is not assigned to this cafe."}

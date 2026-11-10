@@ -5,7 +5,7 @@ import { useCart } from "../context/cartContextValue"
 import { useLanguage } from "../context/languageContextValue"
 import { useCafeSlug } from "../hooks/useCafeSlug"
 import { DEFAULT_BILLING_SETTINGS } from "../services/billingSettings"
-import { calculateTotals, caloriesLabel, cartLineCalories, formatCustomizations, formatIngredientSelections, money, observeBillingSettings } from "../services/dataService"
+import { calculateTotals, caloriesLabel, cartLineCalories, itemChanges, money, observeBillingSettings } from "../services/dataService"
 
 export function CartDrawer() {
   const { cartOpen, setCartOpen, items, subtotal, totalCalories, itemCount, updateQuantity, removeItem, lineTotal } =
@@ -25,10 +25,14 @@ export function CartDrawer() {
 
   return (
     <>
-      <button className="floating-cart" type="button" onClick={() => setCartOpen(true)}>
-        <ShoppingBag size={20} />
-        <span>{itemCount}</span>
-      </button>
+      {itemCount > 0 && !cartOpen ? (
+        // Full-width bar instead of a floating bubble, so it never covers a menu item's button.
+        <button className="cart-bar" type="button" onClick={() => setCartOpen(true)}>
+          <span className="cart-bar-count">{itemCount}</span>
+          <span className="cart-bar-label">{t("viewOrder", "View order")}</span>
+          <span className="cart-bar-total">{money(subtotal)}</span>
+        </button>
+      ) : null}
       <aside className={`cart-drawer ${cartOpen ? "open" : ""}`} aria-hidden={!cartOpen}>
         <div className="drawer-head">
           <div>
@@ -65,10 +69,8 @@ export function CartDrawer() {
                   <strong className="cart-line-total">{money(lineTotal(item))}</strong>
                 </div>
                 <div className="cart-line-details">
-                  <p>{formatIngredientSelections(item, t("ingredients"), t("removed"))}</p>
-                  {formatCustomizations(item.customizations, t("noSelection"), { Ingredients: t("ingredients") }) ? (
-                    <p>{formatCustomizations(item.customizations, t("noSelection"), { Ingredients: t("ingredients") })}</p>
-                  ) : null}
+                  {/* Only what the customer changed, not every ingredient. */}
+                  {itemChanges(item).map((text) => <p key={text}>{text}</p>)}
                   {item.notes ? <p className="cart-note">{t("note")}: {item.notes}</p> : null}
                 </div>
                 <div className="quantity-row">
@@ -130,7 +132,7 @@ export function CartDrawer() {
               if (items.length === 0) event.preventDefault()
             }}
           >
-            {t("checkout")}
+            {t("goToCheckout", "Go to checkout")}
           </Link>
         </div>
       </aside>
