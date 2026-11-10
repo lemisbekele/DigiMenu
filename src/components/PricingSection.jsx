@@ -32,18 +32,24 @@ export function PricingSection({ lockedFeatureKey = null, headingLevel = 2 }) {
   const label = key => t(`features.${key}`, catalog.get(key)?.name || getFeatureInfo(key)?.name || t("pricing.feature", "Requested feature"))
   const comparison = [...new Set(visible.flatMap(included))]
   const selectedPackage = visible.find(p => p.id === selected)
-  const open = id => { setSelected(id); setSuccess(false); setError("") }
+  const [details, setDetails] = useState(null)
+  const open = id => { setSelected(id); setSuccess(false); setError(""); setDetails(null) }
+  const next = event => {
+    event.preventDefault()
+    const form = Object.fromEntries(new FormData(event.currentTarget))
+    if (!String(form.contactName || "").trim()) return setError(t("pricing.contactRequired", "Enter the name of the person we should contact about this request."))
+    if (!String(form.phone || "").trim()) return setError(t("pricing.phoneRequired", "Enter a phone number we can reach you on."))
+    setError(""); setDetails(form)
+  }
   const submit = async event => {
     event.preventDefault()
-    if (submitting.current || !selectedPackage) return
-    const form = new FormData(event.currentTarget)
-    if (!String(form.get("contactName") || "").trim()) {
-      setError(t("pricing.contactRequired", "Enter the name of the person we should contact about this request."))
-      return
-    }
+    if (submitting.current || !selectedPackage || !details) return
+    const reference = String(new FormData(event.currentTarget).get("reference") || "").trim()
+    if (!reference) return setError(t("pricing.referenceRequired", "Enter the transaction or reference number from your payment."))
+    const form = details
     submitting.current = true; setBusy(true); setError("")
     try {
-      await createSubscriptionRequest({ customerName: form.get("name"), email: form.get("email"), phone: form.get("phone"), notes: [`Contact person: ${String(form.get("contactName") || "").trim()}`, form.get("location") ? `Location: ${String(form.get("location")).trim()}` : "", String(form.get("notes") || "").trim()].filter(Boolean).join("\n"), planKey: selected })
+      await createSubscriptionRequest({ customerName: form.name, email: form.email, phone: form.phone, notes: [`Payment reference: ${reference}`, `Contact person: ${String(form.contactName || "").trim()}`, form.location ? `Location: ${String(form.location).trim()}` : "", String(form.notes || "").trim()].filter(Boolean).join("\n"), planKey: selected })
       setSuccess(true)
     } catch {
       setError(t("pricing.requestError", "Your request could not be submitted. Check your connection and details. If you already have a pending request, please wait for its review."))
@@ -73,8 +79,21 @@ export function PricingSection({ lockedFeatureKey = null, headingLevel = 2 }) {
         </div></details>}
       </>}
     {selected && <Modal title={success ? t("pricing.received", "Request received") : t("pricing.request", "Request {{name}}", { name: selectedPackage?.name || selected })} busy={busy} onClose={() => setSelected(null)}>
-      {success ? <div className="request-success" role="status"><CheckCircle2 size={36} /><p>{t("pricing.success", "Your request is saved and awaiting platform review. Account access is arranged after approval; no account or payment has been created by this request.")}</p><button className="primary-button" onClick={() => setSelected(null)}>{t("close")}</button></div>
-      : <form className="product-form" onSubmit={submit}>
+      {success ? <div className="request-success" role="status"><CheckCircle2 size={36} /><p>{t("pricing.success", "Thank you! We are verifying your payment. Your account details will be sent to your email or Telegram within 30 minutes.")}</p><button className="primary-button" onClick={() => setSelected(null)}>{t("close")}</button></div>
+      : details ? <form className="product-form" onSubmit={submit}>
+        <div className="form-context"><strong>{selectedPackage?.name}</strong><span>{selectedPackage?.price || t("pricing.onRequest", "Price on request")} {selectedPackage?.price ? selectedPackage.period : ""}</span></div>
+        <p>{t("pricing.payCopy", "Pay the plan price to one of these accounts, then enter the transaction or reference number below.")}</p>
+        {/* TODO: replace with your real account names and numbers */}
+        <ul className="pricing-features">
+          <li><Check size={17} /><span><strong>CBE</strong> — Account name: YOUR NAME · Account no: 1000XXXXXXXXX</span></li>
+          <li><Check size={17} /><span><strong>telebirr</strong> — Name: YOUR NAME · Phone: 09XXXXXXXX</span></li>
+        </ul>
+        {error && <p className="form-error" role="alert">{error}</p>}
+        <label>{t("pricing.reference", "Transaction / reference number")} *<input name="reference" autoComplete="off" maxLength={80} required disabled={busy} /></label>
+        <button className="marketing-secondary" type="button" disabled={busy} onClick={() => { setDetails(null); setError("") }}>{t("pricing.back", "Back")}</button>
+        <button className="primary-button" type="submit" disabled={busy || !selectedPackage}>{busy ? t("pricing.submitting", "Submitting…") : t("pricing.submit", "Submit request")}</button>
+      </form>
+      : <form className="product-form" onSubmit={next}>
         <div className="form-context"><strong>{selectedPackage?.name}</strong><span>{selectedPackage?.price || t("pricing.onRequest", "Price on request")} {selectedPackage?.price ? selectedPackage.period : ""}</span></div>
         <p>{t("pricing.formCopy", "Tell us about your cafe. Required fields are marked with an asterisk.")}</p>
         {!selectedPackage && <p role="alert">{t("pricing.changed", "This plan is no longer available. Close this window and choose another plan.")}</p>}
@@ -82,10 +101,10 @@ export function PricingSection({ lockedFeatureKey = null, headingLevel = 2 }) {
         <label>{t("pricing.name", "Cafe or organization name")} *<input name="name" autoComplete="organization" maxLength={120} required disabled={busy} /></label>
         <label>{t("pricing.contactName", "Contact person’s name")} *<input name="contactName" autoComplete="name" maxLength={120} required disabled={busy} /></label>
         <label>{t("pricing.email", "Owner email address")} *<input name="email" type="email" autoComplete="email" maxLength={254} required disabled={busy} /></label>
-        <label>{t("pricing.phone", "Phone number (optional)")}<input name="phone" type="tel" autoComplete="tel" maxLength={40} disabled={busy} /></label>
+        <label>{t("pricing.phone", "Phone number")} *<input name="phone" type="tel" autoComplete="tel" maxLength={40} required defaultValue={details?.phone} disabled={busy} /></label>
         <label>{t("pricing.location", "City and country (optional)")}<input name="location" autoComplete="off" placeholder={t("pricing.locationExample", "e.g. Addis Ababa, Ethiopia")} maxLength={160} disabled={busy} /></label>
         <label>{t("pricing.notes", "Tell us what you need (optional)")}<textarea name="notes" rows={3} maxLength={1500} disabled={busy} /></label>
-        <button className="primary-button" type="submit" disabled={busy || !selectedPackage}>{busy ? t("pricing.submitting", "Submitting…") : t("pricing.submit", "Submit request")}</button>
+        <button className="primary-button" type="submit" disabled={busy || !selectedPackage}>{t("pricing.continueToPay", "Continue to payment")}</button>
       </form>}
     </Modal>}
   </div>
