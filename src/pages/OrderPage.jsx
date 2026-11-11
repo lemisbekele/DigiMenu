@@ -1,5 +1,6 @@
 import { toUserMessage } from "../services/userMessages"
 import "./customer-menu.css"
+import "./customer.css"
 import { formatDateTime } from "../services/regionalSettings"
 import { useEffect, useRef, useState } from "react"
 import { ArrowLeft, Check, CheckCircle2, Clock, Coffee, CookingPot, Copy, Flame, Info, Receipt, TimerOff, XCircle } from "lucide-react"

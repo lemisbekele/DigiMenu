@@ -36,6 +36,7 @@ import {
   observeMenuItems,
 } from "../services/dataService"
 import "./customer-menu.css"
+import "./customer.css"
 
 function formatCardPrice(price) {
   const currency = currentRegion()?.currency || "ETB"
