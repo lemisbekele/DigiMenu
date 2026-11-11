@@ -188,5 +188,7 @@ main.admin-shell .workspace-nav .ghost-button { margin-left: auto; min-height: 4
     z-index: 41;
     margin: 0;
   }
-  main.admin-shell .workspace-nav { margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) var(--space-4); }
+  main.admin-shell .workspace-nav { margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) var(--space-4); flex-wrap: nowrap; }
+  main.admin-shell .workspace-nav .digimenu-brand-name { display: none; }
+  main.admin-shell .workspace-nav a { padding: 0 var(--space-2); }
 }
