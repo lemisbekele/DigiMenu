@@ -1478,3 +1478,8 @@ html.dark .modal-kitchen-note-input::placeholder {
 .pay-with-option { min-height: 44px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--border, #d0d7de); background: var(--surface, #fff); color: inherit; font: inherit; font-weight: 600; cursor: pointer; }
 .pay-with-option[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #fff; }
 .pay-receipt { margin: 12px 0; padding-top: 8px; border-top: 1px dashed var(--border, #d0d7de); }
+
+/* Cart bar: a clear "Place order" call to action on the right. */
+.cart-bar-cta { display: inline-flex; align-items: center; gap: 2px; padding: 6px 10px 6px 14px; border-radius: 999px; background: rgba(255, 255, 255, 0.2); font-weight: 700; white-space: nowrap; }
+.cart-pay-hint { margin: 8px 0 0; font-size: 0.85rem; opacity: 0.7; text-align: center; }
+.drawer-foot .place-order-btn { width: 100%; margin-top: 12px; }

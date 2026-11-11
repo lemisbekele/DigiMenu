@@ -754,7 +754,8 @@ export async function createOrder(order) {
     p_estimated_ready_minutes: Math.max(0, Number(order.estimatedReadyMinutes || 0) || 0),
     p_cafe_slug: slug,
     p_token: token,
-    p_payment_method: order.paymentMethod || "Cash",
+    // No method yet: the customer picks one on the order page after placing it.
+    p_payment_method: order.paymentMethod || null,
   })
   if (error) throw new Error(error.message || "Could not place the order.")
   saveOrderToken(slug, data, token)
