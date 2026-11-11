@@ -772,6 +772,18 @@ export async function updateStaffOrder(orderId, changes) {
   await writeAuditLog("order.update", { id: orderId, changes })
 }
 
+// Returns every station done so far on this order.
+export async function markStationDone(orderId, station) {
+  const { data, error } = await supabase.rpc("mark_station_done", { p_order_id: orderId, p_station: station })
+  if (error) throw new Error(error.message || "Could not update the order.")
+  return data || []
+}
+
+export async function setUserStation(uid, station) {
+  const { error } = await supabase.rpc("set_user_station", { p_uid: uid, p_station: station || null })
+  if (error) throw new Error(error.message || "Could not update the station.")
+}
+
 export async function updateCustomerOrder(orderId, { paymentMethod, clearMethod, paymentProofUrl, clearProof } = {}) {
   const { error } = await supabase.rpc("update_customer_order", {
     p_order_id: orderId,

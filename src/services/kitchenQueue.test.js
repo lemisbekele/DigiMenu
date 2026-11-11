@@ -1,5 +1,19 @@
 import { describe, expect, it } from "vitest"
-import { kitchenQueue } from "./kitchenQueue"
+import { kitchenQueue, pendingStations, stationItems } from "./kitchenQueue"
+
+describe("kitchen stations", () => {
+  const mixed = { items: [{ name: "Latte" }, { name: "Burger" }] }
+  it("keeps a mixed order open until both stations are done", () => {
+    expect(pendingStations(mixed).sort()).toEqual(["drinks", "food"])
+    expect(pendingStations({ ...mixed, doneStations: ["drinks"] })).toEqual(["food"])
+    expect(pendingStations({ ...mixed, doneStations: ["drinks", "food"] })).toEqual([])
+  })
+  it("shows each station only its own items", () => {
+    expect(stationItems(mixed, "drinks").map((i) => i.name)).toEqual(["Latte"])
+    expect(stationItems(mixed, "food").map((i) => i.name)).toEqual(["Burger"])
+    expect(stationItems(mixed, "all")).toHaveLength(2)
+  })
+})
 
 const order = (id, createdAtMs, orderStatus = "received", estimatedReadyMinutes = 10) => ({ id, createdAtMs, orderStatus, estimatedReadyMinutes })
 
