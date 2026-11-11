@@ -329,6 +329,18 @@ export function OrderPage() {
                           <span className="bank-info-label">{t("accountLabel")}</span>
                           <div className="bank-account-num">{option.accountNumber}</div>
                         </div>
+                        <button
+                          type="button"
+                          className="copy-account-btn"
+                          onClick={() => {
+                            navigator.clipboard.writeText(option.accountNumber)
+                            setCopiedAccount(true)
+                            setTimeout(() => setCopiedAccount(false), 2000)
+                          }}
+                        >
+                          {copiedAccount ? <Check size={14} /> : <Copy size={14} />}
+                          {copiedAccount ? "Copied!" : "Copy"}
+                        </button>
                       </div>
                     ) : null}
                     {!cash && option?.accountHolder ? (

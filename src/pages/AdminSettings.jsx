@@ -186,7 +186,8 @@ export function AdminSettings() {
             <div className="ad-fields">
               <label className="ad-field">
                 Type
-                <input maxLength={80} list="payment-types" value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value })} placeholder="Bank, Telebirr, Cash" required />
+                <input maxLength={80} list="payment-types" value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value })} placeholder="CBE, Telebirr, Cash" required />
+                <small>Use a different type for each method, e.g. CBE and Telebirr.</small>
               </label>
               <label className="ad-field">
                 Name customers see
@@ -211,7 +212,7 @@ export function AdminSettings() {
               <span aria-hidden="true" />
               Show at checkout
             </label>
-            <datalist id="payment-types"><option value="Bank" /><option value="Mobile wallet" /><option value="Cash" /></datalist>
+            <datalist id="payment-types"><option value="CBE" /><option value="Telebirr" /><option value="Bank" /><option value="Mobile wallet" /><option value="Cash" /></datalist>
             {saveError ? <p className="form-error" role="alert">{saveError}</p> : null}
             <div className="row-actions">
               <button className="primary-button" type="submit" disabled={saving}>
