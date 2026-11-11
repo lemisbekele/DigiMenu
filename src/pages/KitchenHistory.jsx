@@ -2,7 +2,8 @@ import { formatDateTime } from "../services/regionalSettings"
 import { useEffect, useMemo, useState } from "react"
 import { AlertTriangle, ChefHat } from "lucide-react"
 import { observeOrders } from "../services/dataService"
-import { matchesStation } from "../services/kitchenQueue"
+import { matchesStation, stationItems } from "../services/kitchenQueue"
+import { useAuth } from "../context/authContextValue"
 import "./kitchen.css"
 import "./staff.css"
 
@@ -29,7 +30,9 @@ const doneMs = (order) => toMs(order.readyAtMs) ?? toMs(order.readyAt) ?? toMs(o
 export function KitchenHistory() {
   const [orders, setOrders] = useState([])
   const [loaded, setLoaded] = useState(false)
-  const [station, setStation] = useState("all")
+  const myStation = useAuth().roleData?.station || null
+  const [pickedStation, setStation] = useState("all")
+  const station = myStation || pickedStation
 
   useEffect(() => {
     // Last 31 days is plenty for the 50 most recent; never load the full history here.
@@ -54,7 +57,7 @@ export function KitchenHistory() {
           <h1>Order history</h1>
           <p>The 50 most recently finished orders.</p>
         </div>
-        <div className="kq-segmented" role="group" aria-label="Show">
+        <div className="kq-segmented" role="group" aria-label="Show" hidden={Boolean(myStation)}>
           {STATIONS.map((s) => (
             <button key={s.key} type="button" aria-pressed={station === s.key} onClick={() => setStation(s.key)}>
               {s.label} <span className="kq-count">{done.counts[s.key]}</span>
@@ -71,7 +74,7 @@ export function KitchenHistory() {
         <div className="ad-list">
           {done.list.map((order) => {
             const minutes = Math.max(1, Math.round((doneMs(order) - createdMs(order)) / 60000))
-            const items = order.items || []
+            const items = stationItems(order, station)
             return (
               <article key={order.id} className={`ad-row${order.orderStatus === "rejected" ? " is-muted" : ""}`}>
                 <div className="ad-row-main">

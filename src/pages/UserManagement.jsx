@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { Search, Shield, CheckCircle, XCircle, Plus, Trash2 } from "lucide-react"
 import { useRBAC } from "../context/rbacContextValue"
 import { ROLE_LABELS, ROLES, syncRoleToSupabase, setUserDisabled, PERMISSIONS } from "../services/roleService"
-import { createAuthUser, deleteAuthUser, observeCafeUsers } from "../services/dataService"
+import { createAuthUser, deleteAuthUser, observeCafeUsers, setUserStation } from "../services/dataService"
 import { useAuth } from "../context/authContextValue"
 import { usePlan } from "../context/planContextValue"
 import { useConfirm } from "../hooks/useConfirm"
@@ -53,6 +53,7 @@ export function UserManagement() {
           role: d.role || ROLES.BARISTA,
           displayName: d.displayName || d.email?.split("@")[0] || d.id,
           disabled: d.disabled || false,
+          station: d.station || "",
         })),
       )
     })
@@ -67,6 +68,15 @@ export function UserManagement() {
       setTimeout(() => setMessage(null), 3000)
     } catch (err) {
       setMessage({ ok: false, text: toUserMessage(err, "Could not update role.") })
+    }
+  }, [])
+
+  const assignStation = useCallback(async (user, station) => {
+    try {
+      await setUserStation(user.id, station)
+      setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, station } : u)))
+    } catch (err) {
+      setMessage({ ok: false, text: toUserMessage(err, "Could not update the station.") })
     }
   }, [])
 
@@ -193,6 +203,13 @@ export function UserManagement() {
                 <select className="ad-select" value={u.role} onChange={(e) => assignRole(u.id, u.email, e.target.value)} aria-label={`Role for ${u.displayName}`}>
                   {assignableRoles.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
                 </select>
+                {u.role === ROLES.BARISTA ? (
+                  <select className="ad-select" value={u.station} onChange={(e) => assignStation(u, e.target.value)} aria-label={`Station for ${u.displayName}`}>
+                    <option value="">Food and drinks</option>
+                    <option value="food">Food only (kitchen)</option>
+                    <option value="drinks">Drinks only (barista)</option>
+                  </select>
+                ) : null}
                 {u.id === me?.id ? (
                   <span className="ad-row-sub">You</span>
                 ) : (

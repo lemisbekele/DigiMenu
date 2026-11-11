@@ -42,6 +42,17 @@ export function isDrink(item) {
   return DRINK_KEYWORDS.some((kw) => text.includes(kw))
 }
 
+export const itemStation = (item) => (isDrink(item) ? "drinks" : "food")
+
+export const stationItems = (order, station) =>
+  station === "all" ? order.items || [] : (order.items || []).filter((i) => itemStation(i) === station)
+
+// Stations that still have to tap Done on this order (see migration 20261110000000).
+export function pendingStations(order) {
+  const done = order.doneStations || []
+  return [...new Set((order.items || []).map(itemStation))].filter((s) => !done.includes(s))
+}
+
 export function matchesStation(order, station) {
   if (station === "all") return true
   const items = order.items || []

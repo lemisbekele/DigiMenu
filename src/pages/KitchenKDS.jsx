@@ -4,9 +4,11 @@ import { Link } from "react-router-dom"
 import { useCafeSlug } from "../hooks/useCafeSlug"
 import { useKitchenQueue } from "../hooks/useKitchenQueue"
 import { beep, newOrderIds, soundReady, unlockSound } from "../services/kitchenAlerts"
-import { isDrink, matchesStation } from "../services/kitchenQueue"
+import { isDrink, pendingStations, stationItems } from "../services/kitchenQueue"
+import { useAuth } from "../context/authContextValue"
 import {
   itemChanges,
+  markStationDone,
   observeOrders,
   sendPushToCustomer,
   updateStaffOrder,
@@ -54,12 +56,11 @@ function Ticket({ order, now, position, station, onDone }) {
         </p>
       ) : null}
       <ul className="kq-items">
-        {(order.items || []).map((item, i) => {
+        {stationItems(order, station).map((item, i) => {
           const drink = isDrink(item)
-          const dimmed = (station === "food" && drink) || (station === "drinks" && !drink)
           const extras = itemChanges(item)
           return (
-            <li key={i} className={dimmed ? "kq-dim" : ""}>
+            <li key={i}>
               <span className="kq-qty">{item.quantity || 1}×</span>
               <div className="kq-item">
                 <span className="kq-name">
@@ -91,7 +92,10 @@ export function KitchenKDS() {
   const [loaded, setLoaded] = useState(false)
   const [loadError, setLoadError] = useState("")
   const [mobileColumn, setMobileColumn] = useState("preparing")
-  const [station, setStation] = useState("all")
+  // A kitchen account with a station (set on the Team page) only ever sees that station's work.
+  const myStation = useAuth().roleData?.station || null
+  const [pickedStation, setStation] = useState("all")
+  const station = myStation || pickedStation
   const [now, setNow] = useState(Date.now)
   const [isMuted, setIsMuted] = useState(() => localStorage.getItem("kds_muted") === "true")
   const [soundBlocked, setSoundBlocked] = useState(true)
@@ -149,24 +153,30 @@ export function KitchenKDS() {
 
   const markDone = useCallback(async (order) => {
     try {
+      // On a station screen, the order is ready only once every station in it is done.
+      if (station !== "all") {
+        const doneStations = await markStationDone(order.id, station)
+        if (pendingStations({ ...order, doneStations }).length) return
+      }
       await updateStaffOrder(order.id, { orderStatus: "ready", readyAt: new Date().toISOString(), readyAtMs: Date.now() })
       sendPushToCustomer(order.id)
-    } catch {
-      setLoadError("Could not mark this order done. Please retry.")
+    } catch (err) {
+      setLoadError(`Could not mark this order done: ${err?.message || "please retry."}`)
     }
-  }, [])
+  }, [station])
 
   // The queue is worked out over all open orders, then filtered by station for display.
   const queue = useKitchenQueue(orders, cafeSlug)
   const { columns, stationCounts } = useMemo(() => {
     const open = orders.filter((o) => queue.has(o.id)).sort((a, b) => queue.get(a.id).position - queue.get(b.id).position)
-    const shown = open.filter((o) => matchesStation(o, station))
+    const forStation = (o, s) => s === "all" || pendingStations(o).includes(s)
+    const shown = open.filter((o) => forStation(o, station))
     return {
       columns: {
         preparing: shown.filter((o) => queue.get(o.id).preparing),
         waiting: shown.filter((o) => !queue.get(o.id).preparing),
       },
-      stationCounts: Object.fromEntries(STATIONS.map((s) => [s.key, open.filter((o) => matchesStation(o, s.key)).length])),
+      stationCounts: Object.fromEntries(STATIONS.map((s) => [s.key, open.filter((o) => forStation(o, s.key)).length])),
     }
   }, [orders, queue, station])
 
@@ -181,10 +191,10 @@ export function KitchenKDS() {
 
       <header className="kq-bar">
         <div className="kq-heading">
-          <h1>Kitchen</h1>
+          <h1>{myStation === "drinks" ? "Drinks" : myStation === "food" ? "Food" : "Kitchen"}</h1>
           <p>{columns.preparing.length} preparing · {columns.waiting.length} in line</p>
         </div>
-        <div className="kq-segmented" role="group" aria-label="Show">
+        <div className="kq-segmented" role="group" aria-label="Show" hidden={Boolean(myStation)}>
           {STATIONS.map((s) => (
             <button key={s.key} type="button" aria-pressed={station === s.key} onClick={() => setStation(s.key)}>
               {s.label} <span className="kq-count">{stationCounts[s.key]}</span>
