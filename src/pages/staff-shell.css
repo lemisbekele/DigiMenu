@@ -207,3 +207,63 @@ main.admin-shell .workspace-nav .ghost-button { flex: none; white-space: nowrap;
   main.admin-shell .workspace-nav a { font-size: var(--text-sm); padding: 0 var(--space-2); }
   main.admin-shell .workspace-nav .ghost-button { min-height: 36px; padding: 0 var(--space-3); font-size: var(--text-sm); }
 }
+
+/* v2 — approved mockup (Dashboard.dc.html) */
+main.admin-shell .admin-sidebar { width: auto; padding: var(--space-4) var(--space-3); }
+main.admin-shell .admin-sidebar nav a { min-height: 36px; font-size: 14px; gap: 10px; }
+main.admin-shell .admin-sidebar nav a svg { width: 18px; height: 18px; }
+main.admin-shell .admin-sidebar nav a.active { background: var(--surface-2); color: var(--text); }
+main.admin-shell .admin-sidebar nav a.active svg { color: var(--text); }
+main.admin-shell .admin-sidebar .sidebar-signout { min-height: 36px; font-size: 14px; }
+main.admin-shell .admin-content { padding: var(--space-5) var(--space-6); }
+main.admin-shell .oc-head h1 { font-size: var(--text-xl); letter-spacing: -0.015em; }
+main.admin-shell .oc-head p { font-size: var(--text-sm); color: var(--muted); }
+
+/* Summary numbers: one strip with dividers, not separate boxes. */
+main.admin-shell .oc-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  overflow: hidden;
+}
+main.admin-shell .oc-stats .oc-stat { border: 0; border-right: 1px solid var(--border); border-radius: 0; box-shadow: none; background: none; padding: var(--space-4) var(--space-5); }
+main.admin-shell .oc-stats .oc-stat:last-child { border-right: 0; }
+main.admin-shell .oc-stats .oc-stat > span { font-size: var(--text-sm); color: var(--muted); }
+main.admin-shell .oc-stats .oc-stat strong { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+@media (max-width: 599px) {
+  main.admin-shell .oc-stats .oc-stat { padding: var(--space-3); }
+  main.admin-shell .oc-stats .oc-stat strong { font-size: var(--text-lg); }
+}
+@media (max-width: 899px) {
+  main.admin-shell .admin-content { padding: var(--space-4); }
+  main.admin-shell .admin-sidebar nav a.active { background: none; }
+  main.admin-shell .admin-sidebar nav a.active svg { color: var(--brand); }
+}
+
+/* Sections, chips and lists across owner and staff screens. */
+main.admin-shell .ad-section { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); box-shadow: none; padding: var(--space-5); }
+main.admin-shell .ad-section-head h2 { margin: 0; font-size: var(--text-md); font-weight: var(--weight-bold); letter-spacing: -0.01em; }
+main.admin-shell .ad-row-sub { font-size: var(--text-sm); color: var(--muted); }
+main.admin-shell .ad-row-title { font-size: var(--text-md); font-weight: var(--weight-bold); }
+main.admin-shell .ad-list { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+main.admin-shell .ad-section .ad-list { border: 0; border-radius: 0; background: none; }
+main.admin-shell .ad-row { border-bottom: 1px solid var(--border); background: none; box-shadow: none; border-radius: 0; }
+main.admin-shell .ad-row:last-child { border-bottom: 0; }
+main.admin-shell .ad-bar-fill { background: var(--brand-soft); border-radius: 4px 4px 0 0; }
+main.admin-shell .ad-bar:last-child .ad-bar-fill,
+main.admin-shell .ad-bar-fill.is-max { background: var(--brand); }
+main.admin-shell .ad-rank-bar { background: var(--brand); }
+/* Filter chips become one segmented control. */
+main.admin-shell .oc-chips { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: var(--radius-sm); background: var(--surface-2); }
+main.admin-shell .oc-chip { height: 30px; padding: 0 var(--space-3); border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: var(--text-sm); font-weight: var(--weight-bold); box-shadow: none; }
+main.admin-shell .oc-chip[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); border: 0; }
+main.admin-shell .oc-head-action,
+main.admin-shell .primary-button { min-height: 40px; border-radius: var(--radius-sm); font-size: 14px; font-weight: var(--weight-bold); box-shadow: none; }
+main.admin-shell .oc-search input,
+main.admin-shell .ad-field input,
+main.admin-shell .ad-field select,
+main.admin-shell .ad-select { height: 40px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); font-size: 14px; }
+main.admin-shell .badge { font-size: var(--text-xs); font-weight: var(--weight-bold); border-radius: 999px; }

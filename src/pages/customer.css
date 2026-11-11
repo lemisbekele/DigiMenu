@@ -724,3 +724,43 @@
 .cart-bar-total { order: 3; }
 .qr-item-action { z-index: 3; }
 @media (max-width: 380px) { .cart-bar-label { display: inline; } .cart-bar-total { flex: none; } }
+
+/* Order page v2 (mockup Order.dc.html) */
+.order-page .eyebrow { font-size: var(--text-sm); }
+.order-page .summary-panel,
+.order-page .status-panel { border-radius: var(--radius-md); }
+.pay-with-title { margin: 0 0 var(--space-3); font-size: var(--text-md); font-weight: var(--weight-bold); }
+/* Payment: one segmented control, not separate pills. */
+.pay-with {
+  display: grid;
+  grid-template-columns: repeat(var(--pay-count, 3), minmax(0, 1fr));
+  gap: 4px;
+  margin: 0 0 var(--space-4);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+.pay-with-option,
+.pay-with-option:hover {
+  height: 38px;
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  justify-content: center;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.pay-with-option[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); border: 0; }
+.order-page .bank-details-box { border-radius: var(--radius-sm); background: var(--bg); border: 1px solid var(--border); }
+.order-page .bank-amount-val { font-size: var(--text-xl); }
+.order-page .bank-account-num { font-size: 17px; }
+.order-page .copy-account-btn { height: 32px; font-size: var(--text-sm); color: var(--text); }
+/* Progress: thin bars, small labels. */
+.stepper-timeline-circle { width: 32px; height: 32px; }
+.stepper-timeline-circle svg { width: 16px; height: 16px; }
+.stepper-timeline::before,
+.stepper-timeline-progress { top: 15px; }
+.stepper-timeline-label { font-size: var(--text-sm); }
