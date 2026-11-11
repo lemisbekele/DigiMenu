@@ -68,7 +68,10 @@ export function OrderPage() {
   const [loadError, setLoadError] = useState("")
   const [billingSettings, setBillingSettings] = useState(DEFAULT_BILLING_SETTINGS)
   const [paymentOptions, setPaymentOptions] = useState([])
-  const [selectedMethod, setSelectedMethod] = useState("")
+  // Picked by option id: two methods can share a type (e.g. two "Bank"s) and must not light up together.
+  const [selectedId, setSelectedId] = useState("")
+  const selectedOption = paymentOptions.find((o) => o.id === selectedId)
+  const selectedMethod = selectedOption ? selectedOption.type || selectedOption.name : ""
   const [proofError, setProofError] = useState("")
   const [copiedAccount, setCopiedAccount] = useState(false)
   const previousStatus = useRef(null)
@@ -98,8 +101,10 @@ export function OrderPage() {
     return observePaymentOptions((opts) => setPaymentOptions(customerPaymentMethods(opts)))
   }, [])
   useEffect(() => {
-    if (order?.paymentMethod) setSelectedMethod(order.paymentMethod)
-  }, [order?.paymentMethod])
+    if (!order?.paymentMethod || selectedOption) return
+    const saved = paymentOptions.find((o) => (o.type || o.name) === order.paymentMethod)
+    if (saved) setSelectedId(saved.id)
+  }, [order?.paymentMethod, paymentOptions, selectedOption])
   const { popup: paymentConfirmedPopup } = usePaymentConfirmedPopup(order)
 
   if (loading) {
@@ -282,7 +287,7 @@ export function OrderPage() {
           <p style={{ marginTop: 8, opacity: 0.7, fontSize: "0.9rem" }}>{t("receiptTableMessage")}</p>
           {order.paymentMethod ? <span className="badge">{paymentOptions.find((o) => o.type === order.paymentMethod)?.name || order.paymentMethod}</span> : null}
         </section>
-      ) : order.orderStatus === "ready" || order.paymentMethod ? (
+      ) : (
         <section className="summary-panel">
           <p className="eyebrow" style={{ marginBottom: 8 }}>{t("paymentMethod")}</p>
 
@@ -296,7 +301,7 @@ export function OrderPage() {
                 // Store the semantic option type ("Cash", "Bank", ...) so cashier/admin screens match methods reliably.
                 const methodVal = opt.type || opt.name
                 return (
-                  <button key={opt.id} type="button" className="pay-with-option" aria-pressed={selectedMethod === methodVal} onClick={() => { setProofError(""); setSelectedMethod(methodVal) }}>
+                  <button key={opt.id} type="button" className="pay-with-option" aria-pressed={selectedId === opt.id} onClick={() => { setProofError(""); setSelectedId(opt.id) }}>
                     {isCashPayment(methodVal) ? "Cash" : opt.name || opt.type}
                   </button>
                 )
@@ -309,7 +314,7 @@ export function OrderPage() {
             <p style={{ margin: 0, opacity: 0.7, fontSize: "0.9rem" }}>{t("choosePaymentMethod")}</p>
           ) : selectedMethod !== order.paymentMethod ? (
             (() => {
-              const option = paymentOptions.find((o) => (o.type || o.name) === selectedMethod)
+              const option = selectedOption
               const cash = isCashPayment(selectedMethod)
               return (
                 <div className="bank-payment-card">
@@ -468,7 +473,7 @@ export function OrderPage() {
           ) : (
             <div className="bank-payment-card">
               {(() => {
-                const option = paymentOptions.find(
+                const option = selectedOption?.type === order.paymentMethod ? selectedOption : paymentOptions.find(
                   (o) => o.name === order.paymentMethod || o.type === order.paymentMethod
                 )
                 return (
@@ -544,7 +549,7 @@ export function OrderPage() {
             </div>
           )}
         </section>
-      ) : null}
+      )}
 
       <section className="summary-panel">
         <p className="eyebrow" style={{ marginBottom: 8 }}>
