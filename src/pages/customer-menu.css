@@ -1471,3 +1471,10 @@ html.dark .modal-kitchen-note-input::placeholder {
   color: var(--success);
   font-weight: var(--weight-bold);
 }
+
+/* Order page: "Pay with: Cash · CBE · telebirr" */
+.pay-with { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 14px; }
+.pay-with > span { font-weight: 600; }
+.pay-with-option { min-height: 44px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--border, #d0d7de); background: var(--surface, #fff); color: inherit; font: inherit; font-weight: 600; cursor: pointer; }
+.pay-with-option[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #fff; }
+.pay-receipt { margin: 12px 0; padding-top: 8px; border-top: 1px dashed var(--border, #d0d7de); }
