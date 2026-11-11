@@ -17,6 +17,7 @@ import {
   saveKitchenCapacity,
   observePaymentOptions,
   savePaymentOption,
+  customerPaymentMethods,
 } from "../services/dataService"
 
 const blankPayment = {
@@ -77,6 +78,10 @@ export function AdminSettings() {
     setSaveError("")
     setSaveSuccess("")
     const wasEdit = Boolean(form.id)
+    if (leavesNone([...paymentOptions.filter((o) => o.id !== form.id), form])) {
+      setSaving(false)
+      return setSaveError(LAST_METHOD)
+    }
     try {
       await savePaymentOption(form)
       setForm(blankPayment)
@@ -90,6 +95,8 @@ export function AdminSettings() {
   }
 
   const handleDelete = async (id) => {
+    setSaveError("")
+    if (leavesNone(paymentOptions.filter((o) => o.id !== id))) return setSaveError(LAST_METHOD)
     if (!(await confirm("Customers will no longer see it at checkout.", { title: "Remove payment option?", confirmLabel: "Remove" }))) return
     try {
       await deletePaymentOption(id)
@@ -101,6 +108,23 @@ export function AdminSettings() {
   }
 
   const activeCount = paymentOptions.filter((o) => o.active).length
+  // Cash is on until the owner turns it off; "off" is stored as a hidden Cash option.
+  const cashOption = paymentOptions.find((o) => o.type === "Cash")
+  const acceptsCash = !cashOption || cashOption.active
+  // Customers must always have at least one way to pay.
+  // shortcut: checked here only, not in the database; add a payment_options trigger if owners use other clients.
+  const LAST_METHOD = "Customers need at least one way to pay. Add or show another payment method first."
+  const leavesNone = (next) => customerPaymentMethods(next).length === 0
+  const toggleCash = async (on) => {
+    setSaveError("")
+    if (!on && leavesNone([...paymentOptions.filter((o) => o.type !== "Cash"), { type: "Cash", active: false }])) return setSaveError(LAST_METHOD)
+    try {
+      await savePaymentOption({ ...(cashOption || { ...blankPayment, type: "Cash", name: "Cash" }), active: on })
+      setSaveSuccess(on ? "Customers can pay with cash." : "Cash is turned off for customers.")
+    } catch (err) {
+      setSaveError(toUserMessage(err, "Could not change cash payments."))
+    }
+  }
 
   return (
     <div className="oc-page">
@@ -125,6 +149,13 @@ export function AdminSettings() {
               <Plus size={18} /> Add method
             </button>
           </div>
+          {!loading ? (
+            <label className="ad-switch">
+              <input type="checkbox" checked={acceptsCash} onChange={(event) => toggleCash(event.target.checked)} />
+              <span aria-hidden="true" />
+              Accept cash payments
+            </label>
+          ) : null}
           {saveSuccess && !saveError ? <p className="ad-success" role="status">{saveSuccess}</p> : null}
           {loadError ? <p className="form-error" role="alert">{loadError}</p> : null}
           {saveError && !formOpen ? <p className="form-error" role="alert">{saveError}</p> : null}
@@ -186,7 +217,8 @@ export function AdminSettings() {
             <div className="ad-fields">
               <label className="ad-field">
                 Type
-                <input maxLength={80} list="payment-types" value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value })} placeholder="Bank, Telebirr, Cash" required />
+                <input maxLength={80} list="payment-types" value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value })} placeholder="CBE, Telebirr, Cash" required />
+                <small>Use a different type for each method, e.g. CBE and Telebirr.</small>
               </label>
               <label className="ad-field">
                 Name customers see
@@ -211,7 +243,7 @@ export function AdminSettings() {
               <span aria-hidden="true" />
               Show at checkout
             </label>
-            <datalist id="payment-types"><option value="Bank" /><option value="Mobile wallet" /><option value="Cash" /></datalist>
+            <datalist id="payment-types"><option value="CBE" /><option value="Telebirr" /><option value="Bank" /><option value="Mobile wallet" /><option value="Cash" /></datalist>
             {saveError ? <p className="form-error" role="alert">{saveError}</p> : null}
             <div className="row-actions">
               <button className="primary-button" type="submit" disabled={saving}>

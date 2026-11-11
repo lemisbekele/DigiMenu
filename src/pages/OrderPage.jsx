@@ -2,7 +2,7 @@ import { toUserMessage } from "../services/userMessages"
 import "./customer-menu.css"
 import { formatDateTime } from "../services/regionalSettings"
 import { useEffect, useRef, useState } from "react"
-import { ArrowLeft, Check, CheckCircle2, Clock, Coffee, CookingPot, Copy, Flame, Info, Receipt, RotateCcw, TimerOff, XCircle } from "lucide-react"
+import { ArrowLeft, Check, CheckCircle2, Clock, Coffee, CookingPot, Copy, Flame, Info, Receipt, TimerOff, XCircle } from "lucide-react"
 import { Link, useParams, useSearchParams } from "react-router-dom"
 import { NotificationSettings } from "../components/NotificationSettings"
 import { StatusBadge } from "../components/StatusBadge"
@@ -13,7 +13,7 @@ import { DEFAULT_BILLING_SETTINGS } from "../services/billingSettings"
 import { ImageUploader } from "../components/ImageUploader"
 import { showBrowserNotification } from "../services/notificationService"
 import { isOrderReady } from "../services/kitchenAlerts"
-import { cartLineTotal, itemChanges, money, observeBillingSettings, observeOrder, observePaymentOptions, updateCustomerOrder, uploadPaymentProof, caloriesLabel, cartLineCalories, isSafeStorageUrl } from "../services/dataService"
+import { cartLineTotal, itemChanges, money, observeBillingSettings, observeOrder, observePaymentOptions, customerPaymentMethods, updateCustomerOrder, uploadPaymentProof, caloriesLabel, cartLineCalories, isSafeStorageUrl } from "../services/dataService"
 import { OptimizedImage } from "../components/OptimizedImage"
 import { usePaymentConfirmedPopup } from "../hooks/usePaymentConfirmedPopup"
 
@@ -95,12 +95,7 @@ export function OrderPage() {
 
   useEffect(() => { return observeBillingSettings(setBillingSettings) }, [])
   useEffect(() => {
-    return observePaymentOptions((opts) => {
-      const active = opts.filter((o) => o.active)
-      const cashDefault = { id: "on-hand", type: "Cash", name: "Cash (Pay on hand)" }
-      const hasCash = active.some((o) => o.type === "Cash")
-      setPaymentOptions(hasCash ? active : [cashDefault, ...active])
-    })
+    return observePaymentOptions((opts) => setPaymentOptions(customerPaymentMethods(opts)))
   }, [])
   useEffect(() => {
     if (order?.paymentMethod) setSelectedMethod(order.paymentMethod)
@@ -291,65 +286,111 @@ export function OrderPage() {
         <section className="summary-panel">
           <p className="eyebrow" style={{ marginBottom: 8 }}>{t("paymentMethod")}</p>
 
-          {!order.paymentMethod ? (
-            <>
-              <p style={{ marginBottom: 8, opacity: 0.7, fontSize: "0.9rem" }}>{t("choosePaymentMethod")}</p>
-              {proofError ? <p className="form-error" style={{ marginBottom: 8 }}>{proofError}</p> : null}
-              <div style={{ display: "grid", gap: 8 }}>
-                {paymentOptions.length === 0 ? (
-                  <p style={{ opacity: 0.5, fontSize: "0.9rem" }}>{t("noPaymentMethods")}</p>
-                ) : paymentOptions.map((opt) => {
-                  // Store the semantic option type ("Cash", "Bank", ...) so
-                  // cashier/admin screens match methods reliably.
-                  const methodVal = opt.type || opt.name
-                  const isSelected = selectedMethod === methodVal || selectedMethod === opt.type
-                  return (
-                    <label
-                      key={opt.id}
-                      className={`payment-option-card ${isSelected ? "selected" : ""}`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value={methodVal}
-                        checked={isSelected}
-                        onChange={() => setSelectedMethod(methodVal)}
-                        style={{ accentColor: "var(--brand)" }}
-                      />
-                      <div className="payment-option-content">
-                        <div className="payment-option-head">
-                          <strong>{opt.name || opt.type}</strong>
+          {/* Pay with: one button per method; switching is allowed until a proof is sent. */}
+          {order.paymentStatus !== "pending" ? (
+            <div className="pay-with" role="group" aria-label={t("paymentMethod")}>
+              <span>{t("payWith", "Pay with")}:</span>
+              {paymentOptions.length === 0 ? (
+                <span style={{ opacity: 0.6 }}>{t("noPaymentMethods")}</span>
+              ) : paymentOptions.map((opt) => {
+                // Store the semantic option type ("Cash", "Bank", ...) so cashier/admin screens match methods reliably.
+                const methodVal = opt.type || opt.name
+                return (
+                  <button key={opt.id} type="button" className="pay-with-option" aria-pressed={selectedMethod === methodVal} onClick={() => { setProofError(""); setSelectedMethod(methodVal) }}>
+                    {isCashPayment(methodVal) ? "Cash" : opt.name || opt.type}
+                  </button>
+                )
+              })}
+            </div>
+          ) : null}
+          {proofError ? <p className="form-error" style={{ marginBottom: 8 }}>{proofError}</p> : null}
+
+          {!selectedMethod ? (
+            <p style={{ margin: 0, opacity: 0.7, fontSize: "0.9rem" }}>{t("choosePaymentMethod")}</p>
+          ) : selectedMethod !== order.paymentMethod ? (
+            (() => {
+              const option = paymentOptions.find((o) => (o.type || o.name) === selectedMethod)
+              const cash = isCashPayment(selectedMethod)
+              return (
+                <div className="bank-payment-card">
+                  <div className="bank-details-box">
+                    <div className="bank-amount-row">
+                      <span>{cash ? "Amount to pay:" : "Amount to transfer:"}</span>
+                      <strong className="bank-amount-val">{money(order.totalAmount)}</strong>
+                    </div>
+                    {!cash && option?.accountNumber ? (
+                      <div className="bank-info-row">
+                        <div>
+                          <span className="bank-info-label">{t("accountLabel")}</span>
+                          <div className="bank-account-num">{option.accountNumber}</div>
                         </div>
-                        {opt.accountNumber && opt.type !== "Cash" ? (
-                          <p className="payment-option-sub">
-                            {t("accountLabel")} <strong>{opt.accountNumber}</strong> {opt.accountHolder ? `(${opt.accountHolder})` : ""}
-                          </p>
-                        ) : null}
-                        {opt.instructions && opt.type !== "Cash" ? (
-                          <p className="payment-option-sub">{opt.instructions}</p>
-                        ) : null}
+                        <button
+                          type="button"
+                          className="copy-account-btn"
+                          onClick={() => {
+                            navigator.clipboard.writeText(option.accountNumber)
+                            setCopiedAccount(true)
+                            setTimeout(() => setCopiedAccount(false), 2000)
+                          }}
+                        >
+                          {copiedAccount ? <Check size={14} /> : <Copy size={14} />}
+                          {copiedAccount ? "Copied!" : "Copy"}
+                        </button>
                       </div>
-                    </label>
-                  )
-                })}
-              </div>
-              <button
-                className="primary-button"
-                type="button"
-                style={{ marginTop: 14, width: "100%" }}
-                disabled={!selectedMethod}
-                onClick={async () => {
-                  setProofError("")
-                  try {
-                    await updateCustomerOrder(orderId, { paymentMethod: selectedMethod })
-                  } catch (err) {
-                    setProofError(toUserMessage(err, "Could not select payment method."))
-                  }
-                }}
-              >
-                {t("payWith")} {selectedMethod || "..."}
-              </button>
-            </>
+                    ) : null}
+                    {!cash && option?.accountHolder ? (
+                      <div className="bank-info-row">
+                        <div>
+                          <span className="bank-info-label">{t("holderLabel")}</span>
+                          <div><strong>{option.accountHolder}</strong></div>
+                        </div>
+                      </div>
+                    ) : null}
+                    {!cash && option?.instructions ? (
+                      <div className="bank-instructions-box">
+                        <Info size={16} style={{ flexShrink: 0, marginTop: 2 }} />
+                        <p style={{ margin: 0 }}>{option.instructions}</p>
+                      </div>
+                    ) : null}
+                  </div>
+                  {!cash ? (
+                    <div className="pay-receipt">
+                      <p className="bank-field-label">Receipt</p>
+                      {(order.items || []).map((item, index) => (
+                        <div className="total-row" key={`${item.itemId}-${index}`}>
+                          <span>{item.quantity} x {item.name}</span>
+                          <span>{money(cartLineTotal(item))}</span>
+                        </div>
+                      ))}
+                      <div className="total-row">
+                        <span>{t("tax")}</span>
+                        <span>{money(order.taxAmount || 0)}</span>
+                      </div>
+                      <div className="total-row grand-total">
+                        <span>{t("total")}</span>
+                        <strong>{money(order.totalAmount)}</strong>
+                      </div>
+                    </div>
+                  ) : null}
+                  <button
+                    className="primary-button"
+                    type="button"
+                    style={{ width: "100%" }}
+                    onClick={async () => {
+                      setProofError("")
+                      try {
+                        if (order.paymentMethod) await updateCustomerOrder(orderId, { clearMethod: true })
+                        await updateCustomerOrder(orderId, { paymentMethod: selectedMethod })
+                      } catch (err) {
+                        setProofError(toUserMessage(err, "Could not select payment method."))
+                      }
+                    }}
+                  >
+                    Pay {money(order.totalAmount)}
+                  </button>
+                </div>
+              )
+            })()
           ) : isCashPayment(order.paymentMethod) ? (
             <div className="bank-payment-card cash-pending-card">
               <div className="bank-step-section">
@@ -365,14 +406,6 @@ export function OrderPage() {
                     </p>
                   </div>
                 </div>
-                <button
-                  className="change-payment-method-btn"
-                  type="button"
-                  onClick={() => updateCustomerOrder(orderId, { clearMethod: true })}
-                >
-                  <RotateCcw size={14} />
-                  <span>Change Payment Method</span>
-                </button>
               </div>
             </div>
           ) : order.paymentStatus === "pending" ? (
@@ -508,14 +541,6 @@ export function OrderPage() {
                   accept="image/*"
                 />
               </div>
-              <button
-                className="change-payment-method-btn"
-                type="button"
-                onClick={() => updateCustomerOrder(orderId, { clearMethod: true })}
-              >
-                <RotateCcw size={14} />
-                <span>Change Payment Method</span>
-              </button>
             </div>
           )}
         </section>

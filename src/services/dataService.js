@@ -492,6 +492,13 @@ export function observePaymentOptions(callback, includeInactive = false, onError
   )
 }
 
+// Methods customers can pick. Cash is offered unless the cafe turned it off (a hidden "Cash" option).
+export function customerPaymentMethods(options) {
+  const active = options.filter((o) => o.active && o.type)
+  const hasCashRow = options.some((o) => o.type === "Cash")
+  return hasCashRow ? active : [{ id: "on-hand", type: "Cash", name: "Cash (Pay on hand)", active: true }, ...active]
+}
+
 export function observeBillingSettings(callback, onError) {
   return observeRpc("get_public_billing_settings", { p_cafe_slug: requireCurrentCafeSlug() },
     (rows) => callback({ ...DEFAULT_BILLING_SETTINGS, ...(rows[0] || {}) }), onError, "settings")
