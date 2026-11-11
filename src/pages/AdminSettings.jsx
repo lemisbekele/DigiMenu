@@ -17,6 +17,7 @@ import {
   saveKitchenCapacity,
   observePaymentOptions,
   savePaymentOption,
+  customerPaymentMethods,
 } from "../services/dataService"
 
 const blankPayment = {
@@ -77,6 +78,10 @@ export function AdminSettings() {
     setSaveError("")
     setSaveSuccess("")
     const wasEdit = Boolean(form.id)
+    if (leavesNone([...paymentOptions.filter((o) => o.id !== form.id), form])) {
+      setSaving(false)
+      return setSaveError(LAST_METHOD)
+    }
     try {
       await savePaymentOption(form)
       setForm(blankPayment)
@@ -90,6 +95,8 @@ export function AdminSettings() {
   }
 
   const handleDelete = async (id) => {
+    setSaveError("")
+    if (leavesNone(paymentOptions.filter((o) => o.id !== id))) return setSaveError(LAST_METHOD)
     if (!(await confirm("Customers will no longer see it at checkout.", { title: "Remove payment option?", confirmLabel: "Remove" }))) return
     try {
       await deletePaymentOption(id)
@@ -104,8 +111,13 @@ export function AdminSettings() {
   // Cash is on until the owner turns it off; "off" is stored as a hidden Cash option.
   const cashOption = paymentOptions.find((o) => o.type === "Cash")
   const acceptsCash = !cashOption || cashOption.active
+  // Customers must always have at least one way to pay.
+  // shortcut: checked here only, not in the database; add a payment_options trigger if owners use other clients.
+  const LAST_METHOD = "Customers need at least one way to pay. Add or show another payment method first."
+  const leavesNone = (next) => customerPaymentMethods(next).length === 0
   const toggleCash = async (on) => {
     setSaveError("")
+    if (!on && leavesNone([...paymentOptions.filter((o) => o.type !== "Cash"), { type: "Cash", active: false }])) return setSaveError(LAST_METHOD)
     try {
       await savePaymentOption({ ...(cashOption || { ...blankPayment, type: "Cash", name: "Cash" }), active: on })
       setSaveSuccess(on ? "Customers can pay with cash." : "Cash is turned off for customers.")
