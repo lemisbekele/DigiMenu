@@ -1,0 +1,192 @@
+/* Staff layout (every cafe role), clean and simple (docs/design-guide.md).
+   Wide screens: left sidebar. Phones: slim top bar + bottom tab bar.
+   shortcut: overrides the many older .admin-shell rules in App.css instead of deleting them;
+   delete those once every staff screen is redesigned. */
+
+main.admin-shell {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  min-height: 100dvh;
+  height: auto;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  overflow: visible;
+}
+main.admin-shell.no-role-nav { grid-template-columns: minmax(0, 1fr); }
+
+/* ---------- Sidebar ---------- */
+main.admin-shell .admin-sidebar {
+  position: sticky;
+  top: 0;
+  inset: auto;
+  height: 100dvh;
+  width: auto;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-3);
+  border: 0;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: none;
+  overflow-y: auto;
+}
+main.admin-shell .admin-sidebar .sidebar-user { display: grid; gap: var(--space-1); padding: 0 var(--space-2); }
+main.admin-shell .admin-sidebar .admin-email { margin: 0; color: var(--muted); font-size: var(--text-sm); overflow-wrap: anywhere; }
+main.admin-shell .admin-sidebar nav { display: grid; gap: 2px; padding: 0; overflow: visible; flex-direction: column; }
+main.admin-shell .admin-sidebar nav a {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: auto;
+  min-height: var(--tap);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-2);
+  font-size: var(--text-md);
+  font-weight: var(--weight-regular);
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: none;
+}
+main.admin-shell .admin-sidebar nav a::after { content: none; }
+main.admin-shell .admin-sidebar nav a svg { width: 20px; height: 20px; flex: none; color: var(--muted); }
+main.admin-shell .admin-sidebar nav a:hover { background: var(--surface-2); color: var(--text); }
+main.admin-shell .admin-sidebar nav a.active { background: var(--brand-soft); color: var(--brand-ink); font-weight: var(--weight-bold); }
+main.admin-shell .admin-sidebar nav a.active svg { color: var(--brand-ink); }
+main.admin-shell .admin-sidebar .sidebar-foot { margin-top: auto; padding: var(--space-3) 0 0 !important; border-top: 1px solid var(--border) !important; }
+main.admin-shell .admin-sidebar .sidebar-signout {
+  width: 100% !important;
+  min-height: var(--tap);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  font-size: var(--text-md);
+  cursor: pointer;
+}
+main.admin-shell .admin-sidebar .sidebar-signout::after { content: none; }
+main.admin-shell .admin-sidebar .sidebar-signout:hover { background: var(--danger-soft); color: var(--danger-text); }
+
+/* ---------- Content ---------- */
+main.admin-shell .admin-content {
+  position: relative;
+  min-width: 0;
+  padding: var(--space-5) var(--space-6) var(--space-6);
+  overflow: visible;
+}
+/* Language, theme and notifications: a quiet row at the top right. */
+main.admin-shell .notif-corner {
+  position: static;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+}
+
+/* Kitchen and cashier: full screen with a slim top bar instead of the sidebar. */
+main.admin-shell .workspace-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: calc(-1 * var(--space-5)) calc(-1 * var(--space-6)) var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  overflow-x: auto;
+}
+main.admin-shell .workspace-nav .brand-logo { margin-right: var(--space-3); }
+main.admin-shell .workspace-nav a {
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  font-size: var(--text-md);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+main.admin-shell .workspace-nav a:hover { background: var(--surface-2); }
+main.admin-shell .workspace-nav a.active { background: var(--brand-soft); color: var(--brand-ink); font-weight: var(--weight-bold); }
+main.admin-shell .workspace-nav .ghost-button { margin-left: auto; min-height: 40px; }
+
+/* ---------- Phones and small tablets ---------- */
+@media (max-width: 899px) {
+  main.admin-shell { display: block; padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
+  main.admin-shell.no-role-nav { padding-bottom: 0; }
+
+  /* Top bar: logo left, sign-out right; the controls row sits in it (see .notif-corner). */
+  main.admin-shell .admin-sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: 56px;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0 var(--space-3);
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+    overflow: visible;
+  }
+  main.admin-shell .admin-sidebar .sidebar-user { display: flex; padding: 0; }
+  main.admin-shell .admin-sidebar .admin-email { display: none; }
+  /* Just the mark on phones, so the controls fit beside it. */
+  main.admin-shell .admin-sidebar .digimenu-brand-name { display: none; }
+  main.admin-shell .admin-sidebar .sidebar-foot { margin: 0 0 0 auto; padding: 0 !important; border: 0 !important; }
+  main.admin-shell .admin-sidebar .sidebar-signout { width: 40px !important; min-height: 40px; height: 40px; padding: 0; justify-content: center; margin: 0; }
+  main.admin-shell .admin-sidebar .sidebar-signout span { display: none; }
+
+  /* Bottom tab bar. */
+  main.admin-shell .admin-sidebar nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    display: flex;
+    flex-direction: row;
+    gap: 0;
+    padding: var(--space-1) var(--space-1) calc(var(--space-1) + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  main.admin-shell .admin-sidebar nav::-webkit-scrollbar { display: none; }
+  main.admin-shell .admin-sidebar nav a {
+    flex: 1 0 68px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    min-height: 56px;
+    padding: var(--space-1);
+    font-size: 0.75rem;
+    text-align: center;
+  }
+  main.admin-shell .admin-sidebar nav a.active { background: none; }
+  main.admin-shell .admin-sidebar nav a.active svg { color: var(--brand); }
+
+  main.admin-shell .admin-content { padding: var(--space-4) var(--space-4) var(--space-5); }
+  /* Controls move up into the top bar, left of sign-out. */
+  main.admin-shell .notif-corner {
+    position: fixed;
+    top: 8px;
+    right: 56px;
+    z-index: 41;
+    margin: 0;
+  }
+  main.admin-shell .workspace-nav { margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) var(--space-4); }
+}
