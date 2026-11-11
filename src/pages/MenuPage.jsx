@@ -451,37 +451,19 @@ export function MenuPage() {
                     src={item.imageUrl}
                     alt={localized.displayName}
                     priority={index < 4}
-                    aspectRatio="4/3"
+                    aspectRatio="1/1"
                     objectFit="cover"
                   />
 
-                  {/* Top-Left Popular Tag */}
                   {isPopular && item.available ? (
-                    <span className="qr-badge-popular">★ Popular</span>
+                    <span className="qr-badge-popular">{t("popular", "Popular")}</span>
                   ) : null}
-
-                  {/* Bottom-Left Calorie Tag */}
-                  {hasCalories ? (
-                    <span className="qr-badge-calorie">{item.calories} kcal</span>
-                  ) : null}
-
-                  {/* Unavailable Overlay */}
                   {!item.available && (
-                    <span className="qr-badge-unavailable">{t("unavailable", "Unavailable")}</span>
+                    <span className="qr-badge-unavailable">{t("unavailable", "Sold out")}</span>
                   )}
-                </div>
 
-                {/* Card Body */}
-                <div className="qr-item-body">
-                  <h3 className="qr-item-title" title={localized.displayName}>
-                    {localized.displayName}
-                  </h3>
-                  <p className="qr-item-desc" title={localized.displayDescription}>
-                    {localized.displayDescription || getLocalizedMenuLabel("categories", item.category, language)}
-                  </p>
-
-                  <div className="qr-item-footer">
-                    <span className="qr-item-price">{formatCardPrice(item.price)}</span>
+                  {/* Add / stepper sits on the photo's corner, like delivery apps. */}
+                  <div className="qr-item-action">
                     {selected ? (() => {
                       // In the cart: a stepper, so tapping again adds one more instead of silently removing it.
                       const line = cartItems.find((entry) => entry.itemId === item.id)
@@ -508,10 +490,18 @@ export function MenuPage() {
                         }}
                         aria-label={`${t("add", "Add")}: ${localized.displayName}`}
                       >
-                        + {t("add", "Add")}
+                        <Plus size={18} strokeWidth={2.25} />
                       </button>
                     )}
                   </div>
+                </div>
+
+                <div className="qr-item-body">
+                  <h3 className="qr-item-title" title={localized.displayName}>{localized.displayName}</h3>
+                  <p className="qr-item-meta">
+                    <span className="qr-item-price">{formatCardPrice(item.price)}</span>
+                    {hasCalories ? <span> · {item.calories} kcal</span> : null}
+                  </p>
                 </div>
               </article>
             )

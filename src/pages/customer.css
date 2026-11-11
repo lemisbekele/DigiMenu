@@ -633,3 +633,94 @@
 .cart-drawer .icon-button.remove-cart-item:hover { background: var(--danger-soft); }
 .item-modal-scrim-title,
 .item-modal-scrim-top-row { text-align: left; justify-content: space-between; margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; }
+
+/* =========================================================
+   v2 — approved mockup (DigiMenu Redesign canvas, Main.dc.html)
+   ========================================================= */
+
+/* Header: dark monogram, small icon buttons. */
+.qr-header-bar { padding: 0 0 var(--space-3); }
+.qr-cafe-icon-badge { width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--text); color: var(--surface); }
+.qr-cafe-icon-badge svg { width: 18px; height: 18px; }
+.qr-cafe-name { font-size: var(--text-md); font-weight: var(--weight-bold); }
+.qr-table-pill { font-size: var(--text-xs); }
+.qr-compact-btn,
+.qr-orders-pill-btn { height: 36px; min-width: 36px; border-radius: var(--radius-sm); font-size: var(--text-xs); }
+.qr-compact-btn.icon-only { width: 36px; }
+.qr-orders-pill-btn span { display: none; }
+.qr-orders-pill-btn { width: 36px; padding: 0; }
+
+/* Search: filled, no border. */
+.qr-search-input { height: 40px; border: 0; background: var(--surface-2); font-size: var(--text-md); }
+.qr-filters-btn { height: 40px; border: 0; background: var(--surface-2); font-size: var(--text-sm); }
+.qr-filters-btn.active { background: var(--brand-soft); }
+
+/* Categories: underline tabs on one line, not pills. */
+.qr-categories-scroll { gap: var(--space-5); margin-bottom: 0; padding-top: var(--space-2); padding-bottom: 0; border-bottom: 1px solid var(--border); }
+.qr-category-pill {
+  height: auto;
+  padding: 0 0 var(--space-3);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: none;
+  color: var(--muted);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+}
+.qr-category-pill:hover { color: var(--text); border-color: transparent; }
+.qr-category-pill.active { background: none; color: var(--text); border-bottom-color: var(--text); font-weight: var(--weight-bold); }
+.qr-category-pill-icon { display: none; }
+/* Subcategories: small quiet text chips under the tabs. */
+.qr-subcategories-scroll { padding-top: var(--space-3); }
+.qr-subcategory-chip { height: 30px; border: 0; background: var(--surface-2); color: var(--text-2); font-size: var(--text-sm); }
+.qr-subcategory-chip.active { background: var(--text); color: var(--surface); }
+
+.qr-section-header { margin: var(--space-4) 0 var(--space-3); }
+.qr-section-title { font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--muted); letter-spacing: 0; }
+.qr-section-count { font-size: var(--text-xs); }
+
+/* Photo grid: big square photos, text below, no card box. */
+.qr-menu-grid { gap: var(--space-5) var(--space-3); }
+.qr-item-card { border: 0; border-radius: 0; background: none; overflow: visible; gap: var(--space-2); }
+.qr-item-card:hover { border: 0; }
+.qr-item-card:focus-visible { outline: 2px solid var(--brand); outline-offset: 4px; border-radius: var(--radius-md); }
+.qr-item-image-wrap { aspect-ratio: 1 / 1; border-radius: var(--radius-md); background: var(--surface-2); overflow: hidden; }
+.qr-item-image-wrap img { transition: transform var(--dur) var(--ease); }
+@media (hover: hover) { .qr-item-card:hover .qr-item-image-wrap img { transform: scale(1.03); } }
+.qr-item-card.unavailable { opacity: 1; }
+.qr-item-card.unavailable .qr-item-image-wrap img { opacity: 0.45; }
+.qr-item-card.unavailable .qr-item-body { opacity: 0.55; }
+.qr-badge-popular,
+.qr-badge-unavailable { top: var(--space-2); left: var(--space-2); bottom: auto; transform: none; padding: 2px var(--space-2); background: var(--surface); color: var(--text); font-size: 11px; font-weight: var(--weight-bold); }
+.qr-item-body { padding: 0 2px; gap: 1px; }
+.qr-item-title { font-size: 14px; font-weight: var(--weight-bold); line-height: 1.3; }
+.qr-item-meta { margin: 0; font-size: var(--text-sm); color: var(--muted); }
+.qr-item-meta .qr-item-price { font-size: var(--text-sm); color: var(--text); font-weight: var(--weight-bold); }
+
+.qr-item-action { position: absolute; right: var(--space-2); bottom: var(--space-2); }
+.qr-add-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+.qr-add-btn:hover { background: var(--surface); color: var(--text); transform: scale(1.06); }
+.qr-add-btn:active { transform: scale(0.94); }
+.qr-stepper { height: 34px; background: var(--text); color: var(--surface); box-shadow: var(--shadow-md); }
+.qr-stepper button { width: 34px; height: 34px; }
+
+/* Bottom bar: matches the mockup ("Review order"). */
+.cart-bar { min-height: 52px; border-radius: var(--radius-md); box-shadow: var(--shadow-brand); }
+.cart-bar-cta { background: none; color: inherit; padding: 0; height: auto; }
+.cart-bar-cta svg { display: none; }
+.cart-bar-total { order: 3; }
+.qr-item-action { z-index: 3; }
+@media (max-width: 380px) { .cart-bar-label { display: inline; } .cart-bar-total { flex: none; } }

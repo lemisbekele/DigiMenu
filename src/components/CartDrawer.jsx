@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
-import { ChevronRight, Flame, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react"
+import { Flame, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useCart } from "../context/cartContextValue"
 import { useLanguage } from "../context/languageContextValue"
@@ -67,9 +67,8 @@ export function CartDrawer() {
         // Full-width bar instead of a floating bubble, so it never covers a menu item's button.
         <button className="cart-bar" type="button" onClick={() => setCartOpen(true)}>
           <span className="cart-bar-count">{itemCount}</span>
-          <span className="cart-bar-label">{t("viewOrder", "View order")}</span>
+          <span className="cart-bar-label">{t("reviewOrder", "Review order")}</span>
           <span className="cart-bar-total">{money(totals.totalAmount)}</span>
-          <span className="cart-bar-cta">{t("placeOrder", "Place order")} <ChevronRight size={18} /></span>
         </button>
       ) : null}
       <aside className={`cart-drawer ${cartOpen ? "open" : ""}`} aria-hidden={!cartOpen}>
