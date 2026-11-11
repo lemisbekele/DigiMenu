@@ -2,33 +2,34 @@
    Light is the default; an explicit dark preference uses neutral dark surfaces. */
 :root {
   color-scheme: light;
-  --brand: #34821b;
-  --brand-hover: #286b14;
-  --brand-bright: #4c9f2c;
-  --brand-soft: #e1f4d4;
-  --brand-soft-2: #f0f9e9;
-  --brand-deep: #286b14;
-  --brand-deep-2: #1e5010;
-  --brand-ink: #286b14;
+  /* Neutral, warm-gray ground; green only for the main action (docs/design-guide.md). */
+  --brand: #2f7d1e;
+  --brand-hover: #235f16;
+  --brand-bright: #3f9a2a;
+  --brand-soft: #eaf4e3;
+  --brand-soft-2: #f3f9ee;
+  --brand-deep: #235f16;
+  --brand-deep-2: #1a4810;
+  --brand-ink: #235f16;
   --on-brand: #ffffff;
-  --bg: #f3f4f5;
-  --bg-2: #f7f8f9;
+  --bg: #f6f7f5;
+  --bg-2: #f9faf8;
   --surface: #ffffff;
-  --surface-2: #f5f6f7;
-  --surface-3: #edf0f2;
-  --cream: #f5f6f7;
-  --text: #171b1d;
-  --text-2: #3c4348;
-  --text-3: #596268;
-  --muted: #657078;
-  --muted-2: #727c83;
-  --border: #e2e6e9;
-  --border-strong: #cbd2d7;
-  --border-soft: #edf0f2;
-  --success: #34821b;
-  --success-bg: #edf8e5;
-  --warning: #99500e;
-  --warning-bg: #fff3e5;
+  --surface-2: #eceeea;
+  --surface-3: #e4e7e2;
+  --cream: #f6f7f5;
+  --text: #16181a;
+  --text-2: #3a403b;
+  --text-3: #4b524c;
+  --muted: #5e6660;
+  --muted-2: #6c746e;
+  --border: #e4e7e2;
+  --border-strong: #cdd2ca;
+  --border-soft: #eceeea;
+  --success: #2f7d1e;
+  --success-bg: #eaf4e3;
+  --warning: #8a4b0c;
+  --warning-bg: #fbf4df;
   --info: #246cb0;
   --info-bg: #eaf3fc;
   --danger: #c32d2d;
@@ -39,10 +40,10 @@
   --sidebar-2: #f7f8f9;
   --on-dark: #ffffff;
   --on-dark-muted: #d6e9cb;
-  --shadow-sm: 0 1px 2px rgba(25, 34, 40, 0.04);
-  --shadow-md: 0 8px 24px rgba(25, 34, 40, 0.06);
-  --shadow-lg: 0 20px 50px rgba(25, 34, 40, 0.10);
-  --shadow-brand: 0 8px 24px rgba(52, 130, 27, 0.15);
+  --shadow-sm: 0 1px 2px rgba(22, 24, 26, 0.06);
+  --shadow-md: 0 4px 14px rgba(22, 24, 26, 0.08);
+  --shadow-lg: 0 12px 32px rgba(22, 24, 26, 0.14);
+  --shadow-brand: 0 8px 24px rgba(22, 24, 26, 0.18);
 }
 html[data-theme="dark"] {
   color-scheme: dark;
@@ -143,14 +144,19 @@ body {
   --space-4: 16px;
   --space-5: 24px;
   --space-6: 32px;
-  --text-sm: 0.875rem;  /* labels, meta */
-  --text-md: 1rem;      /* body */
-  --text-lg: 1.25rem;   /* card titles */
-  --text-xl: 1.75rem;   /* page titles, kitchen table numbers */
+  --text-xs: 12px;      /* captions */
+  --text-sm: 13px;      /* labels, meta */
+  --text-md: 15px;      /* body, card titles */
+  --text-lg: 18px;      /* section titles */
+  --text-xl: 22px;      /* page titles, kitchen table numbers */
   --weight-regular: 400;
-  --weight-bold: 650;
-  --radius-sm: 8px;     /* buttons, inputs, chips */
-  --radius-md: 12px;    /* cards */
-  --radius-lg: 16px;    /* dialogs, sheets */
+  --weight-medium: 500;
+  --weight-bold: 600;
+  --radius-sm: 10px;    /* buttons, inputs, segmented */
+  --radius-md: 14px;    /* cards, photos */
+  --radius-lg: 18px;    /* dialogs, sheets */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 150ms;
+  --dur: 220ms;
   --tap: 44px;          /* minimum touch target */
 }

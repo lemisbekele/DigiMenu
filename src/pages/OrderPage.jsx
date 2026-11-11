@@ -1,5 +1,6 @@
 import { toUserMessage } from "../services/userMessages"
 import "./customer-menu.css"
+import "./customer.css"
 import { formatDateTime } from "../services/regionalSettings"
 import { useEffect, useRef, useState } from "react"
 import { ArrowLeft, Check, CheckCircle2, Clock, Coffee, CookingPot, Copy, Flame, Info, Receipt, TimerOff, XCircle } from "lucide-react"
@@ -293,8 +294,10 @@ export function OrderPage() {
 
           {/* Pay with: one button per method; switching is allowed until a proof is sent. */}
           {order.paymentStatus !== "pending" ? (
-            <div className="pay-with" role="group" aria-label={t("paymentMethod")}>
-              <span>{t("payWith", "Pay with")}:</span>
+            <h2 className="pay-with-title">{t("howToPay", "How would you like to pay?")}</h2>
+          ) : null}
+          {order.paymentStatus !== "pending" ? (
+            <div className="pay-with" role="group" aria-label={t("paymentMethod")} style={{ "--pay-count": paymentOptions.length || 1 }}>
               {paymentOptions.length === 0 ? (
                 <span style={{ opacity: 0.6 }}>{t("noPaymentMethods")}</span>
               ) : paymentOptions.map((opt) => {

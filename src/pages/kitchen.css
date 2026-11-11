@@ -206,7 +206,7 @@
 @media (max-width: 760px) {
   .kq { padding: var(--space-3); }
   .kq-segmented { order: 3; width: 100%; }
-  .kq-segmented button { flex: 1; justify-content: center; }
+  .kq-segmented button { flex: 1; justify-content: center; padding: 0 var(--space-2); white-space: nowrap; }
   .kq-mobile-switch { display: flex; }
   .kq-mobile-switch button { flex: 1; justify-content: center; }
   .kq-board { grid-template-columns: 1fr; }
@@ -217,3 +217,27 @@
 
 /* Kitchen screens are often large monitors: use the full width. */
 .admin-shell:has(.kq) { max-width: none; }
+
+/* v2 — approved mockup (Kitchen.dc.html): tinted header strip shows urgency. */
+.kq-heading h1 { font-size: var(--text-lg); }
+.kq-ticket { gap: 0; padding: 0; border: 1px solid var(--border); border-top: 1px solid var(--border); overflow: hidden; box-shadow: none; }
+.kq-ticket-head { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border); }
+.kq-warn .kq-ticket-head { background: var(--warning-bg); }
+.kq-late .kq-ticket-head { background: var(--danger-soft); }
+.kq-table { font-size: var(--text-xl); }
+.kq-wait { font-size: var(--text-md); color: var(--text-2); }
+.kq-ticket-meta { margin: 0; padding: var(--space-2) var(--space-4) 0; }
+.kq-items { padding: var(--space-3) var(--space-4); gap: var(--space-2); flex: 1; }
+.kq-qty { min-width: 1.8em; font-size: var(--text-md); }
+.kq-name { font-size: var(--text-md); font-weight: var(--weight-bold); }
+.kq-note { padding: 0; background: none; font-size: var(--text-sm); }
+.kq-done { min-height: 44px; margin: 0 var(--space-4) var(--space-4); font-size: var(--text-md); }
+.kq-col h2 { letter-spacing: 0; text-transform: none; font-size: var(--text-sm); }
+/* Waiting tickets are quieter: dashed, no button emphasis. */
+[data-col="waiting"] .kq-ticket { background: transparent; border-style: dashed; border-color: var(--border-strong); }
+[data-col="waiting"] .kq-ticket-head { border-bottom: 0; background: none; }
+[data-col="waiting"] .kq-done { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+[data-col="waiting"] .kq-done:hover:not(:disabled) { background: var(--surface-2); }
+.kq-segmented button { font-size: var(--text-sm); min-height: 32px; }
+.kq-count { background: none; padding: 0; min-width: 0; }
+.kq-icon { width: 36px; height: 36px; }

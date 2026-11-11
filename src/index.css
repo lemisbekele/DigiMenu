@@ -1,9 +1,13 @@
 :root {
   background: var(--bg);
-  color: #1d2724;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
+  /* Noto Sans Ethiopic covers Amharic (Ge'ez), which Plus Jakarta Sans lacks. */
+  --font-sans: "Plus Jakarta Sans", "Noto Sans Ethiopic", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   font-family: var(--font-sans);
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "tnum" 0;
 }
 
 html,
@@ -38,7 +42,8 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 3px solid var(--brand, #34821b); outline-offset: 3px; }
 button:disabled { cursor: wait; opacity: .65; }
 input, select, textarea { max-width: 100%; min-width: 0; }
-h1, h2, h3 { line-height: 1.2; overflow-wrap: anywhere; }
+h1, h2, h3 { line-height: 1.2; overflow-wrap: anywhere; letter-spacing: -0.015em; font-weight: 700; }
+h4, h5, h6, strong, b { font-weight: 600; }
 .admin-content, .dash-panel, .summary-panel, .kds-root { min-width: 0; }
 .workspace-nav { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; padding: .75rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border); }
 .workspace-nav a { padding: .5rem; border-radius: .5rem; text-decoration: none; }
