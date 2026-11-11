@@ -20,6 +20,7 @@ import {
   money,
   observeBillingSettings,
   observePaymentOptions,
+  customerPaymentMethods,
 } from "../services/dataService"
 
 export function CheckoutPage() {
@@ -39,21 +40,10 @@ export function CheckoutPage() {
   useEffect(() => { return observeBillingSettings(setBillingSettings) }, [])
 
   useEffect(() => {
-    return observePaymentOptions((opts) => {
-      const active = opts.filter((o) => o.active)
-      setPaymentOptions(active)
-    })
+    return observePaymentOptions(setPaymentOptions)
   }, [])
 
-  const activeMethods = useMemo(
-    () => {
-      const configured = paymentOptions.filter((o) => o.active && o.type)
-      const cashDefault = { id: "on-hand", type: "Cash", name: "Cash (Pay on hand)" }
-      const hasCash = configured.some((o) => o.type === "Cash")
-      return hasCash ? configured : [cashDefault, ...configured]
-    },
-    [paymentOptions],
-  )
+  const activeMethods = useMemo(() => customerPaymentMethods(paymentOptions), [paymentOptions])
 
   useEffect(() => {
     if (!paymentMethod && activeMethods.length) setPaymentMethod(activeMethods[0].type)

@@ -13,7 +13,7 @@ import { DEFAULT_BILLING_SETTINGS } from "../services/billingSettings"
 import { ImageUploader } from "../components/ImageUploader"
 import { showBrowserNotification } from "../services/notificationService"
 import { isOrderReady } from "../services/kitchenAlerts"
-import { cartLineTotal, itemChanges, money, observeBillingSettings, observeOrder, observePaymentOptions, updateCustomerOrder, uploadPaymentProof, caloriesLabel, cartLineCalories, isSafeStorageUrl } from "../services/dataService"
+import { cartLineTotal, itemChanges, money, observeBillingSettings, observeOrder, observePaymentOptions, customerPaymentMethods, updateCustomerOrder, uploadPaymentProof, caloriesLabel, cartLineCalories, isSafeStorageUrl } from "../services/dataService"
 import { OptimizedImage } from "../components/OptimizedImage"
 import { usePaymentConfirmedPopup } from "../hooks/usePaymentConfirmedPopup"
 
@@ -95,12 +95,7 @@ export function OrderPage() {
 
   useEffect(() => { return observeBillingSettings(setBillingSettings) }, [])
   useEffect(() => {
-    return observePaymentOptions((opts) => {
-      const active = opts.filter((o) => o.active)
-      const cashDefault = { id: "on-hand", type: "Cash", name: "Cash (Pay on hand)" }
-      const hasCash = active.some((o) => o.type === "Cash")
-      setPaymentOptions(hasCash ? active : [cashDefault, ...active])
-    })
+    return observePaymentOptions((opts) => setPaymentOptions(customerPaymentMethods(opts)))
   }, [])
   useEffect(() => {
     if (order?.paymentMethod) setSelectedMethod(order.paymentMethod)

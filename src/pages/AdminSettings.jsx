@@ -101,6 +101,18 @@ export function AdminSettings() {
   }
 
   const activeCount = paymentOptions.filter((o) => o.active).length
+  // Cash is on until the owner turns it off; "off" is stored as a hidden Cash option.
+  const cashOption = paymentOptions.find((o) => o.type === "Cash")
+  const acceptsCash = !cashOption || cashOption.active
+  const toggleCash = async (on) => {
+    setSaveError("")
+    try {
+      await savePaymentOption({ ...(cashOption || { ...blankPayment, type: "Cash", name: "Cash" }), active: on })
+      setSaveSuccess(on ? "Customers can pay with cash." : "Cash is turned off for customers.")
+    } catch (err) {
+      setSaveError(toUserMessage(err, "Could not change cash payments."))
+    }
+  }
 
   return (
     <div className="oc-page">
@@ -125,6 +137,13 @@ export function AdminSettings() {
               <Plus size={18} /> Add method
             </button>
           </div>
+          {!loading ? (
+            <label className="ad-switch">
+              <input type="checkbox" checked={acceptsCash} onChange={(event) => toggleCash(event.target.checked)} />
+              <span aria-hidden="true" />
+              Accept cash payments
+            </label>
+          ) : null}
           {saveSuccess && !saveError ? <p className="ad-success" role="status">{saveSuccess}</p> : null}
           {loadError ? <p className="form-error" role="alert">{loadError}</p> : null}
           {saveError && !formOpen ? <p className="form-error" role="alert">{saveError}</p> : null}
