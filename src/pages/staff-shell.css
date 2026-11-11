@@ -192,3 +192,18 @@ main.admin-shell .workspace-nav .ghost-button { margin-left: auto; min-height: 4
   main.admin-shell .workspace-nav .digimenu-brand-name { display: none; }
   main.admin-shell .workspace-nav a { padding: 0 var(--space-2); }
 }
+
+/* Shared bits that broke on phones. */
+main.admin-shell .workspace-nav .ghost-button { flex: none; white-space: nowrap; }
+@media (max-width: 599px) {
+  /* Summary numbers side by side instead of three tall boxes. */
+  main.admin-shell .oc-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
+  main.admin-shell .oc-stats .oc-stat { padding: var(--space-3); min-width: 0; }
+  main.admin-shell .oc-stats .oc-stat > span { font-size: 0.75rem; line-height: 1.3; }
+  main.admin-shell .oc-stats .oc-stat strong { font-size: var(--text-lg); overflow-wrap: anywhere; }
+}
+@media (max-width: 599px) {
+  main.admin-shell .workspace-nav { gap: 2px; padding: var(--space-2) var(--space-3); }
+  main.admin-shell .workspace-nav a { font-size: var(--text-sm); padding: 0 var(--space-2); }
+  main.admin-shell .workspace-nav .ghost-button { min-height: 36px; padding: 0 var(--space-3); font-size: var(--text-sm); }
+}
