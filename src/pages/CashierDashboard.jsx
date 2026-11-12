@@ -7,6 +7,7 @@ import { OptimizedImage } from "../components/OptimizedImage"
 import { OrderItemList } from "../components/OrderItemList"
 import { Modal } from "../components/Modal"
 import "./staff-layout.css"
+import "./service-layout.css"
 import { NotificationSettings } from "../components/NotificationSettings"
 import {
   money,
@@ -218,7 +219,7 @@ export function CashierDashboard() {
   ]
 
   return (
-    <div className="ui-stack cashier-dashboard">
+    <div className="ui-stack ui-touch">
       <header className="ui-page-header">
         <div>
           <h1>Payments</h1>

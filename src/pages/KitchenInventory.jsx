@@ -7,7 +7,7 @@ import { useRBAC } from "../context/rbacContextValue"
 import { currentRegion } from "../services/regionalSettings"
 import { PERMISSIONS } from "../services/roleService"
 import { Modal } from "../components/Modal"
-import "./kitchen.css"
+import "./service-layout.css"
 import "./staff-layout.css"
 
 import { StatusPill } from "../ui"
@@ -134,7 +134,7 @@ export function KitchenInventory() {
           <button className="ui-btn" type="button" onClick={() => setVersion((v) => v + 1)}>Try again</button>
         </div>
       ) : loading ? (
-        <div className="kq-ticket kq-skeleton" aria-hidden="true" />
+        <div className="ui-card kq-skeleton" aria-hidden="true" />
       ) : shown.length === 0 ? (
         <div className="ui-empty">
           <Package size={28} strokeWidth={1.5} />

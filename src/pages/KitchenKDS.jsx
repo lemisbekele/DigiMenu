@@ -13,7 +13,7 @@ import {
   sendPushToCustomer,
   updateStaffOrder,
 } from "../services/dataService"
-import "./kitchen.css"
+import "./service-layout.css"
 
 // Kitchen display: the oldest N open orders are "Preparing", the rest wait "In line".
 // Design: large tickets, big table numbers, wait time in color, one Done button (docs/design-guide.md).
@@ -39,23 +39,25 @@ function waitInfo(order, now) {
   return { label: `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`, level }
 }
 
-function Ticket({ order, now, position, station, onDone }) {
+function Ticket({ order, now, position, station, onDone, primary }) {
   const [busy, setBusy] = useState(false)
   const wait = waitInfo(order, now)
   const urgent = order.priority === "urgent" || order.priority === "high"
   return (
-    <article className={`kq-ticket kq-${wait.level}`}>
-      <header className="kq-ticket-head">
-        <span className="kq-table">Table {order.tableNumber || "—"}</span>
-        <span className="kq-wait" aria-label={`Waiting ${wait.label}`}>{wait.label}</span>
+    <article className="ui-card ui-ticket">
+      <header className="ui-ticket-head ui-tint" data-tone={wait.level === "late" ? "late" : position == null ? "preparing" : "waiting"}>
+        <span>{wait.level === "late" ? "Late" : position == null ? "Preparing" : "In line"}</span>
+        <span aria-label={`Waiting ${wait.label}`}>{wait.label}</span>
       </header>
+      <div className="ui-ticket-body">
+      <div className="ui-ticket-no">Table {order.tableNumber || "—"}</div>
       {position != null || urgent ? (
         <p className="kq-ticket-meta">
           {position != null ? <span>#{position + 1} in line</span> : null}
           {urgent ? <span className="kq-urgent">Urgent</span> : null}
         </p>
       ) : null}
-      <ul className="kq-items">
+      <ul className="ui-ticket-items kq-items">
         {stationItems(order, station).map((item, i) => {
           const drink = isDrink(item)
           const extras = itemChanges(item)
@@ -74,14 +76,17 @@ function Ticket({ order, now, position, station, onDone }) {
           )
         })}
       </ul>
+      </div>
+      <div className="ui-ticket-foot">
       <button
         type="button"
-        className="kq-done"
+        className={primary ? "ui-btn ui-btn--block ui-btn--primary" : "ui-btn ui-btn--block"}
         disabled={busy}
         onClick={() => { setBusy(true); onDone(order).finally(() => setBusy(false)) }}
       >
-        <CheckCircle2 size={20} /> Done
+        <CheckCircle2 size={16} /> Done
       </button>
+      </div>
     </article>
   )
 }
@@ -181,20 +186,20 @@ export function KitchenKDS() {
   }, [orders, queue, station])
 
   return (
-    <div className="kq">
+    <div className="ui-stack ui-touch kq">
       {soundBlocked && !isMuted ? (
         <button type="button" className="kq-sound-banner" onClick={() => unlockSound().then((ok) => setSoundBlocked(!ok))}>
           <Volume2 size={18} /> Tap to turn on the new-order sound
         </button>
       ) : null}
-      {loadError ? <p className="form-error" role="alert">{loadError}</p> : null}
+      {loadError ? <p className="ui-error" role="alert">{loadError}</p> : null}
 
-      <header className="kq-bar">
-        <div className="kq-heading">
+      <header className="ui-page-header kq-bar">
+        <div className="ui-page-header-text">
           <h1>{myStation === "drinks" ? "Drinks" : myStation === "food" ? "Food" : "Kitchen"}</h1>
           <p>{columns.preparing.length} preparing · {columns.waiting.length} in line</p>
         </div>
-        <div className="kq-segmented" role="group" aria-label="Show" hidden={Boolean(myStation)}>
+        <div className="ui-seg" role="group" aria-label="Show" hidden={Boolean(myStation)}>
           {STATIONS.map((s) => (
             <button key={s.key} type="button" aria-pressed={station === s.key} onClick={() => setStation(s.key)}>
               {s.label} <span className="kq-count">{stationCounts[s.key]}</span>
@@ -202,16 +207,16 @@ export function KitchenKDS() {
           ))}
         </div>
         <div className="kq-icons">
-          <button type="button" className="kq-icon" onClick={toggleMute} aria-label={isMuted ? "Turn sound on" : "Turn sound off"} title={isMuted ? "Sound off" : "Sound on"}>
+          <button type="button" className="ui-btn ui-btn--icon" onClick={toggleMute} aria-label={isMuted ? "Turn sound on" : "Turn sound off"} title={isMuted ? "Sound off" : "Sound on"}>
             {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
           </button>
-          <Link to={`/${cafeSlug}/kds/settings`} className="kq-icon" aria-label="Kitchen settings" title="Settings">
+          <Link to={`/${cafeSlug}/kds/settings`} className="ui-btn ui-btn--icon" aria-label="Kitchen settings" title="Settings">
             <Settings size={20} />
           </Link>
         </div>
       </header>
 
-      <div className="kq-mobile-switch" role="tablist">
+      <div className="ui-seg kq-mobile-switch" role="tablist">
         {COLUMNS.map((c) => (
           <button key={c.key} type="button" role="tab" aria-selected={mobileColumn === c.key} onClick={() => setMobileColumn(c.key)}>
             {c.label} <span className="kq-count">{columns[c.key].length}</span>
@@ -224,13 +229,14 @@ export function KitchenKDS() {
           <section key={c.key} className="kq-col" data-col={c.key} aria-label={c.label}>
             <h2>{c.label} <span className="kq-count">{columns[c.key].length}</span></h2>
             {!loaded ? (
-              <div className="kq-ticket kq-skeleton" aria-hidden="true" />
+              <div className="ui-card kq-skeleton" aria-hidden="true" />
             ) : columns[c.key].length === 0 ? (
-              <div className="kq-empty"><ChefHat size={40} strokeWidth={1.5} /><p>{c.empty}</p></div>
+              <div className="ui-empty"><ChefHat size={28} strokeWidth={1.5} /><strong>{c.empty}</strong></div>
             ) : (
               <div className="kq-tickets">
-                {columns[c.key].map((order) => (
+                {columns[c.key].map((order, index) => (
                   <Ticket
+                    primary={c.key === "preparing" && index === 0}
                     key={order.id}
                     order={order}
                     now={now}
