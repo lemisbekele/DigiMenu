@@ -828,6 +828,10 @@ html[data-theme="dark"] .qr-add-btn:hover {
 
 .qr-menu-wrapper { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 
+.checkout-method:has(input:checked) { border-color: var(--brand); background: var(--brand-soft); color: var(--brand-ink); }
+
+.checkout-method:has(input:focus-visible) { outline: 3px solid var(--brand-bright); outline-offset: 2px; }
+
 .order-placed-banner {
   display: flex;
   align-items: center;

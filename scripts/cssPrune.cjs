@@ -39,6 +39,19 @@ function split(css) {
   return out
 }
 
+// Split a selector list on commas that are not inside (...) — :is(.a, .b) stays whole.
+function splitTop(list) {
+  const parts = []
+  let depth = 0, start = 0
+  for (let i = 0; i < list.length; i++) {
+    if (list[i] === "(") depth++
+    else if (list[i] === ")") depth--
+    else if (list[i] === "," && depth === 0) { parts.push(list.slice(start, i)); start = i + 1 }
+  }
+  parts.push(list.slice(start))
+  return parts
+}
+
 function prune(css, isUsed, dropBare) {
   let kept = "", removed = 0
   for (const { prelude, body } of split(css)) {
@@ -51,8 +64,9 @@ function prune(css, isUsed, dropBare) {
       continue
     }
     if (head.startsWith("@")) { kept += `\n${head} {${body}}\n`; continue } // @keyframes, @font-face
-    const selectors = head.split(",").map((s) => s.trim()).filter((sel) => {
+    const selectors = splitTop(head).map((s) => s.trim()).filter((sel) => {
       const classes = [...sel.replace(/:not\([^)]*\)/g, "").matchAll(/\.([A-Za-z_][A-Za-z0-9_-]*)/g)].map((m) => m[1])
+      if (/:(is|where|has)\(/.test(sel)) return true // any listed class may match; keep the rule
       if (!classes.length) return !dropBare || /^(:root|html|body|#root|\*)/.test(sel)
       return classes.every(isUsed)
     })

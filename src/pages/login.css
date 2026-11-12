@@ -51,7 +51,7 @@
 
 .login-copyright { text-align: center; font-size: .75rem; color: var(--muted); margin: 32px 0 0; }
 
-.success-note) { margin: 0; padding: 12px; border-radius: 8px; font-size: .875rem; line-height: 1.5; }
+.login-page :is(.form-error, .success-note) { margin: 0; padding: 12px; border-radius: 8px; font-size: .875rem; line-height: 1.5; }
 
 .login-page .success-note { background: var(--brand-soft); color: var(--brand-ink); }
 
