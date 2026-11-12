@@ -1,0 +1,89 @@
+/* The page frame for every signed-in role (docs/design-language.html, "How every page is laid out").
+   Wide: navigation | page | optional detail panel. Phones: slim top bar + bottom tab bar. */
+
+main.ui-shell {
+  display: grid; grid-template-columns: 188px minmax(0, 1fr);
+  width: 100%; max-width: none; min-height: 100dvh; height: auto; margin: 0; padding: 0;
+  background: var(--bg); color: var(--text); font-family: var(--font-sans); overflow: visible;
+}
+main.ui-shell:has(.ui-detail:not(:empty)) { grid-template-columns: 188px minmax(0, 1fr) 300px; }
+
+/* ---------- Navigation ---------- */
+.ui-nav {
+  position: sticky; top: 0; height: 100dvh;
+  display: flex; flex-direction: column; gap: var(--space-4);
+  padding: var(--space-4) var(--space-3);
+  border-right: 1px solid var(--border); background: var(--surface); overflow-y: auto;
+}
+.ui-nav-brand { display: grid; gap: var(--space-1); padding: 0 var(--space-2); min-width: 0; }
+.ui-nav-email { margin: 0; overflow: hidden; color: var(--muted); font-size: var(--text-xs); text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
+.ui-nav-links { display: grid; gap: var(--space-4); }
+.ui-nav-group { display: grid; gap: 2px; }
+.ui-nav-group-label { padding: 0 var(--space-2) 6px; color: var(--muted); font: var(--weight-bold) 11px/1 var(--font-sans); letter-spacing: 0.08em; text-transform: uppercase; }
+.ui-nav-links a, .ui-nav-signout {
+  display: flex; align-items: center; gap: var(--space-2);
+  width: 100%; height: 34px; min-height: 0; margin: 0; padding: 0 var(--space-2);
+  border: 0; border-radius: var(--radius-sm); background: none; color: var(--text-2); box-shadow: none;
+  font: var(--weight-regular) var(--text-sm)/1 var(--font-sans); text-align: left; text-decoration: none; white-space: nowrap; cursor: pointer;
+}
+.ui-nav-links a span, .ui-nav-signout span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ui-nav-links a svg, .ui-nav-signout svg { width: 16px; height: 16px; flex: none; color: var(--muted); }
+.ui-nav-links a:hover { background: var(--surface-2); color: var(--text); }
+.ui-nav-links a.active { background: var(--brand-soft); color: var(--brand-ink); font-weight: var(--weight-bold); }
+.ui-nav-links a.active svg { color: var(--brand-ink); }
+.ui-nav-links a:focus-visible, .ui-nav-signout:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+.ui-nav-foot { margin-top: auto; padding-top: var(--space-3); border-top: 1px solid var(--border); }
+.ui-nav-signout:hover { background: var(--danger-soft); color: var(--danger-text); }
+
+/* ---------- Page ---------- */
+.ui-main { position: relative; display: grid; gap: var(--space-4); align-content: start; min-width: 0; padding: var(--space-4) var(--space-5) var(--space-6); }
+.ui-shell-controls { display: flex; justify-content: flex-end; align-items: center; gap: var(--space-2); min-height: var(--control-h); }
+
+/* ---------- Detail panel ---------- */
+.ui-detail:empty { display: none; }
+.ui-detail { position: sticky; top: 0; height: 100dvh; border-left: 1px solid var(--border); background: var(--surface); overflow-y: auto; }
+.ui-panel { display: flex; flex-direction: column; gap: var(--space-3); min-height: 100%; padding: var(--space-4); }
+.ui-panel-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.ui-panel-head h2 { margin: 0; min-width: 0; overflow: hidden; color: var(--text); font: var(--weight-heavy) var(--text-xl)/1.2 var(--font-display); letter-spacing: -0.01em; text-overflow: ellipsis; white-space: nowrap; }
+.ui-panel-foot { display: grid; gap: var(--space-3); margin-top: auto; }
+
+/* Mid widths: the panel floats over the page instead of taking a column. */
+@media (max-width: 1099px) {
+  main.ui-shell:has(.ui-detail:not(:empty)) { grid-template-columns: 188px minmax(0, 1fr); }
+  .ui-detail { position: fixed; inset: 0 0 0 auto; z-index: 50; width: min(360px, 100vw); height: 100dvh; box-shadow: var(--shadow-lg); }
+}
+
+/* ---------- Phones and small tablets ---------- */
+@media (max-width: 899px) {
+  main.ui-shell, main.ui-shell:has(.ui-detail:not(:empty)) { display: block; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+  .ui-nav { z-index: 40; height: 52px; flex-direction: row; align-items: center; gap: var(--space-2); padding: 0 var(--space-3); border-right: 0; border-bottom: 1px solid var(--border); overflow: visible; }
+  .ui-nav-brand { display: flex; padding: 0; }
+  .ui-nav-email, .ui-nav .digimenu-brand-name, .ui-nav-group-label, .ui-nav-signout span { display: none; }
+  .ui-nav-foot { margin: 0 0 0 auto; padding: 0; border: 0; }
+  .ui-nav-signout { width: 40px; height: 40px; justify-content: center; padding: 0; }
+  /* Bottom tab bar: the same links, groups flattened. */
+  .ui-nav-links {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    display: flex; gap: 0; padding: var(--space-1) var(--space-1) calc(var(--space-1) + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--border); background: var(--surface); overflow-x: auto; scrollbar-width: none;
+  }
+  .ui-nav-links::-webkit-scrollbar { display: none; }
+  .ui-nav-group { display: contents; }
+  .ui-nav-links a { flex: 1 0 64px; flex-direction: column; justify-content: center; gap: 2px; width: auto; height: 52px; padding: var(--space-1); font-size: var(--text-xs); }
+  .ui-nav-links a span { max-width: 100%; }
+  .ui-nav-links a.active { background: none; }
+  .ui-main { padding: var(--space-3) var(--space-4) var(--space-5); }
+  /* Controls move up into the top bar, left of sign-out. */
+  .ui-shell-controls { position: fixed; top: 6px; right: 56px; z-index: 41; min-height: 40px; }
+  .ui-detail { inset: auto 0 0 0; width: 100%; height: auto; max-height: 85dvh; border-left: 0; border-top: 1px solid var(--border); border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+}
+
+/* Language, theme and notification buttons in the controls row share the quiet button look. */
+.ui-shell-controls button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; position: relative;
+  min-width: var(--control-h); height: var(--control-h); min-height: 0; margin: 0; padding: 0 var(--space-2);
+  border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text-2); box-shadow: none;
+  font: var(--weight-bold) var(--text-sm)/1 var(--font-sans); cursor: pointer;
+}
+.ui-shell-controls button:hover { background: var(--surface-2); color: var(--text); }
+.ui-shell-controls button svg { width: 16px; height: 16px; color: currentColor; }
