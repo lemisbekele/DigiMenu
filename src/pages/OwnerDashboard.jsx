@@ -2,26 +2,24 @@ import { dateKey, formatDateTime } from "../services/regionalSettings"
 import { lastDays, reportRange } from "../services/reporting"
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { Wallet, Receipt, Flame, BellRing, ArrowUpRight, ArrowDownRight, Minus } from "lucide-react"
 import { money, observeOrders, observeAuditLogs } from "../services/dataService"
 import { useRBAC } from "../context/rbacContextValue"
 import { ROLES } from "../services/roleService"
 import { useCafeSlug } from "../hooks/useCafeSlug"
+import { DataTable, EmptyState, PageHeader, StatusPill, toneForStatus } from "../ui"
 import "./staff-layout.css"
 
-import { StatusPill, toneForStatus } from "../ui"
-function formatTime(date) {
-  if (!date) return ""
-  const d = date instanceof Date ? date : new Date(date)
-  if (isNaN(d.getTime())) return ""
-  return formatDateTime(d, { dateStyle: undefined, timeStyle: "short" })
-}
+const STATUS_LABEL = { received: "In line", accepted: "In line", preparing: "Preparing", ready: "Ready", paid: "Paid", rejected: "Rejected" }
 
-function normalizeDate(date) {
-  if (!date) return ""
-  const d = date instanceof Date ? date : new Date(date)
-  if (isNaN(d.getTime())) return ""
-  return dateKey(d)
+function toDate(value) {
+  if (!value) return null
+  const d = value instanceof Date ? value : new Date(value)
+  return isNaN(d.getTime()) ? null : d
 }
+const dayOf = (value) => { const d = toDate(value); return d ? dateKey(d) : "" }
+const timeOf = (value) => { const d = toDate(value); return d ? formatDateTime(d, { dateStyle: undefined, timeStyle: "short" }) : "" }
+const total = (list) => list.reduce((sum, o) => sum + Number(o.totalAmount || 0), 0)
 
 function formatAuditAction(log) {
   if (!log || !log.action) return "Activity recorded"
@@ -52,29 +50,43 @@ function formatAuditAction(log) {
   return map[log.action] || String(log.action).replace(/\./g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
-function todayString() {
-  return dateKey(new Date())
+// Change against a comparison value, worded for people: "Up 12% on last Friday".
+export function trendOf(now, before, against) {
+  if (!before && !now) return { dir: "flat", text: `Same as ${against}` }
+  if (!before) return { dir: "up", text: `New since ${against}` }
+  const pct = Math.round(((now - before) / before) * 100)
+  if (pct === 0) return { dir: "flat", text: `Same as ${against}` }
+  return { dir: pct > 0 ? "up" : "down", text: `${pct > 0 ? "Up" : "Down"} ${Math.abs(pct)}% on ${against}` }
 }
 
-function Stat({ label, value, sub, text = false }) {
+const TREND_ICON = { up: ArrowUpRight, down: ArrowDownRight, flat: Minus }
+
+function Kpi({ icon: Icon, label, value, trend, note }) {
+  const TrendIcon = trend ? TREND_ICON[trend.dir] : null
   return (
-    <div className={`ui-stat${text ? "is-text" : ""}`}>
-      <span>{label}</span>
-      <strong>{value}</strong>
-      {sub ? <span>{sub}</span> : null}
-    </div>
+    <article className="ui-card kpi">
+      <div className="kpi-head">
+        <span className="kpi-label">{label}</span>
+        <span className="kpi-icon" aria-hidden="true"><Icon size={16} /></span>
+      </div>
+      <strong className="kpi-value">{value}</strong>
+      {trend ? (
+        <span className="kpi-trend" data-dir={trend.dir}><TrendIcon size={14} aria-hidden="true" />{trend.text}</span>
+      ) : <span className="kpi-trend" data-dir="flat">{note}</span>}
+    </article>
   )
 }
 
-function WeekBars({ days }) {
+function WeekChart({ days }) {
   const top = Math.max(...days.map((d) => d.value), 1)
-  if (days.every((d) => d.value === 0)) return <p className="ui-list-sub">No paid orders in the last 7 days.</p>
+  if (days.every((d) => d.value === 0)) return <EmptyState title="No paid orders this week" body="Sales appear here as orders are paid." />
   return (
-    <div className="ad-bars" role="img" aria-label={days.map((d) => `${d.label}: ${money(d.value)}`).join(", ")}>
-      {days.map((d) => (
-        <div key={d.key} className="ad-bar" title={`${d.label}: ${money(d.value)} · ${d.orders} orders`}>
-          <span className="ad-bar-fill" style={{ height: `${Math.max(2, (d.value / top) * 100)}%` }} />
-          <span className="ad-bar-label">{d.label}</span>
+    <div className="week-chart" role="img" aria-label={days.map((d) => `${d.label}: ${money(d.value)}`).join(", ")}>
+      {days.map((d, i) => (
+        <div key={d.key} className="week-bar" data-today={i === days.length - 1 || undefined} title={`${d.label}: ${money(d.value)} · ${d.orders} orders`}>
+          <span className="week-bar-value">{d.value ? money(d.value) : ""}</span>
+          <span className="week-bar-track"><span className="week-bar-fill" style={{ height: `${Math.max(3, (d.value / top) * 100)}%` }} /></span>
+          <span className="week-bar-label">{d.label}</span>
         </div>
       ))}
     </div>
@@ -96,42 +108,53 @@ export function OwnerDashboard() {
     return observeAuditLogs((logs) => setAuditLogs((logs || []).slice(0, 6)), setLoadError)
   }, [])
 
-  const stats = useMemo(() => {
+  const days = useMemo(() => lastDays(15, dateKey(new Date())), [])
+
+  const kpis = useMemo(() => {
     const paid = orders.filter((o) => o.orderStatus === "paid")
-    const today = todayString()
-    const todayPaid = paid.filter((o) => normalizeDate(o.paidAt || o.updatedAt) === today)
+    const today = days[14].key
+    const lastWeekDay = days[7].key
+    const thisWeek = new Set(days.slice(8).map((d) => d.key))
+    const prevWeek = new Set(days.slice(1, 8).map((d) => d.key))
+    const paidOn = (key) => paid.filter((o) => dayOf(o.paidAt || o.updatedAt) === key)
+    const paidIn = (set) => paid.filter((o) => set.has(dayOf(o.paidAt || o.updatedAt)))
+    const placedOn = (key) => orders.filter((o) => dayOf(o.createdAt) === key).length
+    const avg = (list) => (list.length ? total(list) / list.length : 0)
+    const weekday = new Date(`${today}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "long", timeZone: "UTC" })
     return {
-      openOrders: orders.filter((o) => !["paid", "rejected", "ready"].includes(o.orderStatus)).length,
-      readyOrders: orders.filter((o) => o.orderStatus === "ready").length,
-      monthRevenue: paid.reduce((s, o) => s + Number(o.totalAmount || 0), 0),
-      monthOrders: paid.length,
-      todayRevenue: todayPaid.reduce((s, o) => s + Number(o.totalAmount || 0), 0),
-      todayOrders: orders.filter((o) => normalizeDate(o.createdAt) === today).length,
+      salesToday: total(paidOn(today)),
+      salesTrend: trendOf(total(paidOn(today)), total(paidOn(lastWeekDay)), `last ${weekday}`),
+      ordersToday: placedOn(today),
+      ordersTrend: trendOf(placedOn(today), placedOn(lastWeekDay), `last ${weekday}`),
+      avgOrder: avg(paidIn(thisWeek)),
+      avgTrend: trendOf(avg(paidIn(thisWeek)), avg(paidIn(prevWeek)), "the week before"),
+      open: orders.filter((o) => !["paid", "rejected", "ready"].includes(o.orderStatus)).length,
+      ready: orders.filter((o) => o.orderStatus === "ready").length,
     }
-  }, [orders])
+  }, [orders, days])
 
   const week = useMemo(() => {
     const revenue = {}
     const counts = {}
     orders.filter((o) => o.orderStatus === "paid").forEach((o) => {
-      const day = normalizeDate(o.paidAt || o.updatedAt)
+      const day = dayOf(o.paidAt || o.updatedAt)
       if (!day) return
       revenue[day] = (revenue[day] || 0) + Number(o.totalAmount || 0)
       counts[day] = (counts[day] || 0) + 1
     })
-    return lastDays(7, todayString()).map((d) => ({ ...d, value: Math.round(revenue[d.key] || 0), orders: counts[d.key] || 0 }))
-  }, [orders])
+    return days.slice(8).map((d) => ({ ...d, value: Math.round(revenue[d.key] || 0), orders: counts[d.key] || 0 }))
+  }, [orders, days])
+  const weekTotal = week.reduce((s, d) => s + d.value, 0)
 
   const topItems = useMemo(() => {
     const counts = {}
-    orders.forEach((o) => {
-      ;(o.items || []).forEach((item) => {
-        const name = item.name || "Unknown"
-        counts[name] = (counts[name] || 0) + Number(item.quantity || 1)
-      })
-    })
+    orders.forEach((o) => (o.items || []).forEach((item) => {
+      const name = item.name || "Unknown"
+      counts[name] = (counts[name] || 0) + Number(item.quantity || 1)
+    }))
     return Object.entries(counts).map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value).slice(0, 5)
   }, [orders])
+  const topMax = Math.max(...topItems.map((i) => i.value), 1)
 
   const calories = useMemo(() => {
     const now = new Date()
@@ -140,51 +163,50 @@ export function OwnerDashboard() {
       const d = new Date(o.paidAt || o.updatedAt || o.createdAt)
       return d >= start && d <= now
     })
-    let total = 0
-    const perItem = {}
-    inRange.forEach((o) => (o.items || []).forEach((item) => {
-      const line = Math.round(Number(item.calories || 0) * Number(item.quantity || 1))
-      total += line
-      perItem[item.name || "Unknown"] = (perItem[item.name || "Unknown"] || 0) + line
-    }))
-    const ranked = Object.entries(perItem).sort((a, b) => b[1] - a[1])
-    return {
-      orders: inRange.length,
-      total,
-      average: inRange.length ? Math.round(total / inRange.length) : 0,
-      highest: ranked[0]?.[0] || "—",
-    }
+    let sum = 0
+    inRange.forEach((o) => (o.items || []).forEach((item) => { sum += Math.round(Number(item.calories || 0) * Number(item.quantity || 1)) }))
+    return { orders: inRange.length, total: sum, average: inRange.length ? Math.round(sum / inRange.length) : 0 }
   }, [calorieRange, orders])
 
-  const recentOrders = useMemo(() => orders.slice(0, 6), [orders])
-  const topMax = Math.max(...topItems.map((i) => i.value), 1)
+  const orderColumns = [
+    { key: "table", label: "Table", render: (o) => <strong>{o.tableNumber ? `Table ${o.tableNumber}` : "Take away"}</strong> },
+    { key: "items", label: "Items", render: (o) => {
+      const text = (o.items || []).map((i) => `${i.quantity || 1}× ${i.name}`).join(", ")
+      return <span className="ui-muted" title={text}>{text}</span>
+    } },
+    { key: "time", label: "Placed", render: (o) => <span className="ui-num">{timeOf(o.createdAt)}</span> },
+    { key: "status", label: "Status", render: (o) => <StatusPill tone={toneForStatus(o.orderStatus)}>{STATUS_LABEL[o.orderStatus] || o.orderStatus}</StatusPill> },
+    { key: "total", label: "Total", align: "right", render: (o) => money(o.totalAmount) },
+  ]
 
   return (
-    <div className="ui-stack">
-      <header className="ui-page-header">
-        <div>
-          <h1>{role === ROLES.MANAGER ? "Operations Dashboard" : "Business Dashboard"}</h1>
-          <p>Today at a glance. Sales and best sellers cover the last 31 days.</p>
-        </div>
-      </header>
+    <div className="ui-stack dash">
+      <PageHeader
+        title={role === ROLES.MANAGER ? "Operations" : "Dashboard"}
+        subtitle={new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}
+        action={<button className="ui-btn ui-btn--primary" type="button" onClick={() => navigate(`/${cafeSlug}/orders`)}>Open orders</button>}
+      />
       {loadError ? <p className="ui-error" role="alert">{loadError}</p> : null}
 
-      <section className="ui-stats" aria-label="Today">
-        <Stat label="Sales today" value={money(stats.todayRevenue)} sub={`${stats.todayOrders} orders placed today`} />
-        <Stat label="Being prepared" value={stats.openOrders} sub="Open orders right now" />
-        <Stat label="Ready to serve" value={stats.readyOrders} sub="Waiting for pickup or payment" />
-        <Stat label="Sales (31 days)" value={money(stats.monthRevenue)} sub={`${stats.monthOrders} paid orders`} />
+      <section className="kpis" aria-label="Today">
+        <Kpi icon={Wallet} label="Sales today" value={money(kpis.salesToday)} trend={kpis.salesTrend} />
+        <Kpi icon={Receipt} label="Orders today" value={kpis.ordersToday} trend={kpis.ordersTrend} />
+        <Kpi icon={Flame} label="Average order, 7 days" value={money(kpis.avgOrder)} trend={kpis.avgTrend} />
+        <Kpi icon={BellRing} label="Open now" value={kpis.open} note={kpis.ready ? `${kpis.ready} ready to serve` : "Nothing waiting to serve"} />
       </section>
 
-      <div className="ad-dash-grid">
-        <section className="ui-card ui-card--stack" aria-labelledby="week-heading">
-          <div className="ui-section-head"><div><h2 id="week-heading">Sales, last 7 days</h2><p>Paid orders per day.</p></div></div>
-          <WeekBars days={week} />
+      <div className="dash-row">
+        <section className="ui-card ui-card--stack dash-wide" aria-labelledby="week-heading">
+          <div className="ui-section-head">
+            <div><h2 id="week-heading">Sales this week</h2><p>Paid orders per day</p></div>
+            <strong className="dash-figure ui-num">{money(weekTotal)}</strong>
+          </div>
+          <WeekChart days={week} />
         </section>
 
         <section className="ui-card ui-card--stack" aria-labelledby="top-heading">
-          <div className="ui-section-head"><div><h2 id="top-heading">Best sellers</h2><p>Items ordered most, last 31 days.</p></div></div>
-          {topItems.length === 0 ? <p className="ui-list-sub">No orders yet.</p> : (
+          <div className="ui-section-head"><div><h2 id="top-heading">Best sellers</h2><p>Items ordered most</p></div></div>
+          {topItems.length === 0 ? <EmptyState title="No orders yet" /> : (
             <ol className="ad-rank">
               {topItems.map((item) => (
                 <li key={item.label}>
@@ -196,60 +218,49 @@ export function OwnerDashboard() {
             </ol>
           )}
         </section>
+      </div>
 
-        <section className="ui-card ui-card--stack" aria-labelledby="orders-heading">
+      <div className="dash-row">
+        <section className="ui-stack dash-wide" aria-labelledby="orders-heading">
           <div className="ui-section-head">
             <div><h2 id="orders-heading">Latest orders</h2></div>
             <button className="ui-btn" type="button" onClick={() => navigate(`/${cafeSlug}/orders`)}>See all</button>
           </div>
-          {recentOrders.length === 0 ? <p className="ui-list-sub">No orders yet.</p> : (
-            <div className="ui-list">
-              {recentOrders.map((o) => (
-                <div className="ui-list-row" key={o.id}>
-                  <div className="ui-list-main">
-                    <p className="ui-list-title">Table {o.tableNumber} · {money(o.totalAmount)}</p>
-                    <p className="ui-list-sub">{formatTime(o.createdAt)}</p>
-                  </div>
-                  <StatusPill tone={toneForStatus(o.orderStatus)}>{o.orderStatus}</StatusPill>
-                </div>
-              ))}
-            </div>
-          )}
+          <DataTable columns={orderColumns} rows={orders.slice(0, 6)} rowKey="id" empty={{ title: "No orders yet", body: "Orders from tables appear here as they come in." }} />
         </section>
 
-        <section className="ui-card ui-card--stack" aria-labelledby="calories-heading">
-          <div className="ui-section-head">
-            <div><h2 id="calories-heading">Calories sold</h2><p>From paid orders.</p></div>
-            <div className="ui-chips" role="group" aria-label="Period">
-              {[["day", "Today"], ["week", "Week"], ["month", "Month"]].map(([key, label]) => (
-                <button key={key} type="button" className="ui-chip" aria-pressed={calorieRange === key} onClick={() => setCalorieRange(key)}>{label}</button>
-              ))}
+        <div className="ui-stack">
+          <section className="ui-card ui-card--stack" aria-labelledby="calories-heading">
+            <div className="ui-section-head">
+              <div><h2 id="calories-heading">Calories sold</h2></div>
+              <div className="ui-seg" role="group" aria-label="Period">
+                {[["day", "Today"], ["week", "Week"], ["month", "Month"]].map(([key, label]) => (
+                  <button key={key} type="button" aria-pressed={calorieRange === key} onClick={() => setCalorieRange(key)}>{label}</button>
+                ))}
+              </div>
             </div>
-          </div>
-          {calories.orders === 0 ? <p className="ui-list-sub">No paid orders in this period.</p> : (
-            <div className="ui-stats">
-              <Stat label="Total" value={`${calories.total} kcal`} sub={`${calories.orders} orders`} />
-              <Stat label="Per order" value={`${calories.average} kcal`} />
-              <Stat label="Most calories" value={calories.highest} text />
-            </div>
-          )}
-        </section>
+            {calories.orders === 0 ? <p className="ui-muted">No paid orders in this period.</p> : (
+              <div className="dash-pair">
+                <div><span className="ui-muted">Total</span><strong className="ui-num">{calories.total.toLocaleString()} kcal</strong></div>
+                <div><span className="ui-muted">Per order</span><strong className="ui-num">{calories.average} kcal</strong></div>
+              </div>
+            )}
+          </section>
 
-        <section className="ui-card ui-card--stack" aria-labelledby="activity-heading">
-          <div className="ui-section-head"><div><h2 id="activity-heading">Recent activity</h2><p>Changes made by your team.</p></div></div>
-          {auditLogs.length === 0 ? <p className="ui-list-sub">No activity yet.</p> : (
-            <div className="ui-list">
-              {auditLogs.map((log) => (
-                <div className="ui-list-row" key={log.id}>
-                  <div className="ui-list-main">
-                    <p className="ui-list-title">{formatAuditAction(log)}</p>
-                    <p className="ui-list-sub">{log.actor || "system"} · {formatTime(log.createdAt)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+          <section className="ui-card ui-card--stack" aria-labelledby="activity-heading">
+            <div className="ui-section-head"><div><h2 id="activity-heading">Recent activity</h2></div></div>
+            {auditLogs.length === 0 ? <p className="ui-muted">No activity yet.</p> : (
+              <ul className="activity">
+                {auditLogs.map((log) => (
+                  <li key={log.id}>
+                    <span className="ui-truncate">{formatAuditAction(log)}</span>
+                    <small className="ui-muted">{log.actor || "system"} · {timeOf(log.createdAt)}</small>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
       </div>
     </div>
   )

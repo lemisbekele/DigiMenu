@@ -19,7 +19,8 @@ export async function devLogin() {
   const current = data.session?.user?.email?.toLowerCase()
   if (current === email.toLowerCase()) return
   if (current && !as) return // keep a session you picked by hand
-  if (current) await supabase.auth.signOut()
+  // local: only this browser; a global sign-out would revoke the account's sessions in other tabs too.
+  if (current) await supabase.auth.signOut({ scope: "local" })
   const { error } = await supabase.auth.signInWithPassword({ email, password })
   if (error) console.warn("[devLogin]", error.message)
   else console.info(`[devLogin] signed in as ${email}`)
