@@ -2,12 +2,12 @@ import { dateKey, formatDateTime } from "../services/regionalSettings"
 import { lastDays, reportRange } from "../services/reporting"
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Wallet, Receipt, Flame, BellRing, ArrowUpRight, ArrowDownRight, Minus } from "lucide-react"
+import { Wallet, Receipt, Flame, BellRing } from "lucide-react"
 import { money, observeOrders, observeAuditLogs } from "../services/dataService"
 import { useRBAC } from "../context/rbacContextValue"
 import { ROLES } from "../services/roleService"
 import { useCafeSlug } from "../hooks/useCafeSlug"
-import { DataTable, EmptyState, PageHeader, StatusPill, toneForStatus } from "../ui"
+import { DataTable, EmptyState, Kpi, PageHeader, StatusPill, toneForStatus } from "../ui"
 import "./staff-layout.css"
 
 const STATUS_LABEL = { received: "In line", accepted: "In line", preparing: "Preparing", ready: "Ready", paid: "Paid", rejected: "Rejected" }
@@ -57,24 +57,6 @@ export function trendOf(now, before, against) {
   const pct = Math.round(((now - before) / before) * 100)
   if (pct === 0) return { dir: "flat", text: `Same as ${against}` }
   return { dir: pct > 0 ? "up" : "down", text: `${pct > 0 ? "Up" : "Down"} ${Math.abs(pct)}% on ${against}` }
-}
-
-const TREND_ICON = { up: ArrowUpRight, down: ArrowDownRight, flat: Minus }
-
-function Kpi({ icon: Icon, label, value, trend, note }) {
-  const TrendIcon = trend ? TREND_ICON[trend.dir] : null
-  return (
-    <article className="ui-card kpi">
-      <div className="kpi-head">
-        <span className="kpi-label">{label}</span>
-        <span className="kpi-icon" aria-hidden="true"><Icon size={16} /></span>
-      </div>
-      <strong className="kpi-value">{value}</strong>
-      {trend ? (
-        <span className="kpi-trend" data-dir={trend.dir}><TrendIcon size={14} aria-hidden="true" />{trend.text}</span>
-      ) : <span className="kpi-trend" data-dir="flat">{note}</span>}
-    </article>
-  )
 }
 
 function WeekChart({ days }) {

@@ -1,4 +1,5 @@
 import { useMemo } from "react"
+import { Kpi } from "../ui"
 import { Link } from "react-router-dom"
 import {
   Building2, Package, CreditCard, Inbox, Clock,
@@ -64,26 +65,9 @@ const statusStyle = (status) => {
   }
 }
 
-function StatCard({ icon: Icon, label, value, sub, color, to }) {
-  const body = (
-    <article
-      className="sa-stat"
-      style={{ color, borderTop: `3px solid ${color}` }}
-    >
-      <div className="sa-stat-icon" style={{ background: `color-mix(in srgb, ${color} 12%, transparent)`, color }}>
-        <Icon size={22} />
-      </div>
-      <div style={{ minWidth: 0 }}>
-        <strong className="sa-stat-value" style={{ color: "var(--brand-ink)" }}>{value}</strong>
-        <span className="sa-stat-label">{label}</span>
-        {sub ? <span className="sa-stat-sub">{sub}</span> : null}
-      </div>
-    </article>
-  )
-
-  return to ? (
-    <Link to={to} style={{ textDecoration: "none", display: "block" }}>{body}</Link>
-  ) : body
+function StatCard({ icon, label, value, sub, to }) {
+  const body = <Kpi icon={icon} label={label} value={value} note={sub} />
+  return to ? <Link to={to} className="kpi-link">{body}</Link> : body
 }
 
 export function SuperAdminDashboard() {
@@ -140,11 +124,11 @@ export function SuperAdminDashboard() {
         </p>
       </div>
 
-      <div className="ui-stats">
-        <StatCard icon={Building2} label="Active Cafes" value={stats.activeCafes} sub={`${stats.totalCafes} total · ${stats.suspendedCafes} suspended`} color="var(--brand)" to="/superadmin/cafes" />
-        <StatCard icon={Inbox} label="Pending Requests" value={stats.pending.length} sub="Awaiting approval" color="var(--warning)" to="/superadmin/requests" />
-        <StatCard icon={CreditCard} label="Active Subscriptions" value={stats.activeSubs.length} sub={`${stats.expired.length} expired · ${stats.rejected.length} rejected`} color="var(--brand)" to="/superadmin/requests?view=subscriptions" />
-        <StatCard icon={ShieldCheck} label="Subscription Tiers" value={(packagesList || []).length} sub={`${(packagesList || []).map((p) => p.name || p.id).join(" · ") || "Loading packages…"}`} color="var(--info)" to="/superadmin/packages" />
+      <div className="kpis">
+        <StatCard icon={Building2} label="Active Cafes" value={stats.activeCafes} sub={`${stats.totalCafes} total · ${stats.suspendedCafes} suspended`} to="/superadmin/cafes" />
+        <StatCard icon={Inbox} label="Pending Requests" value={stats.pending.length} sub="Awaiting approval" to="/superadmin/requests" />
+        <StatCard icon={CreditCard} label="Active Subscriptions" value={stats.activeSubs.length} sub={`${stats.expired.length} expired · ${stats.rejected.length} rejected`} to="/superadmin/requests?view=subscriptions" />
+        <StatCard icon={ShieldCheck} label="Subscription Tiers" value={(packagesList || []).length} sub={`${(packagesList || []).map((p) => p.name || p.id).join(" · ") || "Loading packages…"}`} to="/superadmin/packages" />
       </div>
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>

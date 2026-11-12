@@ -1,4 +1,5 @@
 import { DistributionChart, FeedState } from "../components/PlatformCharts"
+import { Kpi } from "../ui"
 import { useConfirm } from "../hooks/useConfirm"
 import { cafeDistribution } from "../services/platformMetrics"
 import { isSubscriptionActive } from "../services/planService"
@@ -172,21 +173,13 @@ export function SuperAdminCafes() {
         </div>
       )}
 
-      <div className="ui-stats">
+      <div className="kpis">
         {[
           { label: "Total Cafes", value: counts.all, icon: Building2, color: "var(--brand)" },
           { label: "Active", value: counts.active, icon: CheckCircle2, color: "var(--brand)" },
           { label: "Suspended", value: counts.suspended, icon: AlertTriangle, color: "var(--warning)" },
         ].map((s) => (
-          <article key={s.label} className="sa-stat" style={{ color: s.color, borderTop: `3px solid ${s.color}` }}>
-            <div className="sa-stat-icon" style={{ background: `color-mix(in srgb, ${s.color} 12%, transparent)`, color: s.color }}>
-              <s.icon size={22} />
-            </div>
-            <div>
-              <strong className="sa-stat-value" style={{ color: "var(--brand-ink)" }}>{s.value}</strong>
-              <span className="sa-stat-label">{s.label}</span>
-            </div>
-          </article>
+          <Kpi key={s.label} icon={s.icon} label={s.label} value={s.value} />
         ))}
       </div>
 

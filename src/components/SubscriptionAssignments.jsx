@@ -1,4 +1,5 @@
 import { usePlatformFeed, observeAllSubscriptions } from "../hooks/usePlatformFeed"
+import { Kpi } from "../ui"
 import { toUserMessage } from "../services/userMessages"
 import { formatDateTime } from "../services/regionalSettings"
 import { useMemo, useState } from "react"
@@ -107,22 +108,14 @@ export function SubscriptionAssignments() {
       {actionError ? <p className="ui-error" role="alert">{actionError}</p> : null}
       <p className="sa-section-intro">Review subscription history and adjust access for provisioned cafes.</p>
 
-      <div className="ui-stats">
+      <div className="kpis">
         {[
           { label: "Active", value: counts[SUBSCRIPTION_STATUS.ACTIVE] || 0, icon: CheckCircle2, color: "var(--brand)" },
           { label: "Expired", value: counts[SUBSCRIPTION_STATUS.EXPIRED] || 0, icon: Clock, color: "var(--muted)" },
           { label: "Pending", value: counts[SUBSCRIPTION_STATUS.PENDING_APPROVAL] || 0, icon: AlertTriangle, color: "var(--warning)" },
           { label: "Rejected", value: counts[SUBSCRIPTION_STATUS.REJECTED] || 0, icon: XCircle, color: "var(--danger)" },
         ].map((s) => (
-          <article key={s.label} className="sa-stat" style={{ color: s.color, borderTop: `3px solid ${s.color}` }}>
-            <div className="sa-stat-icon" style={{ background: `color-mix(in srgb, ${s.color} 12%, transparent)`, color: s.color }}>
-              <s.icon size={22} />
-            </div>
-            <div>
-              <strong className="sa-stat-value" style={{ color: "var(--brand-ink)" }}>{s.value}</strong>
-              <span className="sa-stat-label">{s.label}</span>
-            </div>
-          </article>
+          <Kpi key={s.label} icon={s.icon} label={s.label} value={s.value} />
         ))}
       </div>
 
