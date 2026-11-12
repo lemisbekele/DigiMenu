@@ -261,19 +261,19 @@ export function TableQrCard({ table, onDelete, onSave }) {
       </div>
       <p className="ad-qr-url">{url}</p>
 
-      <div className="oc-actions">
-        <button className="oc-main" type="button" onClick={handlePrint}>
+      <div className="ui-row">
+        <button className="ui-btn ui-btn--primary" type="button" onClick={handlePrint}>
           <Printer size={18} /> Print
         </button>
-        <button className="ad-icon" type="button" onClick={handleDownload} aria-label="Download QR code" title="Download">
+        <button className="ui-btn ui-btn--quiet ui-btn--icon" type="button" onClick={handleDownload} aria-label="Download QR code" title="Download">
           <Download size={18} />
         </button>
-        <button className="ad-icon" type="button" onClick={handleShare} aria-label={copied ? "Link copied" : "Copy or share link"} title={copied ? "Copied" : "Copy link"}>
+        <button className="ui-btn ui-btn--quiet ui-btn--icon" type="button" onClick={handleShare} aria-label={copied ? "Link copied" : "Copy or share link"} title={copied ? "Copied" : "Copy link"}>
           {copied ? <Check size={18} /> : <Share2 size={18} />}
         </button>
         {onDelete ? (
           <button
-            className="ad-icon oc-danger"
+            className="ui-btn ui-btn--quiet ui-btn--icon ui-btn--danger"
             type="button"
             aria-label={`Delete ${table.label || `Table ${table.tableNumber}`}`}
             title="Delete table"
@@ -290,19 +290,19 @@ export function TableQrCard({ table, onDelete, onSave }) {
       {onSave ? (
         <details>
           <summary>Edit the printed text</summary>
-          <form className="ad-form" onSubmit={savePrintCopy}>
-            <label className="ad-field">
+          <form className="ui-form" onSubmit={savePrintCopy}>
+            <label className="ui-field">
               Heading
               <input maxLength={120} value={printTitle} onChange={(event) => setPrintTitle(event.target.value)} placeholder="Scan to Order" />
             </label>
-            <label className="ad-field">
+            <label className="ui-field">
               Instructions
               <input maxLength={300} value={printNote} onChange={(event) => setPrintNote(event.target.value)} placeholder="Point your phone camera to view the menu" />
             </label>
-            <button className="oc-quiet" type="submit" disabled={saving}>
+            <button className="ui-btn" type="submit" disabled={saving}>
               <Save size={16} /> {saving ? "Saving…" : "Save text"}
             </button>
-            {saveError ? <p className="form-error" role="alert">{saveError}</p> : null}
+            {saveError ? <p className="ui-error" role="alert">{saveError}</p> : null}
           </form>
         </details>
       ) : null}

@@ -6,7 +6,7 @@ import { StatusBadge } from "../components/StatusBadge"
 import { OptimizedImage } from "../components/OptimizedImage"
 import { OrderItemList } from "../components/OrderItemList"
 import { Modal } from "../components/Modal"
-import "./staff.css"
+import "./staff-layout.css"
 import { NotificationSettings } from "../components/NotificationSettings"
 import {
   money,
@@ -218,8 +218,8 @@ export function CashierDashboard() {
   ]
 
   return (
-    <div className="oc-page cashier-dashboard">
-      <header className="oc-head">
+    <div className="ui-stack cashier-dashboard">
+      <header className="ui-page-header">
         <div>
           <h1>Payments</h1>
           <p>Check transfer receipts and take cash payments.</p>
@@ -227,39 +227,39 @@ export function CashierDashboard() {
         <NotificationSettings role="cashier" buttonLabel="Turn on alerts" compact />
       </header>
 
-      <section className="oc-stats" aria-label="Today">
-        <div className="oc-stat"><span>Receipts to check</span><strong>{stats.pendingProofs}</strong></div>
-        <div className="oc-stat"><span>Unpaid orders</span><strong>{stats.unpaidOrders}</strong></div>
-        <div className="oc-stat"><span>Collected today</span><strong>{money(stats.todayPaidTotal)}</strong></div>
+      <section className="ui-stats" aria-label="Today">
+        <div className="ui-stat"><span>Receipts to check</span><strong>{stats.pendingProofs}</strong></div>
+        <div className="ui-stat"><span>Unpaid orders</span><strong>{stats.unpaidOrders}</strong></div>
+        <div className="ui-stat"><span>Collected today</span><strong>{money(stats.todayPaidTotal)}</strong></div>
       </section>
 
-      <section className="oc-toolbar">
-        <label className="oc-search">
+      <section className="ui-toolbar">
+        <label className="ui-search">
           <Search size={18} />
           <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Table, order ID or payment method" aria-label="Search payments" />
         </label>
-        <div className="oc-chips" role="group" aria-label="Show">
+        <div className="ui-chips" role="group" aria-label="Show">
           {chips.map((chip) => (
-            <button key={chip.key} type="button" className="oc-chip" aria-pressed={filter === chip.key} onClick={() => setFilter(chip.key)}>
-              {chip.label}{chip.count != null ? <span className="oc-chip-count">{chip.count}</span> : null}
+            <button key={chip.key} type="button" className="ui-chip" aria-pressed={filter === chip.key} onClick={() => setFilter(chip.key)}>
+              {chip.label}{chip.count != null ? <span className="ui-muted">{chip.count}</span> : null}
             </button>
           ))}
         </div>
       </section>
 
       {filteredOrders.length === 0 ? (
-        <div className="oc-empty">
+        <div className="ui-empty">
           <ShieldCheck size={32} strokeWidth={1.5} />
           <strong>All caught up</strong>
           <p>No payments waiting here. New ones appear automatically.</p>
         </div>
       ) : (
-        <section className="oc-grid">
+        <section className="ui-grid">
           {filteredOrders.map((order) => {
             const hasProof = Boolean(order.paymentProofUrl)
             const safeProof = hasProof && isSafeStorageUrl(order.paymentProofUrl)
             return (
-              <article key={order.id} className="oc-card">
+              <article key={order.id} className="ui-card ui-card--stack">
                 <div className="oc-card-top">
                   <div>
                     <h3 className="oc-table">Table {order.tableNumber}</h3>
@@ -281,12 +281,12 @@ export function CashierDashboard() {
                   <p className="oc-proof-missing">This receipt link can't be opened safely. Ask the customer to upload it again.</p>
                 ) : null}
                 {order.paymentStatus !== "paid" ? (
-                  <div className="oc-actions">
-                    <button className="oc-main" type="button" onClick={() => approvePayment(order.id)}>
+                  <div className="ui-row">
+                    <button className="ui-btn ui-btn--primary" type="button" onClick={() => approvePayment(order.id)}>
                       <CheckCircle2 size={18} /> {order.paymentStatus === "pending" ? "Approve payment" : "Mark as paid"}
                     </button>
                     {order.paymentStatus === "pending" ? (
-                      <button className="oc-quiet oc-danger" type="button" onClick={() => setRejectingOrder(order)}>
+                      <button className="ui-btn ui-btn--danger" type="button" onClick={() => setRejectingOrder(order)}>
                         <XCircle size={16} /> Reject
                       </button>
                     ) : null}
@@ -300,16 +300,16 @@ export function CashierDashboard() {
 
       {rejectingOrder ? (
         <Modal title="Reject this receipt?" className="confirm-dialog" onClose={() => setRejectingOrder(null)}>
-          <form className="oc-dialog-form" onSubmit={handleRejectSubmit}>
+          <form className="ui-form" onSubmit={handleRejectSubmit}>
             <p className="oc-meta">Table {rejectingOrder.tableNumber} · #{rejectingOrder.id?.slice(-6)} · {money(rejectingOrder.totalAmount)}</p>
             <label>
               Reason the customer will see
               <textarea rows="3" value={rejectionReason} onChange={(e) => setRejectionReason(e.target.value)}
                 placeholder="e.g. Transfer not found, or the photo is unreadable." required />
             </label>
-            <div className="row-actions">
-              <button className="danger-button" type="submit">Reject receipt</button>
-              <button className="ghost-button" type="button" onClick={() => setRejectingOrder(null)}>Cancel</button>
+            <div className="ui-row">
+              <button className="ui-btn ui-btn--danger" type="submit">Reject receipt</button>
+              <button className="ui-btn" type="button" onClick={() => setRejectingOrder(null)}>Cancel</button>
             </div>
           </form>
         </Modal>
@@ -334,7 +334,7 @@ export function CashierDashboard() {
               <span className="pos-toast-time">{t.time}</span>
             </div>
             <button
-              className="icon-button small modal-close"
+              className="ui-btn ui-btn--quiet ui-btn--icon modal-close"
               type="button"
               aria-label="Dismiss"
               onClick={(e) => { e.stopPropagation(); setToasts((current) => current.filter((x) => x.id !== t.id)) }}

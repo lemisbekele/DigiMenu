@@ -5,8 +5,9 @@ import { observeOrders } from "../services/dataService"
 import { matchesStation, stationItems } from "../services/kitchenQueue"
 import { useAuth } from "../context/authContextValue"
 import "./kitchen.css"
-import "./staff.css"
+import "./staff-layout.css"
 
+import { StatusPill } from "../ui"
 const STATIONS = [
   { key: "all", label: "All" },
   { key: "food", label: "Food" },
@@ -71,20 +72,20 @@ export function KitchenHistory() {
       ) : done.list.length === 0 ? (
         <div className="kq-empty"><ChefHat size={40} strokeWidth={1.5} /><p>No finished orders yet.</p></div>
       ) : (
-        <div className="ad-list">
+        <div className="ui-list">
           {done.list.map((order) => {
             const minutes = Math.max(1, Math.round((doneMs(order) - createdMs(order)) / 60000))
             const items = stationItems(order, station)
             return (
-              <article key={order.id} className={`ad-row${order.orderStatus === "rejected" ? " is-muted" : ""}`}>
-                <div className="ad-row-main">
-                  <p className="ad-row-title">Table {order.tableNumber || "—"} · {items.map((i) => `${i.quantity || 1}× ${i.name}`).join(", ")}</p>
-                  <p className="ad-row-sub">
+              <article key={order.id} className={`ui-list-row${order.orderStatus === "rejected" ? "is-muted" : ""}`}>
+                <div className="ui-list-main">
+                  <p className="ui-list-title">Table {order.tableNumber || "—"} · {items.map((i) => `${i.quantity || 1}× ${i.name}`).join(", ")}</p>
+                  <p className="ui-list-sub">
                     {formatDateTime(doneMs(order), { dateStyle: undefined })} · took {minutes} min
                   </p>
                   {order.rejectionReason ? <p className="oc-note"><AlertTriangle size={13} /> {order.rejectionReason}</p> : null}
                 </div>
-                <span className={`badge ${order.orderStatus === "rejected" ? "rejected" : "approved"}`}>{STATUS_LABEL[order.orderStatus]}</span>
+                <StatusPill tone={order.orderStatus === "rejected" ? "late" : "paid"}>{STATUS_LABEL[order.orderStatus]}</StatusPill>
               </article>
             )
           })}

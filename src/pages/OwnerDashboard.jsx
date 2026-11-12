@@ -6,8 +6,9 @@ import { money, observeOrders, observeAuditLogs } from "../services/dataService"
 import { useRBAC } from "../context/rbacContextValue"
 import { ROLES } from "../services/roleService"
 import { useCafeSlug } from "../hooks/useCafeSlug"
-import "./staff.css"
+import "./staff-layout.css"
 
+import { StatusPill, toneForStatus } from "../ui"
 function formatTime(date) {
   if (!date) return ""
   const d = date instanceof Date ? date : new Date(date)
@@ -57,7 +58,7 @@ function todayString() {
 
 function Stat({ label, value, sub, text = false }) {
   return (
-    <div className={`oc-stat${text ? " is-text" : ""}`}>
+    <div className={`ui-stat${text ? "is-text" : ""}`}>
       <span>{label}</span>
       <strong>{value}</strong>
       {sub ? <span>{sub}</span> : null}
@@ -67,7 +68,7 @@ function Stat({ label, value, sub, text = false }) {
 
 function WeekBars({ days }) {
   const top = Math.max(...days.map((d) => d.value), 1)
-  if (days.every((d) => d.value === 0)) return <p className="ad-row-sub">No paid orders in the last 7 days.</p>
+  if (days.every((d) => d.value === 0)) return <p className="ui-list-sub">No paid orders in the last 7 days.</p>
   return (
     <div className="ad-bars" role="img" aria-label={days.map((d) => `${d.label}: ${money(d.value)}`).join(", ")}>
       {days.map((d) => (
@@ -159,16 +160,16 @@ export function OwnerDashboard() {
   const topMax = Math.max(...topItems.map((i) => i.value), 1)
 
   return (
-    <div className="oc-page">
-      <header className="oc-head">
+    <div className="ui-stack">
+      <header className="ui-page-header">
         <div>
           <h1>{role === ROLES.MANAGER ? "Operations Dashboard" : "Business Dashboard"}</h1>
           <p>Today at a glance. Sales and best sellers cover the last 31 days.</p>
         </div>
       </header>
-      {loadError ? <p className="form-error" role="alert">{loadError}</p> : null}
+      {loadError ? <p className="ui-error" role="alert">{loadError}</p> : null}
 
-      <section className="oc-stats" aria-label="Today">
+      <section className="ui-stats" aria-label="Today">
         <Stat label="Sales today" value={money(stats.todayRevenue)} sub={`${stats.todayOrders} orders placed today`} />
         <Stat label="Being prepared" value={stats.openOrders} sub="Open orders right now" />
         <Stat label="Ready to serve" value={stats.readyOrders} sub="Waiting for pickup or payment" />
@@ -176,14 +177,14 @@ export function OwnerDashboard() {
       </section>
 
       <div className="ad-dash-grid">
-        <section className="ad-section" aria-labelledby="week-heading">
-          <div className="ad-section-head"><div><h2 id="week-heading">Sales, last 7 days</h2><p>Paid orders per day.</p></div></div>
+        <section className="ui-card ui-card--stack" aria-labelledby="week-heading">
+          <div className="ui-section-head"><div><h2 id="week-heading">Sales, last 7 days</h2><p>Paid orders per day.</p></div></div>
           <WeekBars days={week} />
         </section>
 
-        <section className="ad-section" aria-labelledby="top-heading">
-          <div className="ad-section-head"><div><h2 id="top-heading">Best sellers</h2><p>Items ordered most, last 31 days.</p></div></div>
-          {topItems.length === 0 ? <p className="ad-row-sub">No orders yet.</p> : (
+        <section className="ui-card ui-card--stack" aria-labelledby="top-heading">
+          <div className="ui-section-head"><div><h2 id="top-heading">Best sellers</h2><p>Items ordered most, last 31 days.</p></div></div>
+          {topItems.length === 0 ? <p className="ui-list-sub">No orders yet.</p> : (
             <ol className="ad-rank">
               {topItems.map((item) => (
                 <li key={item.label}>
@@ -196,37 +197,37 @@ export function OwnerDashboard() {
           )}
         </section>
 
-        <section className="ad-section" aria-labelledby="orders-heading">
-          <div className="ad-section-head">
+        <section className="ui-card ui-card--stack" aria-labelledby="orders-heading">
+          <div className="ui-section-head">
             <div><h2 id="orders-heading">Latest orders</h2></div>
-            <button className="oc-quiet" type="button" onClick={() => navigate(`/${cafeSlug}/orders`)}>See all</button>
+            <button className="ui-btn" type="button" onClick={() => navigate(`/${cafeSlug}/orders`)}>See all</button>
           </div>
-          {recentOrders.length === 0 ? <p className="ad-row-sub">No orders yet.</p> : (
-            <div className="ad-list">
+          {recentOrders.length === 0 ? <p className="ui-list-sub">No orders yet.</p> : (
+            <div className="ui-list">
               {recentOrders.map((o) => (
-                <div className="ad-row" key={o.id}>
-                  <div className="ad-row-main">
-                    <p className="ad-row-title">Table {o.tableNumber} · {money(o.totalAmount)}</p>
-                    <p className="ad-row-sub">{formatTime(o.createdAt)}</p>
+                <div className="ui-list-row" key={o.id}>
+                  <div className="ui-list-main">
+                    <p className="ui-list-title">Table {o.tableNumber} · {money(o.totalAmount)}</p>
+                    <p className="ui-list-sub">{formatTime(o.createdAt)}</p>
                   </div>
-                  <span className={`badge ${o.orderStatus}`}>{o.orderStatus}</span>
+                  <StatusPill tone={toneForStatus(o.orderStatus)}>{o.orderStatus}</StatusPill>
                 </div>
               ))}
             </div>
           )}
         </section>
 
-        <section className="ad-section" aria-labelledby="calories-heading">
-          <div className="ad-section-head">
+        <section className="ui-card ui-card--stack" aria-labelledby="calories-heading">
+          <div className="ui-section-head">
             <div><h2 id="calories-heading">Calories sold</h2><p>From paid orders.</p></div>
-            <div className="oc-chips" role="group" aria-label="Period">
+            <div className="ui-chips" role="group" aria-label="Period">
               {[["day", "Today"], ["week", "Week"], ["month", "Month"]].map(([key, label]) => (
-                <button key={key} type="button" className="oc-chip" aria-pressed={calorieRange === key} onClick={() => setCalorieRange(key)}>{label}</button>
+                <button key={key} type="button" className="ui-chip" aria-pressed={calorieRange === key} onClick={() => setCalorieRange(key)}>{label}</button>
               ))}
             </div>
           </div>
-          {calories.orders === 0 ? <p className="ad-row-sub">No paid orders in this period.</p> : (
-            <div className="oc-stats">
+          {calories.orders === 0 ? <p className="ui-list-sub">No paid orders in this period.</p> : (
+            <div className="ui-stats">
               <Stat label="Total" value={`${calories.total} kcal`} sub={`${calories.orders} orders`} />
               <Stat label="Per order" value={`${calories.average} kcal`} />
               <Stat label="Most calories" value={calories.highest} text />
@@ -234,15 +235,15 @@ export function OwnerDashboard() {
           )}
         </section>
 
-        <section className="ad-section" aria-labelledby="activity-heading">
-          <div className="ad-section-head"><div><h2 id="activity-heading">Recent activity</h2><p>Changes made by your team.</p></div></div>
-          {auditLogs.length === 0 ? <p className="ad-row-sub">No activity yet.</p> : (
-            <div className="ad-list">
+        <section className="ui-card ui-card--stack" aria-labelledby="activity-heading">
+          <div className="ui-section-head"><div><h2 id="activity-heading">Recent activity</h2><p>Changes made by your team.</p></div></div>
+          {auditLogs.length === 0 ? <p className="ui-list-sub">No activity yet.</p> : (
+            <div className="ui-list">
               {auditLogs.map((log) => (
-                <div className="ad-row" key={log.id}>
-                  <div className="ad-row-main">
-                    <p className="ad-row-title">{formatAuditAction(log)}</p>
-                    <p className="ad-row-sub">{log.actor || "system"} · {formatTime(log.createdAt)}</p>
+                <div className="ui-list-row" key={log.id}>
+                  <div className="ui-list-main">
+                    <p className="ui-list-title">{formatAuditAction(log)}</p>
+                    <p className="ui-list-sub">{log.actor || "system"} · {formatTime(log.createdAt)}</p>
                   </div>
                 </div>
               ))}

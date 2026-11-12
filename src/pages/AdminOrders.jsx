@@ -8,7 +8,7 @@ import { queueStatus } from "../services/kitchenQueue"
 import { OptimizedImage } from "../components/OptimizedImage"
 import { OrderItemList } from "../components/OrderItemList"
 import { Modal } from "../components/Modal"
-import "./staff.css"
+import "./staff-layout.css"
 import { PermissionGuard } from "../components/PermissionGuard"
 import { useRBAC } from "../context/rbacContextValue"
 import {
@@ -242,7 +242,7 @@ export function AdminOrders() {
             />
           </label>
         ) : null}
-        <button className="oc-main" type="button" onClick={() => processCashPayment(order, discountInput[order.id])}>
+        <button className="ui-btn ui-btn--primary" type="button" onClick={() => processCashPayment(order, discountInput[order.id])}>
           <Banknote size={18} /> Collect {money(due)}
         </button>
       </>
@@ -299,11 +299,11 @@ export function AdminOrders() {
                 onChange={(e) => setDiscountInput((prev) => ({ ...prev, [order.id]: e.target.value }))} />
             </label>
           ) : null}
-          <div className="oc-actions">
-            <button className="oc-main" type="button" onClick={() => approveTransferProof(order, discountInput[order.id])}>
+          <div className="ui-row">
+            <button className="ui-btn ui-btn--primary" type="button" onClick={() => approveTransferProof(order, discountInput[order.id])}>
               <CheckCircle2 size={18} /> Approve payment
             </button>
-            <button className="oc-quiet oc-danger" type="button" onClick={() => rejectTransferProof(order)}>
+            <button className="ui-btn ui-btn--danger" type="button" onClick={() => rejectTransferProof(order)}>
               <XCircle size={16} /> Reject
             </button>
           </div>
@@ -314,7 +314,7 @@ export function AdminOrders() {
       return (
         <>
           <p className="oc-proof-missing">The receipt was rejected. Ask the customer to upload a new one.</p>
-          <button className="oc-quiet" type="button" onClick={() => save(order.id, { paymentStatus: "unpaid" })}>Wait for a new receipt</button>
+          <button className="ui-btn" type="button" onClick={() => save(order.id, { paymentStatus: "unpaid" })}>Wait for a new receipt</button>
         </>
       )
     }
@@ -322,33 +322,33 @@ export function AdminOrders() {
   }
 
   return (
-    <div className="oc-page">
-      <header className="oc-head">
+    <div className="ui-stack">
+      <header className="ui-page-header">
         <div>
           <h1>Orders</h1>
           <p>{visibleOrders.length} open{unreadCount ? ` · ${unreadCount} new alert${unreadCount === 1 ? "" : "s"}` : ""}</p>
         </div>
         {alerts.length ? (
-          <button className="oc-quiet" type="button" onClick={() => { setAlerts([]); setUnreadCount(0) }}>Clear alerts</button>
+          <button className="ui-btn" type="button" onClick={() => { setAlerts([]); setUnreadCount(0) }}>Clear alerts</button>
         ) : null}
       </header>
-      {loadError ? <p className="form-error" role="alert">{loadError}</p> : null}
+      {loadError ? <p className="ui-error" role="alert">{loadError}</p> : null}
 
-      <section className="oc-toolbar">
-        <label className="oc-search">
+      <section className="ui-toolbar">
+        <label className="ui-search">
           <Search size={18} />
           <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Table, item, status, order ID" aria-label="Search orders" />
         </label>
-        <div className="oc-chips" role="group" aria-label="Status">
+        <div className="ui-chips" role="group" aria-label="Status">
           {STATUS_CHIPS.map((chip) => (
-            <button key={chip.key} type="button" className="oc-chip" aria-pressed={statusFilter === chip.key} onClick={() => setStatusFilter(chip.key)}>
+            <button key={chip.key} type="button" className="ui-chip" aria-pressed={statusFilter === chip.key} onClick={() => setStatusFilter(chip.key)}>
               {chip.label}
             </button>
           ))}
         </div>
-        <div className="oc-chips" role="group" aria-label="Payment">
+        <div className="ui-chips" role="group" aria-label="Payment">
           {PAYMENT_CHIPS.map((chip) => (
-            <button key={chip.key} type="button" className="oc-chip" aria-pressed={paymentFilter === chip.key} onClick={() => setPaymentFilter(chip.key)}>
+            <button key={chip.key} type="button" className="ui-chip" aria-pressed={paymentFilter === chip.key} onClick={() => setPaymentFilter(chip.key)}>
               {chip.label}
             </button>
           ))}
@@ -367,18 +367,18 @@ export function AdminOrders() {
       ) : null}
 
       {visibleOrders.length === 0 ? (
-        <div className="oc-empty">
+        <div className="ui-empty">
           <Search size={32} strokeWidth={1.5} />
           <strong>No open orders here</strong>
           <p>New orders appear automatically. Try another filter or clear the search.</p>
         </div>
       ) : (
-        <section className="oc-grid">
+        <section className="ui-grid">
           {visibleOrders.map((order) => {
             const q = queue.get(order.id)
             const showPayment = (order.orderStatus === "ready" || isCashMethod(order.paymentMethod)) && canProcessPayment && order.paymentStatus !== "paid"
             return (
-              <article className="oc-card" key={order.id}>
+              <article className="ui-card ui-card--stack" key={order.id}>
                 <div className="oc-card-top">
                   <div>
                     <h3 className="oc-table">Table {order.tableNumber}</h3>
@@ -394,11 +394,11 @@ export function AdminOrders() {
                 <OrderItemList items={order.items} />
                 <PermissionGuard permission={PERMISSIONS.ORDERS_UPDATE}>
                   {["received", "accepted", "preparing"].includes(order.orderStatus) ? (
-                    <div className="oc-actions">
-                      <button type="button" className="oc-main" onClick={() => changeOrderStatus(order, "ready")}>
+                    <div className="ui-row">
+                      <button type="button" className="ui-btn ui-btn--primary" onClick={() => changeOrderStatus(order, "ready")}>
                         <CheckCircle2 size={18} /> Done
                       </button>
-                      <button type="button" className="oc-quiet oc-danger" onClick={() => changeOrderStatus(order, "rejected")}>
+                      <button type="button" className="ui-btn ui-btn--danger" onClick={() => changeOrderStatus(order, "rejected")}>
                         Reject
                       </button>
                     </div>
@@ -418,14 +418,14 @@ export function AdminOrders() {
 
       {rejectTarget ? (
         <Modal title={`Reject Table ${rejectTarget.tableNumber}'s order?`} className="confirm-dialog" onClose={() => setRejectTarget(null)}>
-          <form className="oc-dialog-form" onSubmit={(e) => { e.preventDefault(); confirmReject() }}>
+          <form className="ui-form" onSubmit={(e) => { e.preventDefault(); confirmReject() }}>
             <label>
               Reason (optional)
               <textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} placeholder="e.g. Out of stock, kitchen closed" rows={3} />
             </label>
-            <div className="row-actions">
-              <button className="danger-button" type="submit">Reject Order</button>
-              <button className="ghost-button" type="button" onClick={() => setRejectTarget(null)}>Cancel</button>
+            <div className="ui-row">
+              <button className="ui-btn ui-btn--danger" type="submit">Reject Order</button>
+              <button className="ui-btn" type="button" onClick={() => setRejectTarget(null)}>Cancel</button>
             </div>
           </form>
         </Modal>

@@ -89,17 +89,17 @@ export function ImageUploader({
   const hasPending = !!pendingFile
 
   return (
-    <div className={`image-uploader${dragOver ? " drag-over" : ""}`}>
-      <label className="field" style={{ marginBottom: 6 }}>
+    <div className={`image-uploader${dragOver ? "drag-over" : ""}`}>
+      <label className="ui-field" style={{ marginBottom: 6 }}>
         <span>{label}</span>
       </label>
 
       {!hasCurrent && !hasPending && onUrlChange ? (
         <div className="upload-mode-tabs" role="tablist">
-          <button type="button" role="tab" aria-selected={mode === "file"} className={`tab${mode === "file" ? " active" : ""}`} onClick={() => setMode("file")}>
+          <button type="button" role="tab" aria-selected={mode === "file"} className={`tab${mode === "file" ? "active" : ""}`} onClick={() => setMode("file")}>
             <UploadCloud size={16} /> Upload file
           </button>
-          <button type="button" role="tab" aria-selected={mode === "url"} className={`tab${mode === "url" ? " active" : ""}`} onClick={() => setMode("url")}>
+          <button type="button" role="tab" aria-selected={mode === "url"} className={`tab${mode === "url" ? "active" : ""}`} onClick={() => setMode("url")}>
             <Globe size={16} /> {activeUrlTabLabel}
           </button>
         </div>
@@ -118,7 +118,7 @@ export function ImageUploader({
             </span>
             <span style={{ fontSize: "0.78rem", color: "var(--brand)", fontWeight: 700 }}>{activeSavedText}</span>
           </div>
-          <button className="icon-button small danger" type="button" onClick={remove} aria-label={`Remove ${label}`}>
+          <button className="ui-btn ui-btn--quiet ui-btn--icon danger" type="button" onClick={remove} aria-label={`Remove ${label}`}>
             <X size={16} />
           </button>
         </div>
@@ -133,14 +133,14 @@ export function ImageUploader({
             </span>
             <span style={{ fontSize: "0.8rem", color: "var(--accent)" }}>Ready to save</span>
           </div>
-          <button className="icon-button small" type="button" onClick={remove} aria-label="Cancel">
+          <button className="ui-btn ui-btn--quiet ui-btn--icon" type="button" onClick={remove} aria-label="Cancel">
             <X size={16} />
           </button>
         </div>
       ) : null}
 
       {error ? (
-        <p className="form-error" style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "0.85rem" }}>
+        <p className="ui-error" style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "0.85rem" }}>
           <AlertCircle size={14} /> {error}
         </p>
       ) : null}
@@ -161,7 +161,7 @@ export function ImageUploader({
       {!hasCurrent && !hasPending && mode === "url" ? (
         <div className="upload-url-row">
           <input type="url" placeholder={activeUrlPlaceholder} value={urlInput} onChange={(e) => setUrlInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") applyUrl() }} />
-          <button className="primary-button" type="button" onClick={applyUrl} disabled={!urlInput.trim()}>Apply</button>
+          <button className="ui-btn ui-btn--primary" type="button" onClick={applyUrl} disabled={!urlInput.trim()}>Apply</button>
         </div>
       ) : null}
     </div>

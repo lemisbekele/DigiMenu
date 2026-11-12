@@ -15,7 +15,8 @@ const codeMessages = {
   otp_expired: "This link has expired. Please request a new one.",
   refresh_token_not_found: "Your session has expired. Please sign in again.",
   session_not_found: "Your session has expired. Please sign in again.",
-  '42501': "You don’t have permission to do that. Contact your cafe owner if you need access.",
+  P0429: "Too many attempts. Please wait a few minutes and try again.",
+  '42501':"You don’t have permission to do that. Contact your cafe owner if you need access.",
   '23505': "A matching record already exists. Check the details and try again.",
   '23503': "This record is linked to other information and cannot be changed this way.",
 }
@@ -32,6 +33,7 @@ const knownCases = [
   [/^(?:This email is already registered\.|Email already exists\.)$/, codeMessages.email_exists],
   [/^(?:The )?(?:menu-item|menu item) limit .*reached\.?$/i, "This cafe has reached its menu-item limit. Remove an item or ask the owner to review the package."],
   [/^(?:The )?staff(?: user| account)? limit .*reached\.?$/i, "This cafe has reached its staff-account limit. Ask the owner to review the package."],
+  [/^Too many requests\.$/, codeMessages.over_request_rate_limit],
   [/^Notifications not supported$/, "This browser does not support notifications."],
   [/^VAPID public key not configured$/, "Notifications are temporarily unavailable. Please try again later."],
   [/^This operation is not included in this cafe package\.$/, "Your cafe’s package does not include this feature. Ask the owner to review the package."],

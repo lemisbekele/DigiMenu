@@ -66,7 +66,7 @@ export function NotificationCenter() {
 
   return (
     <div className="notification-center" ref={root}>
-      <button ref={trigger} className="ghost-button notify-bell" type="button" aria-label={unread ? `Notifications, ${unread} unread` : "Notifications"} aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(!open)}>
+      <button ref={trigger} className="ui-btn notify-bell" type="button" aria-label={unread ? `Notifications, ${unread} unread` : "Notifications"} aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(!open)}>
         <Bell size={18} />
         {unread ? <span className="notify-count">{unread}</span> : null}
       </button>
@@ -76,21 +76,21 @@ export function NotificationCenter() {
             <strong>Notifications</strong>
             <div className="notify-actions">
               {unread ? (
-                <button className="ghost-button small" type="button" aria-label="Mark all notifications read" onClick={markAllNotificationsRead}>
+                <button className="ui-btn" type="button" aria-label="Mark all notifications read" onClick={markAllNotificationsRead}>
                   <CheckCheck size={14} /> <span className="hide-mobile">Mark all read</span>
                 </button>
               ) : null}
-              <button className="ghost-button small" type="button" aria-label="Clear notifications" onClick={clearNotifications}>
+              <button className="ui-btn" type="button" aria-label="Clear notifications" onClick={clearNotifications}>
                 <Trash2 size={14} /> <span className="hide-mobile">Clear</span>
               </button>
-              <button className="icon-button small" type="button" aria-label="Close notifications" onClick={() => { setOpen(false); trigger.current?.focus() }}>
+              <button className="ui-btn ui-btn--quiet ui-btn--icon" type="button" aria-label="Close notifications" onClick={() => { setOpen(false); trigger.current?.focus() }}>
                 <X size={14} />
               </button>
             </div>
           </div>
           <div className="notify-body">
             {notifications.length === 0 ? (
-              <div className="empty-state">No notifications</div>
+              <div className="ui-empty">No notifications</div>
             ) : (
               notifications.map((n) => (
                 <div
