@@ -95,7 +95,7 @@
 .activity li { display: grid; gap: 2px; min-width: 0; }
 .activity small { font-size: var(--text-xs); }
 
-@media (max-width: 1099px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dash-row { grid-template-columns: 1fr; } }
+@media (max-width: 1099px) { .dash-row { grid-template-columns: 1fr; } }
 @media (max-width: 480px) { .kpi-value { font-size: var(--text-xl); } .week-bar-value { display: none; } }
 
 /* ---------- Orders: tickets like the kitchen's ---------- */
@@ -121,13 +121,10 @@
 .team-actions { justify-content: flex-end; }
 .ui-table td .ui-input { width: auto; height: 32px; }
 .ui-table td:has(select), .ui-table td:has(.team-person) { max-width: none; overflow: visible; }
-.kpis--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.order-tickets .oc-proof { margin: 0 var(--space-3); }
-@media (max-width: 1099px) { .kpis--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 640px) { .kpis--3 { grid-template-columns: 1fr; } }
 
 /* Tables: QR cards beside a sticky add-table panel. */
 .tables-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: var(--space-3); align-items: start; }
 .tables-layout > form { position: sticky; top: var(--space-4); }
 .tables-main { min-width: 0; }
 @media (max-width: 1099px) { .tables-layout { grid-template-columns: 1fr; } .tables-layout > form { position: static; order: -1; } }
+.order-tickets .oc-proof { margin: 0 var(--space-3); }

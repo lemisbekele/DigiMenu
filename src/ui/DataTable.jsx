@@ -15,7 +15,7 @@ export function DataTable({ columns, rows, rowKey, empty }) {
               {columns.map((c) => {
                 const plain = !c.render
                 const content = plain ? row[c.key] : c.render(row)
-                return <td key={c.key} data-align={c.align} title={plain && content != null ? String(content) : undefined}>{content}</td>
+                return <td key={c.key} data-align={c.align} data-label={c.label || undefined} title={plain && content != null ? String(content) : undefined}>{content}</td>
               })}
             </tr>
           ))}

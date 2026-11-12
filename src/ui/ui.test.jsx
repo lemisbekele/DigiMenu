@@ -28,3 +28,9 @@ test("PageHeader renders one h1 and the action", () => {
   expect(screen.getByRole("heading", { level: 1, name: "Orders" })).toBeInTheDocument()
   expect(screen.getByRole("button", { name: "New order" })).toBeInTheDocument()
 })
+
+test("each cell carries its column name, so narrow screens can show it beside the value", () => {
+  render(<DataTable columns={[{ key: "name", label: "Café" }, { key: "total", label: "Total", align: "right" }]} rows={[{ id: 1, name: "Lemi", total: 12 }]} rowKey="id" empty={{ title: "x" }} />)
+  expect(screen.getByText("Lemi")).toHaveAttribute("data-label", "Café")
+  expect(screen.getByText("12")).toHaveAttribute("data-label", "Total")
+})

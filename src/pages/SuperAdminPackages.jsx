@@ -263,11 +263,11 @@ export function SuperAdminPackages() {
                   <span style={{ fontSize: "var(--text-md)", color: "var(--text-3)" }}>{pkg.period}</span>
                 </div>
                 <p style={{ fontSize: "var(--text-md)", color: "var(--text-3)", marginBottom: "1.25rem" }}>{pkg.description}</p>
-                <div style={{ fontSize: "var(--text-sm)", color: "var(--text-3)", marginBottom: "0.75rem" }}>
-                  <strong style={{ color: "var(--text)" }}>{featureKeysOf(pkg).length}</strong> enabled features
-                  {" · "}menu items: <strong style={{ color: "var(--text)" }}>{pkg.limits?.menuItems ?? "—"}</strong>
-                  {" · "}staff accounts: <strong style={{ color: "var(--text)" }}>{pkg.limits?.staffUsers ?? "—"}</strong>
-                </div>
+                <ul className="pkg-limits">
+                  <li><strong>{featureKeysOf(pkg).length}</strong> features</li>
+                  <li><strong>{pkg.limits?.menuItems ?? "—"}</strong> menu items</li>
+                  <li><strong>{pkg.limits?.staffUsers ?? "—"}</strong> staff accounts</li>
+                </ul>
                 <ul style={{ paddingLeft: 18, margin: "0 0 1rem", color: "var(--text-3)", fontSize: "var(--text-sm)", display: "flex", flexDirection: "column", gap: 4 }}>
                   {featureKeysOf(pkg).filter((key) => catalogFeatureMap.has(key)).map((key) => (
                     <li key={key}>{catalogFeatureMap.get(key).name}</li>
@@ -330,7 +330,7 @@ export function SuperAdminPackages() {
               </label>
               <label className="ui-field">
                 <span className="">Published price (include currency code)</span>
-                <input type="text" maxLength={80} placeholder="USD 29 (blank for price on request)" value={editingPackage.price} onChange={(e) => setEditingPackage({ ...editingPackage, price: e.target.value })} className="ui-input" />
+                <input type="text" maxLength={80} placeholder="ETB 1,500 (blank for price on request)" value={editingPackage.price} onChange={(e) => setEditingPackage({ ...editingPackage, price: e.target.value })} className="ui-input" />
               </label>
               <label className="ui-field">
                 <span className="">Billing Period Label</span>
@@ -401,7 +401,7 @@ export function SuperAdminPackages() {
               </label>
               <label className="ui-field">
                 <span className="">Published price (include currency code)</span>
-                <input type="text" maxLength={80} placeholder="USD 29 (blank for price on request)" value={creating.price} onChange={(e) => setCreating({ ...creating, price: e.target.value })} className="ui-input" />
+                <input type="text" maxLength={80} placeholder="ETB 1,500 (blank for price on request)" value={creating.price} onChange={(e) => setCreating({ ...creating, price: e.target.value })} className="ui-input" />
               </label>
               <label className="ui-field">
                 <span className="">Billing Period Label</span>

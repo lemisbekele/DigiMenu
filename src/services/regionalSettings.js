@@ -2,7 +2,9 @@ import { supabase } from "./supabase"
 import i18n from "../i18n"
 
 export const DEFAULT_REGION = Object.freeze({ currency: "ETB", timeZone: "Africa/Addis_Ababa" })
-export const CURRENCIES = ["ETB","USD","EUR","GBP","KES","UGX","TZS","ZAR","NGN","GHS","AED","SAR","INR","AUD","CAD","CHF","SGD","NZD","CNY","BRL","MXN"]
+// DigiMenu runs in Ethiopian birr only. Every amount shows as ETB, whatever an older cafe record stores.
+export const CURRENCIES = ["ETB"]
+const CURRENCY = "ETB"
 const cache = new Map()
 const pending = new Map()
 export function currentRegion() {
@@ -16,7 +18,7 @@ export async function fetchCafeRegion(slug, force = false) {
     const { data, error } = await supabase.rpc("get_cafe_region", { p_cafe_slug: slug })
     if (error) throw new Error("Regional settings could not load. Please try again.")
     const row = data?.[0]
-    const value = row ? { currency: row.currency, timeZone: row.time_zone } : DEFAULT_REGION
+    const value = row ? { currency: CURRENCY, timeZone: row.time_zone } : DEFAULT_REGION
     cache.set(slug, { value, at: Date.now() })
     if (cache.size > 50) cache.delete(cache.keys().next().value)
     return value
@@ -25,14 +27,15 @@ export async function fetchCafeRegion(slug, force = false) {
   return promise
 }
 export async function saveCafeRegion(slug, region) {
-  const { error } = await supabase.rpc("set_cafe_region", { p_cafe_slug: slug, p_currency: region.currency, p_time_zone: region.timeZone })
+  const { error } = await supabase.rpc("set_cafe_region", { p_cafe_slug: slug, p_currency: CURRENCY, p_time_zone: region.timeZone })
   if (error) throw new Error(error.code === "P0001" ? error.message : "Regional settings could not be saved.")
   await fetchCafeRegion(slug, true)
   window.dispatchEvent(new Event("cafe-region-updated"))
 }
-export function formatMoney(value, currency = currentRegion().currency, locale = i18n.resolvedLanguage || "en") {
+// The currency argument is kept for existing callers and ignored: amounts are always ETB.
+export function formatMoney(value, _currency, locale = i18n.resolvedLanguage || "en") {
   const amount = Number(value ?? 0)
-  return new Intl.NumberFormat(locale, { style: "currency", currency, currencyDisplay: "code", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number.isFinite(amount) ? amount : 0)
+  return new Intl.NumberFormat(locale, { style: "currency", currency: CURRENCY, currencyDisplay: "code", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number.isFinite(amount) ? amount : 0)
 }
 export function formatDateTime(value, options = {}) {
   const date = new Date(value)

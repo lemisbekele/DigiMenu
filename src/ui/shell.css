@@ -87,3 +87,14 @@ main.ui-shell:has(.ui-detail:not(:empty)) { grid-template-columns: 188px minmax(
 }
 .ui-shell-controls button:hover { background: var(--surface-2); color: var(--text); }
 .ui-shell-controls button svg { width: 16px; height: 16px; color: currentColor; }
+
+/* The language toggle carries old floating-button styles (shadow, pill, own position); in the controls row it
+   is one of three equal buttons on the same centre line. */
+.ui-shell-controls { align-items: center; }
+.ui-shell-controls > *, .ui-shell-controls .language-toggle { position: static; margin: 0; }
+.ui-shell-controls .language-toggle { min-height: 0; height: var(--control-h); padding: 0 var(--space-2); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: none; }
+@media (max-width: 899px) {
+  /* Bottom tabs share the width evenly; a long name is cut with "…" instead of widening its tab. */
+  .ui-nav-links a { flex: 1 1 0; min-width: 0; max-width: 120px; }
+  .ui-nav-links a span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}

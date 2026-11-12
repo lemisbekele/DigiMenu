@@ -13,7 +13,6 @@ dist-ssr
 *.local
 .env
 .env.*
-!.env.example
 
 # Editor directories and files
 .vscode/*
@@ -28,3 +27,14 @@ dist-ssr
 artifacts/audit/
 desktop.ini
 .superpowers/
+
+# Example env file: kept locally only, not published
+.env.example
+
+# SQL files (migrations, tests, dumps). Migrations already in the repo stay tracked;
+# add a new one on purpose with: git add -f supabase/migrations/<file>.sql
+*.sql
+
+# Local tooling and generated output
+.claude/
+graphify-out/
