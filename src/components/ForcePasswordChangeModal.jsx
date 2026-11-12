@@ -52,13 +52,13 @@ export function ForcePasswordChangeModal() {
       <section className="password-change-panel">
         <KeyRound size={28} style={{ color: "var(--brand)" }} />
         <h2 id="password-change-title">Set your permanent password</h2>
-        <p className="form-help">Replace your temporary password before accessing the workspace. Use at least 6 characters, one uppercase letter and one number or special character.</p>
+        <p className="ui-muted">Replace your temporary password before accessing the workspace. Use at least 6 characters, one uppercase letter and one number or special character.</p>
         {success ? <p role="status"><CheckCircle2 size={20} /> Password updated.</p> : (
           <form onSubmit={handleSubmit}>
-            {error && <p className="form-error" role="alert">{error}</p>}
-            <label className="field"><span>New password *</span><input type="password" autoComplete="new-password" required minLength={6} value={newPassword} onChange={e => setNewPassword(e.target.value)} disabled={loading} autoFocus /></label>
-            <label className="field"><span>Confirm new password *</span><input type="password" autoComplete="new-password" required minLength={6} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} disabled={loading} /></label>
-            <div className="form-actions"><button className="ghost-button" type="button" onClick={logout} disabled={loading}>Sign out</button><button className="primary-button" type="submit" disabled={loading}><Lock size={16} />{loading ? "Updating…" : "Set new password"}</button></div>
+            {error && <p className="ui-error" role="alert">{error}</p>}
+            <label className="ui-field"><span>New password *</span><input type="password" autoComplete="new-password" required minLength={6} value={newPassword} onChange={e => setNewPassword(e.target.value)} disabled={loading} autoFocus /></label>
+            <label className="ui-field"><span>Confirm new password *</span><input type="password" autoComplete="new-password" required minLength={6} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} disabled={loading} /></label>
+            <div className="form-actions"><button className="ui-btn" type="button" onClick={logout} disabled={loading}>Sign out</button><button className="ui-btn ui-btn--primary" type="submit" disabled={loading}><Lock size={16} />{loading ? "Updating…" : "Set new password"}</button></div>
           </form>
         )}
       </section>

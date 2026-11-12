@@ -90,7 +90,7 @@ export function ImageUploader({
 
   return (
     <div className={`image-uploader${dragOver ? " drag-over" : ""}`}>
-      <label className="field" style={{ marginBottom: 6 }}>
+      <label className="ui-field" style={{ marginBottom: 6 }}>
         <span>{label}</span>
       </label>
 
@@ -108,17 +108,17 @@ export function ImageUploader({
       {hasCurrent && !hasPending ? (
         <div className="upload-preview-row">
           {typeof value === "string" && (value.match(/\.(jpg|jpeg|png|webp|gif)($|\?)/i) || value.includes("supabase") || value.startsWith("blob:")) ? (
-            <OptimizedImage src={value} alt={label} fallbackType={activeFallbackType} aspectRatio="1/1" style={{ width: 48, height: 48, borderRadius: 6 }} />
+            <OptimizedImage src={value} alt={label} fallbackType={activeFallbackType} aspectRatio="1/1" style={{ width: 48, height: 48, borderRadius: "var(--radius-sm)" }} />
           ) : (
             <Globe size={22} style={{ color: "var(--brand)", flexShrink: 0 }} />
           )}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ fontSize: "0.85rem", color: "var(--brand-ink)", fontWeight: 600, display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <span style={{ fontSize: "var(--text-md)", color: "var(--brand-ink)", fontWeight: 600, display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {value}
             </span>
-            <span style={{ fontSize: "0.78rem", color: "var(--brand)", fontWeight: 700 }}>{activeSavedText}</span>
+            <span style={{ fontSize: "var(--text-xs)", color: "var(--brand)", fontWeight: 700 }}>{activeSavedText}</span>
           </div>
-          <button className="icon-button small danger" type="button" onClick={remove} aria-label={`Remove ${label}`}>
+          <button className="ui-btn ui-btn--quiet ui-btn--icon danger" type="button" onClick={remove} aria-label={`Remove ${label}`}>
             <X size={16} />
           </button>
         </div>
@@ -126,21 +126,21 @@ export function ImageUploader({
 
       {hasPending ? (
         <div className="upload-preview-row">
-          {preview ? <OptimizedImage src={preview} alt="Preview" fallbackType={activeFallbackType} aspectRatio="1/1" style={{ width: 48, height: 48, borderRadius: 6 }} /> : null}
+          {preview ? <OptimizedImage src={preview} alt="Preview" fallbackType={activeFallbackType} aspectRatio="1/1" style={{ width: 48, height: 48, borderRadius: "var(--radius-sm)" }} /> : null}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ fontSize: "0.85rem", opacity: 0.7, display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <span style={{ fontSize: "var(--text-md)", opacity: 0.7, display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {pendingFile.name} ({formatBytes(pendingFile.size)})
             </span>
-            <span style={{ fontSize: "0.8rem", color: "var(--accent)" }}>Ready to save</span>
+            <span style={{ fontSize: "var(--text-sm)", color: "var(--accent)" }}>Ready to save</span>
           </div>
-          <button className="icon-button small" type="button" onClick={remove} aria-label="Cancel">
+          <button className="ui-btn ui-btn--quiet ui-btn--icon" type="button" onClick={remove} aria-label="Cancel">
             <X size={16} />
           </button>
         </div>
       ) : null}
 
       {error ? (
-        <p className="form-error" style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "0.85rem" }}>
+        <p className="ui-error" style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "var(--text-md)" }}>
           <AlertCircle size={14} /> {error}
         </p>
       ) : null}
@@ -154,14 +154,14 @@ export function ImageUploader({
           <input ref={inputRef} type="file" accept={accept} onChange={pick} style={{ display: "none" }} />
           <UploadCloud size={28} />
           <span>{activeDropText}</span>
-          <span className="muted" style={{ fontSize: "0.8rem" }}>JPEG, PNG, WebP — max 5 MB</span>
+          <span className="muted" style={{ fontSize: "var(--text-sm)" }}>JPEG, PNG, WebP — max 5 MB</span>
         </div>
       ) : null}
 
       {!hasCurrent && !hasPending && mode === "url" ? (
         <div className="upload-url-row">
           <input type="url" placeholder={activeUrlPlaceholder} value={urlInput} onChange={(e) => setUrlInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") applyUrl() }} />
-          <button className="primary-button" type="button" onClick={applyUrl} disabled={!urlInput.trim()}>Apply</button>
+          <button className="ui-btn ui-btn--primary" type="button" onClick={applyUrl} disabled={!urlInput.trim()}>Apply</button>
         </div>
       ) : null}
     </div>

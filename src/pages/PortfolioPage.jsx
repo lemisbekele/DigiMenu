@@ -21,7 +21,7 @@ export function PortfolioPage() {
       <div className="marketing-hero-copy"><p className="marketing-eyebrow">{t("marketing.eyebrow", "CAFE OPERATIONS, CONNECTED")}</p>
         <h1>{t("marketing.heroTitle", "Less juggling. More time for your guests.")}</h1>
         <p className="marketing-lead">{t("marketing.heroCopy", "Bring your menu, orders, kitchen and payments into one clear workflow. DigiMenu helps every person on your team know what comes next.")}</p>
-        <div className="marketing-actions"><Link to="/pricing" className="primary-button">{t("marketing.comparePlans", "Find your plan")} <ArrowRight size={18} /></Link>
+        <div className="marketing-actions"><Link to="/pricing" className="ui-btn ui-btn--primary">{t("marketing.comparePlans", "Find your plan")} <ArrowRight size={18} /></Link>
           <a href="#product" className="marketing-secondary">{t("marketing.explore", "Explore the product")}</a></div>
         <p className="marketing-small">{t("marketing.heroNote", "Browser-based tools for owners, managers, cashiers and kitchen teams.")}</p>
       </div>
@@ -47,7 +47,7 @@ export function PortfolioPage() {
     </div></section>
     <section className="marketing-section marketing-container" id="packages"><PricingSection /></section>
     <section className="marketing-container marketing-onboarding" id="contact"><div><p className="marketing-eyebrow">{t("marketing.getStarted", "Get started")}</p><h2>{t("marketing.startTitle", "Build a calmer cafe workflow.")}</h2>
-      <p>{t("marketing.startCopy", "Choose a published package and send your cafe details. The platform team reviews your request before creating your cafe and owner account.")}</p><Link to="/pricing" className="primary-button">{t("marketing.requestAccess", "Choose a plan and request access")} <ArrowRight size={18} /></Link></div>
+      <p>{t("marketing.startCopy", "Choose a published package and send your cafe details. The platform team reviews your request before creating your cafe and owner account.")}</p><Link to="/pricing" className="ui-btn ui-btn--primary">{t("marketing.requestAccess", "Choose a plan and request access")} <ArrowRight size={18} /></Link></div>
       <ol><li>{t("marketing.step1", "Choose the features and limits that fit your cafe.")}</li><li>{t("marketing.step2", "Submit your details for review. No automatic charge.")}</li><li>{t("marketing.step3", "Once approved, set up your menu and invite your team where your package allows.")}</li></ol>
     </section>
   </main><PortfolioFooter />

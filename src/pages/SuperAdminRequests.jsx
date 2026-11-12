@@ -15,7 +15,7 @@ import {
   SUBSCRIPTION_STATUS_LABELS,
 } from "../services/subscriptionService"
 import { observePackages } from "../services/packageService"
-import "./superadmin.css"
+import "./superadmin-layout.css"
 import { VisualSummary, FeedState } from "../components/PlatformCharts"
 
 const statusStyle = (status) => {
@@ -147,8 +147,8 @@ export function SuperAdminRequests() {
   if (loading || loadError) return <FeedState loading={loading} error={loadError} />
 
   return (
-    <div className="sa-page sa-requests-page">
-      {actionError ? <p className="form-error" role="alert">{actionError}</p> : null}
+    <div className="ui-stack sa-requests-page">
+      {actionError ? <p className="ui-error" role="alert">{actionError}</p> : null}
       {successNotice ? (
         <div className="sa-success-toast" role="status" aria-live="polite">
           <CheckCircle2 size={20} />
@@ -160,8 +160,8 @@ export function SuperAdminRequests() {
         </div>
       ) : null}
       <VisualSummary icon={Inbox} title={`${requests.length} requests awaiting review`}>Approve a request to provision its cafe and administrator account, or decline it with a reason.</VisualSummary>
-      <div className="sa-page-toolbar">
-        <div className="sa-search">
+      <div className="ui-toolbar">
+        <div className="ui-search">
           <Search size={16} />
           <input
             value={search}
@@ -171,15 +171,15 @@ export function SuperAdminRequests() {
         </div>
       </div>
 
-      <section className="sa-panel-flush">
+      <section className="ui-card--flush">
         {filtered.length === 0 ? (
-          <div className="sa-empty">
+          <div className="ui-empty">
             <Inbox size={32} />
             <div>No requests found.</div>
           </div>
         ) : (
-          <div className="sa-table-wrap">
-            <table className="sa-table">
+          <div className="ui-table-wrap">
+            <table className="ui-table">
               <thead>
                 <tr>
                   <th>Organization / Customer</th>
@@ -199,14 +199,14 @@ export function SuperAdminRequests() {
                     <tr key={req.id}>
                       <td data-label="Organization / Customer">
                         <strong style={{ color: "var(--brand-ink)", display: "block" }}>{req.customer_name}</strong>
-                        <span style={{ color: "var(--text-3)", fontSize: "0.8rem", display: "block" }}>{req.email}</span>
+                        <span style={{ color: "var(--text-3)", fontSize: "var(--text-sm)", display: "block" }}>{req.email}</span>
                         {req.phone ? (
-                          <span style={{ color: "var(--muted)", fontSize: "0.78rem", display: "flex", alignItems: "center", gap: 4 }}>
+                          <span style={{ color: "var(--muted)", fontSize: "var(--text-xs)", display: "flex", alignItems: "center", gap: 4 }}>
                             <Phone size={12} /> {req.phone}
                           </span>
                         ) : null}
                         {req.notes ? (
-                          <span style={{ color: "var(--muted)", fontSize: "0.78rem", display: "flex", alignItems: "center", gap: 4 }}>
+                          <span style={{ color: "var(--muted)", fontSize: "var(--text-xs)", display: "flex", alignItems: "center", gap: 4 }}>
                             <FileText size={12} /> {req.notes}
                           </span>
                         ) : null}
@@ -214,25 +214,25 @@ export function SuperAdminRequests() {
                       <td data-label="Requested Package">
                         <span className="sa-package-tag">{plan?.name || req.plan_key}</span>
                       </td>
-                      <td data-label="Submitted" style={{ color: "var(--text-3)", fontSize: "0.82rem" }}>
+                      <td data-label="Submitted" style={{ color: "var(--text-3)", fontSize: "var(--text-sm)" }}>
                         {req.requested_at ? formatDateTime(req.requested_at, { timeStyle: undefined }) : "—"}
                       </td>
                       <td data-label="Status">
-                        <span className="sa-badge" style={{ background: style.bg, color: style.color }}>
+                        <span className="ui-pill" style={{ background: style.bg, color: style.color }}>
                           {SUBSCRIPTION_STATUS_LABELS[req.status] || req.status}
                         </span>
                         {req.rejection_reason ? (
-                          <span style={{ display: "block", color: "var(--danger)", fontSize: "0.74rem", marginTop: 4 }}>Reason: {req.rejection_reason}</span>
+                          <span style={{ display: "block", color: "var(--danger)", fontSize: "var(--text-xs)", marginTop: 4 }}>Reason: {req.rejection_reason}</span>
                         ) : null}
                       </td>
                       <td data-label="Actions" style={{ textAlign: "right" }}>
                         {isPending ? (
-                          <div className="sa-inline-actions">
+                          <div className="ui-row">
                             <button
                               type="button"
                               onClick={() => handleApprove(req)}
                               disabled={isBusy}
-                              className="primary-button"
+                              className="ui-btn ui-btn--primary"
                             >
                               <CheckCircle2 size={16} /> {isBusy ? "Approving..." : "Approve & Provision"}
                             </button>
@@ -240,13 +240,13 @@ export function SuperAdminRequests() {
                               type="button"
                               onClick={() => handleReject(req.id)}
                               disabled={isBusy}
-                              className="danger-button"
+                              className="ui-btn ui-btn--danger"
                             >
                               <XCircle size={16} /> Reject
                             </button>
                           </div>
                         ) : (
-                          <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>—</span>
+                          <span style={{ fontSize: "var(--text-sm)", color: "var(--muted)" }}>—</span>
                         )}
                       </td>
                     </tr>
@@ -265,35 +265,35 @@ export function SuperAdminRequests() {
               <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--success-bg)", color: "var(--brand)", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: "0.75rem" }}>
                 <ShieldCheck size={28} />
               </div>
-              <h2 style={{ margin: "0 0 0.5rem", fontSize: "1.3rem", color: "var(--brand-ink)" }}>Access Granted &amp; Account Provisioned</h2>
-              <p style={{ color: "var(--text-3)", fontSize: "0.9rem", margin: 0 }}>
+              <h2 style={{ margin: "0 0 0.5rem", fontSize: "var(--text-xl)", color: "var(--brand-ink)" }}>Access Granted &amp; Account Provisioned</h2>
+              <p style={{ color: "var(--text-3)", fontSize: "var(--text-md)", margin: 0 }}>
                 One admin account was created for this customer. Share these temporary credentials.
               </p>
             </div>
 
-            <div style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 10, padding: "1rem", marginBottom: "1.5rem" }}>
+            <div style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", padding: "1rem", marginBottom: "1.5rem" }}>
               <div style={{ marginBottom: "0.75rem" }}>
                 <span className="sa-fact-label">Admin Email</span>
-                <div style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--brand)", marginTop: 2 }}>{credentialModal.email}</div>
+                <div style={{ fontSize: "var(--text-lg)", fontWeight: 700, color: "var(--brand)", marginTop: 2 }}>{credentialModal.email}</div>
               </div>
               {credentialModal.cafeSlug ? (
                 <div style={{ marginBottom: "0.75rem" }}>
                   <span className="sa-fact-label">Assigned Cafe URL</span>
-                  <div style={{ fontSize: "1rem", fontWeight: 700, color: "var(--brand)", marginTop: 2 }}>/{credentialModal.cafeSlug}</div>
+                  <div style={{ fontSize: "var(--text-lg)", fontWeight: 700, color: "var(--brand)", marginTop: 2 }}>/{credentialModal.cafeSlug}</div>
                 </div>
               ) : null}
               <div>
                 <span className="sa-fact-label">Temporary Password</span>
-                <div style={{ fontSize: "1.1rem", fontFamily: "monospace", fontWeight: 800, color: "var(--warning)", marginTop: 2, letterSpacing: 1 }}>{credentialModal.temporaryPassword}</div>
+                <div style={{ fontSize: "var(--text-lg)", fontFamily: "monospace", fontWeight: 700, color: "var(--warning)", marginTop: 2, letterSpacing: 1 }}>{credentialModal.temporaryPassword}</div>
               </div>
             </div>
 
             <div style={{ display: "flex", gap: "1rem" }}>
-              <button type="button" onClick={handleCopy} className="ghost-button" style={{ flex: 1, justifyContent: "center" }}>
+              <button type="button" onClick={handleCopy} className="ui-btn" style={{ flex: 1, justifyContent: "center" }}>
                 {copied ? <Check size={18} style={{ color: "var(--brand)" }} /> : <Copy size={18} />}
                 {copied ? "Copied!" : "Copy Credentials"}
               </button>
-              <button type="button" onClick={() => setCredentialModal(null)} className="primary-button" style={{ flex: 1, justifyContent: "center" }}>
+              <button type="button" onClick={() => setCredentialModal(null)} className="ui-btn ui-btn--primary" style={{ flex: 1, justifyContent: "center" }}>
                 Done
               </button>
             </div>
@@ -312,21 +312,21 @@ export function SuperAdminRequests() {
               </div>
             </div>
             <div className="form-context"><strong>{approvalRequest.customer_name}</strong><span>{approvalRequest.email}</span><span>Requested package: {approvalRequest.plan_key}</span></div>
-            <p className="form-help">Use at least 12 characters with uppercase and lowercase letters, a number, and a symbol (!@#$%^&amp;*). Share the temporary password securely after approval.</p>
-            <label className="sa-field">
+            <p className="ui-muted">Use at least 12 characters with uppercase and lowercase letters, a number, and a symbol (!@#$%^&amp;*). Share the temporary password securely after approval.</p>
+            <label className="ui-field">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                <span className="sa-label" style={{ margin: 0 }}>Temporary password</span>
+                <span className="" style={{ margin: 0 }}>Temporary password</span>
                 <button
                   type="button"
-                  className="sa-ghost"
-                  style={{ fontSize: "0.78rem", padding: "2px 8px", height: "auto", cursor: "pointer" }}
+                  className="ui-btn"
+                  style={{ fontSize: "var(--text-xs)", padding: "2px 8px", height: "auto", cursor: "pointer" }}
                   onClick={() => setTemporaryPassword(generateTemporaryPassword())}
                 >
                   Regenerate password
                 </button>
               </div>
               <input
-                className="sa-input"
+                className="ui-input"
                 type="text" required minLength={12} autoComplete="off"
                 value={temporaryPassword}
                 onChange={(event) => setTemporaryPassword(event.target.value)}
@@ -334,12 +334,12 @@ export function SuperAdminRequests() {
                 autoFocus
               />
             </label>
-            {approvalError ? <p className="form-error">{approvalError}</p> : null}
-            <div className="sa-modal-actions">
-              <button type="button" className="sa-ghost" onClick={() => setApprovalRequest(null)} disabled={Boolean(busy)}>
+            {approvalError ? <p className="ui-error">{approvalError}</p> : null}
+            <div className="ui-dialog-actions">
+              <button type="button" className="ui-btn" onClick={() => setApprovalRequest(null)} disabled={Boolean(busy)}>
                 Cancel
               </button>
-              <button type="submit" className="primary-button" disabled={Boolean(busy)}>
+              <button type="submit" className="ui-btn ui-btn--primary" disabled={Boolean(busy)}>
                 {busy ? "Approving..." : "Approve & Provision"}
               </button>
             </div>

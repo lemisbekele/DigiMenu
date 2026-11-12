@@ -1,11 +1,7 @@
-/* ==========================================================================
-   Customer QR Menu Redesign (Mobile-First, Premium Cafe Experience)
-   ========================================================================== */
-
 .qr-menu-wrapper {
   min-height: 100vh;
-  background-color: var(--background, #f8fafc);
-  color: var(--text, #0f172a);
+  background-color: var(--background, var(--bg));
+  color: var(--text, var(--text));
   padding: 0 0 80px;
   font-family: inherit;
 }
@@ -19,9 +15,6 @@
   gap: 16px;
 }
 
-/* --------------------------------------------------------------------------
-   Top Header Bar
-   -------------------------------------------------------------------------- */
 .qr-header-bar {
   display: flex;
   align-items: center;
@@ -40,9 +33,9 @@
 .qr-cafe-icon-badge {
   width: 38px;
   height: 38px;
-  border-radius: 12px;
-  background-color: #166534;
-  color: #ffffff;
+  border-radius: var(--radius-md);
+  background-color: var(--brand-hover);
+  color: var(--on-brand);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -59,9 +52,9 @@
 }
 
 .qr-cafe-name {
-  font-size: 1.12rem;
+  font-size: var(--text-lg);
   font-weight: 700;
-  color: var(--text, #0f172a);
+  color: var(--text, var(--text));
   margin: 0;
   /* Up to two lines so customers can read whose menu this is on narrow phones. */
   display: -webkit-box;
@@ -78,27 +71,21 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background-color: #ecfdf5;
-  color: #065f46;
-  border: 1px solid #a7f3d0;
-  border-radius: 9999px;
+  background-color: var(--bg);
+  color: var(--brand-ink);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
   padding: 3px 9px;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   white-space: nowrap;
-}
-
-html[data-theme="dark"] .qr-table-pill {
-  background-color: rgba(6, 95, 70, 0.3);
-  color: #6ee7b7;
-  border-color: rgba(110, 231, 183, 0.3);
 }
 
 .qr-table-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: #10b981;
+  background-color: var(--brand);
   box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
 }
 
@@ -113,12 +100,12 @@ html[data-theme="dark"] .qr-table-pill {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background-color: var(--surface, #ffffff);
-  color: var(--text, #334155);
-  border: 1px solid var(--border, #e2e8f0);
-  border-radius: 9999px;
+  background-color: var(--surface, var(--surface));
+  color: var(--text, var(--text-2));
+  border: 1px solid var(--border, var(--border));
+  border-radius: var(--radius-pill);
   padding: 6px 11px;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   text-decoration: none;
   transition: all 0.15s ease;
@@ -126,9 +113,9 @@ html[data-theme="dark"] .qr-table-pill {
 }
 
 .qr-orders-pill-btn:hover {
-  background-color: var(--surface-muted, #f1f5f9);
-  color: #166534;
-  border-color: #cbd5e1;
+  background-color: var(--surface-muted, var(--bg));
+  color: var(--brand-ink);
+  border-color: var(--border-strong);
 }
 
 .qr-compact-btn {
@@ -138,11 +125,11 @@ html[data-theme="dark"] .qr-table-pill {
   gap: 4px;
   height: 32px;
   padding: 0 9px;
-  background-color: var(--surface, #ffffff);
-  color: var(--text, #334155);
-  border: 1px solid var(--border, #e2e8f0);
-  border-radius: 9999px;
-  font-size: 0.78rem;
+  background-color: var(--surface, var(--surface));
+  color: var(--text, var(--text-2));
+  border: 1px solid var(--border, var(--border));
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -150,7 +137,7 @@ html[data-theme="dark"] .qr-table-pill {
 }
 
 .qr-compact-btn:hover {
-  background-color: var(--surface-muted, #f1f5f9);
+  background-color: var(--surface-muted, var(--bg));
 }
 
 .qr-compact-btn.icon-only {
@@ -158,9 +145,6 @@ html[data-theme="dark"] .qr-table-pill {
   padding: 0;
 }
 
-/* --------------------------------------------------------------------------
-   Search & Filters Row
-   -------------------------------------------------------------------------- */
 .qr-search-row {
   display: flex;
   align-items: center;
@@ -177,7 +161,7 @@ html[data-theme="dark"] .qr-table-pill {
 .qr-search-icon {
   position: absolute;
   left: 14px;
-  color: #94a3b8;
+  color: var(--info);
   pointer-events: none;
 }
 
@@ -185,29 +169,19 @@ html[data-theme="dark"] .qr-table-pill {
   width: 100%;
   height: 42px;
   padding: 0 36px 0 38px;
-  background-color: var(--surface-muted, #f1f5f9);
+  background-color: var(--surface-muted, var(--bg));
   border: 1px solid transparent;
-  border-radius: 9999px;
-  font-size: 0.88rem;
-  color: var(--text, #0f172a);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-md);
+  color: var(--text, var(--text));
   outline: none;
   transition: all 0.2s ease;
 }
 
 .qr-search-input:focus {
-  background-color: var(--surface, #ffffff);
-  border-color: #166534;
+  background-color: var(--surface, var(--surface));
+  border-color: var(--brand);
   box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.12);
-}
-
-html[data-theme="dark"] .qr-search-input {
-  background-color: rgba(30, 41, 59, 0.8);
-  color: #f8fafc;
-}
-
-html[data-theme="dark"] .qr-search-input:focus {
-  background-color: #1e293b;
-  border-color: #22c55e;
 }
 
 .qr-search-clear {
@@ -215,7 +189,7 @@ html[data-theme="dark"] .qr-search-input:focus {
   right: 12px;
   background: none;
   border: none;
-  color: #94a3b8;
+  color: var(--info);
   padding: 4px;
   cursor: pointer;
   display: flex;
@@ -225,7 +199,7 @@ html[data-theme="dark"] .qr-search-input:focus {
 }
 
 .qr-search-clear:hover {
-  color: #0f172a;
+  color: var(--text);
 }
 
 .qr-filters-btn {
@@ -234,11 +208,11 @@ html[data-theme="dark"] .qr-search-input:focus {
   gap: 6px;
   height: 42px;
   padding: 0 16px;
-  background-color: var(--surface, #ffffff);
-  border: 1px solid var(--border, #e2e8f0);
-  border-radius: 9999px;
-  color: var(--text, #334155);
-  font-size: 0.85rem;
+  background-color: var(--surface, var(--surface));
+  border: 1px solid var(--border, var(--border));
+  border-radius: var(--radius-pill);
+  color: var(--text, var(--text-2));
+  font-size: var(--text-md);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -248,40 +222,27 @@ html[data-theme="dark"] .qr-search-input:focus {
 }
 
 .qr-filters-btn:hover {
-  background-color: var(--surface-muted, #f1f5f9);
-  border-color: #cbd5e1;
+  background-color: var(--surface-muted, var(--bg));
+  border-color: var(--border-strong);
 }
 
 .qr-filters-btn.active {
-  border-color: #166534;
-  color: #166534;
-  background-color: #f0fdf4;
-}
-
-html[data-theme="dark"] .qr-filters-btn.active {
-  background-color: rgba(22, 101, 52, 0.25);
-  color: #4ade80;
-  border-color: #22c55e;
+  border-color: var(--brand);
+  color: var(--brand-ink);
+  background-color: var(--bg);
 }
 
 .qr-filter-active-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background-color: #166534;
+  background-color: var(--brand-hover);
 }
 
-html[data-theme="dark"] .qr-filter-active-dot {
-  background-color: #22c55e;
-}
-
-/* --------------------------------------------------------------------------
-   Expandable Filter Tray
-   -------------------------------------------------------------------------- */
 .qr-filter-tray {
-  background-color: var(--surface, #ffffff);
-  border: 1px solid var(--border, #e2e8f0);
-  border-radius: 16px;
+  background-color: var(--surface, var(--surface));
+  border: 1px solid var(--border, var(--border));
+  border-radius: var(--radius-lg);
   padding: 14px;
   display: flex;
   flex-direction: column;
@@ -302,11 +263,11 @@ html[data-theme="dark"] .qr-filter-active-dot {
 }
 
 .qr-filter-group-title {
-  font-size: 0.74rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--muted, #64748b);
+  color: var(--muted, var(--muted));
   margin-bottom: 6px;
 }
 
@@ -317,24 +278,24 @@ html[data-theme="dark"] .qr-filter-active-dot {
 }
 
 .qr-calorie-chip {
-  background-color: var(--surface-muted, #f1f5f9);
+  background-color: var(--surface-muted, var(--bg));
   border: 1px solid transparent;
-  color: var(--text, #475569);
-  border-radius: 9999px;
+  color: var(--text, var(--muted));
+  border-radius: var(--radius-pill);
   padding: 5px 12px;
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .qr-calorie-chip:hover {
-  background-color: #e2e8f0;
+  background-color: var(--surface-2);
 }
 
 .qr-calorie-chip.active {
-  background-color: #166534;
-  color: #ffffff;
+  background-color: var(--brand-hover);
+  color: var(--on-brand);
   font-weight: 600;
 }
 
@@ -342,18 +303,15 @@ html[data-theme="dark"] .qr-filter-active-dot {
   width: 100%;
   height: 38px;
   padding: 0 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border, #e2e8f0);
-  background-color: var(--surface, #ffffff);
-  color: var(--text, #0f172a);
-  font-size: 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border, var(--border));
+  background-color: var(--surface, var(--surface));
+  color: var(--text, var(--text));
+  font-size: var(--text-md);
   font-weight: 500;
   outline: none;
 }
 
-/* --------------------------------------------------------------------------
-   Category Pills (Horizontal Scroll - NO EMOJIS, ONLY SLEEK ICONS)
-   -------------------------------------------------------------------------- */
 .qr-categories-scroll {
   display: flex;
   align-items: center;
@@ -373,12 +331,12 @@ html[data-theme="dark"] .qr-filter-active-dot {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  background-color: var(--surface, #ffffff);
-  border: 1px solid var(--border, #e2e8f0);
-  color: var(--text, #334155);
-  border-radius: 9999px;
+  background-color: var(--surface, var(--surface));
+  border: 1px solid var(--border, var(--border));
+  color: var(--text, var(--text-2));
+  border-radius: var(--radius-pill);
   padding: 8px 16px;
-  font-size: 0.85rem;
+  font-size: var(--text-md);
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
@@ -388,14 +346,14 @@ html[data-theme="dark"] .qr-filter-active-dot {
 }
 
 .qr-category-pill:hover {
-  background-color: var(--surface-muted, #f8fafc);
-  border-color: #cbd5e1;
+  background-color: var(--surface-muted, var(--bg));
+  border-color: var(--border-strong);
 }
 
 .qr-category-pill.active {
-  background-color: #166534;
-  border-color: #166534;
-  color: #ffffff;
+  background-color: var(--brand-hover);
+  border-color: var(--brand);
+  color: var(--on-brand);
   box-shadow: 0 3px 8px rgba(22, 101, 52, 0.3);
 }
 
@@ -406,7 +364,6 @@ html[data-theme="dark"] .qr-filter-active-dot {
   color: inherit;
 }
 
-/* Subcategories row */
 .qr-subcategories-scroll {
   display: flex;
   align-items: center;
@@ -423,11 +380,11 @@ html[data-theme="dark"] .qr-filter-active-dot {
 
 .qr-subcategory-chip {
   background: transparent;
-  border: 1px dashed var(--border, #cbd5e1);
-  color: var(--muted, #64748b);
-  border-radius: 9999px;
+  border: 1px dashed var(--border, var(--border-strong));
+  color: var(--muted, var(--muted));
+  border-radius: var(--radius-pill);
   padding: 4px 11px;
-  font-size: 0.76rem;
+  font-size: var(--text-xs);
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -435,15 +392,12 @@ html[data-theme="dark"] .qr-filter-active-dot {
 
 .qr-subcategory-chip.active {
   border-style: solid;
-  border-color: #166534;
-  background-color: #f0fdf4;
-  color: #166534;
+  border-color: var(--brand);
+  background-color: var(--bg);
+  color: var(--brand-ink);
   font-weight: 600;
 }
 
-/* --------------------------------------------------------------------------
-   Section Heading Row
-   -------------------------------------------------------------------------- */
 .qr-section-header {
   display: flex;
   align-items: baseline;
@@ -453,22 +407,19 @@ html[data-theme="dark"] .qr-filter-active-dot {
 }
 
 .qr-section-title {
-  font-size: 1.15rem;
+  font-size: var(--text-xl);
   font-weight: 700;
-  color: var(--text, #0f172a);
+  color: var(--text, var(--text));
   margin: 0;
   letter-spacing: -0.01em;
 }
 
 .qr-section-count {
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-weight: 500;
-  color: var(--muted, #64748b);
+  color: var(--muted, var(--muted));
 }
 
-/* --------------------------------------------------------------------------
-   Product Grid (2 Columns)
-   -------------------------------------------------------------------------- */
 .qr-menu-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -476,19 +427,17 @@ html[data-theme="dark"] .qr-filter-active-dot {
 }
 
 @media (min-width: 640px) {
-  .qr-menu-grid {
+.qr-menu-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
   }
+
 }
 
-/* --------------------------------------------------------------------------
-   Product Card
-   -------------------------------------------------------------------------- */
 .qr-item-card {
-  background-color: var(--surface, #ffffff);
-  border: 1px solid var(--border-light, #f1f5f9);
-  border-radius: 18px;
+  background-color: var(--surface, var(--surface));
+  border: 1px solid var(--border-light, var(--border));
+  border-radius: var(--radius-lg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -502,7 +451,7 @@ html[data-theme="dark"] .qr-filter-active-dot {
 .qr-item-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  border-color: #cbd5e1;
+  border-color: var(--border-strong);
 }
 
 .qr-item-card:focus-visible {
@@ -513,12 +462,11 @@ html[data-theme="dark"] .qr-filter-active-dot {
   opacity: 0.65;
 }
 
-/* Image Wrap & Badges */
 .qr-item-image-wrap {
   width: 100%;
   aspect-ratio: 4 / 3;
   position: relative;
-  background-color: var(--surface-muted, #f1f5f9);
+  background-color: var(--surface-muted, var(--bg));
   overflow: hidden;
 }
 
@@ -533,7 +481,6 @@ html[data-theme="dark"] .qr-filter-active-dot {
   transform: scale(1.04);
 }
 
-/* Top-Left Badge: Ã¢Ëœâ€¦ Popular */
 .qr-badge-popular {
   position: absolute;
   top: 8px;
@@ -542,17 +489,16 @@ html[data-theme="dark"] .qr-filter-active-dot {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background-color: #14532d;
-  color: #ffffff;
-  font-size: 0.68rem;
+  background-color: var(--brand-hover);
+  color: var(--on-brand);
+  font-size: var(--text-xs);
   font-weight: 700;
   padding: 3px 8px;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   letter-spacing: 0.02em;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
-/* Bottom-Left Badge: Calories */
 .qr-badge-calorie {
   position: absolute;
   bottom: 8px;
@@ -563,29 +509,27 @@ html[data-theme="dark"] .qr-filter-active-dot {
   background-color: rgba(15, 23, 42, 0.72);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  color: #ffffff;
-  font-size: 0.68rem;
+  color: var(--on-brand);
+  font-size: var(--text-xs);
   font-weight: 600;
   padding: 2px 7px;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   letter-spacing: 0.01em;
 }
 
-/* Unavailable Badge */
 .qr-badge-unavailable {
   position: absolute;
   top: 8px;
   right: 8px;
   z-index: 2;
-  background-color: #ef4444;
-  color: #ffffff;
-  font-size: 0.66rem;
+  background-color: var(--danger);
+  color: var(--on-brand);
+  font-size: var(--text-xs);
   font-weight: 700;
   padding: 2px 7px;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
 }
 
-/* Card Body */
 .qr-item-body {
   padding: 10px 10px 12px;
   display: flex;
@@ -595,9 +539,9 @@ html[data-theme="dark"] .qr-filter-active-dot {
 }
 
 .qr-item-title {
-  font-size: 0.92rem;
+  font-size: var(--text-md);
   font-weight: 700;
-  color: var(--text, #0f172a);
+  color: var(--text, var(--text));
   margin: 0 0 3px;
   line-height: 1.25;
   white-space: nowrap;
@@ -606,8 +550,8 @@ html[data-theme="dark"] .qr-filter-active-dot {
 }
 
 .qr-item-desc {
-  font-size: 0.74rem;
-  color: var(--muted, #64748b);
+  font-size: var(--text-xs);
+  color: var(--muted, var(--muted));
   line-height: 1.35;
   margin: 0 0 10px;
   display: -webkit-box;
@@ -617,7 +561,6 @@ html[data-theme="dark"] .qr-filter-active-dot {
   min-height: 2em;
 }
 
-/* Card Footer: Price & Add Button */
 .qr-item-footer {
   margin-top: auto;
   display: flex;
@@ -629,9 +572,9 @@ html[data-theme="dark"] .qr-filter-active-dot {
 }
 
 .qr-item-price {
-  font-size: 0.92rem;
+  font-size: var(--text-md);
   font-weight: 800;
-  color: var(--text, #0f172a);
+  color: var(--text, var(--text));
   letter-spacing: -0.01em;
   white-space: nowrap;
   flex-shrink: 0;
@@ -643,12 +586,12 @@ html[data-theme="dark"] .qr-filter-active-dot {
   align-items: center;
   justify-content: center;
   gap: 3px;
-  background-color: #e8f5e9;
-  color: #166534;
+  background-color: var(--brand-soft);
+  color: var(--brand-ink);
   border: 1px solid transparent;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   padding: 5px 12px;
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -658,29 +601,8 @@ html[data-theme="dark"] .qr-filter-active-dot {
 }
 
 .qr-add-btn:hover {
-  background-color: #dcfce7;
+  background-color: var(--brand-soft);
   transform: scale(1.02);
-}
-
-.qr-add-btn.in-cart {
-  background-color: #166534;
-  color: #ffffff;
-  padding: 5px 10px;
-}
-
-html[data-theme="dark"] .qr-add-btn {
-  background-color: rgba(22, 101, 52, 0.35);
-  color: #4ade80;
-  border-color: rgba(34, 197, 94, 0.2);
-}
-
-html[data-theme="dark"] .qr-add-btn:hover {
-  background-color: rgba(22, 101, 52, 0.5);
-}
-
-html[data-theme="dark"] .qr-add-btn.in-cart {
-  background-color: #22c55e;
-  color: #0f172a;
 }
 
 .qr-add-btn:disabled {
@@ -688,89 +610,43 @@ html[data-theme="dark"] .qr-add-btn.in-cart {
   cursor: not-allowed;
 }
 
-/* --------------------------------------------------------------------------
-   Empty State
-   -------------------------------------------------------------------------- */
 .qr-empty-state {
   grid-column: 1 / -1;
   text-align: center;
   padding: 48px 16px;
-  background-color: var(--surface, #ffffff);
-  border: 1px dashed var(--border, #cbd5e1);
-  border-radius: 20px;
+  background-color: var(--surface, var(--surface));
+  border: 1px dashed var(--border, var(--border-strong));
+  border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  color: var(--muted, #64748b);
+  color: var(--muted, var(--muted));
 }
 
 .qr-empty-state-icon {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background-color: var(--surface-muted, #f1f5f9);
+  background-color: var(--surface-muted, var(--bg));
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #94a3b8;
+  color: var(--info);
 }
 
 .qr-empty-state-title {
-  font-size: 1rem;
+  font-size: var(--text-lg);
   font-weight: 700;
-  color: var(--text, #0f172a);
+  color: var(--text, var(--text));
   margin: 0;
 }
 
 .qr-empty-state-desc {
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   margin: 0;
 }
 
-/* --------------------------------------------------------------------------
-   Floating Bag / Cart Button (Applied to CartDrawer's button)
-   -------------------------------------------------------------------------- */
-.floating-cart {
-  position: fixed !important;
-  bottom: 24px !important;
-  right: 24px !important;
-  z-index: 85 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  background: #14532d !important;
-  color: #ffffff !important;
-  border: none !important;
-  border-radius: 9999px !important;
-  padding: 12px 18px !important;
-  cursor: pointer !important;
-  box-shadow: 0 10px 25px -4px rgba(20, 83, 45, 0.45) !important;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease !important;
-}
-
-.floating-cart:hover {
-  transform: translateY(-3px) scale(1.04) !important;
-  box-shadow: 0 14px 30px -4px rgba(20, 83, 45, 0.55) !important;
-}
-
-.floating-cart span {
-  background-color: #ffffff !important;
-  color: #14532d !important;
-  border-radius: 9999px !important;
-  font-size: 0.82rem !important;
-  font-weight: 800 !important;
-  min-width: 22px !important;
-  height: 22px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 0 6px !important;
-}
-
-/* --------------------------------------------------------------------------
-   Item Details Modal Redesign & Polish (Centered, Single Look, Seamless Fade)
-   -------------------------------------------------------------------------- */
 .modal-shell.item-modal-shell,
 .modal-shell {
   position: fixed !important;
@@ -819,8 +695,8 @@ html[data-theme="dark"] .qr-add-btn.in-cart {
 }
 
 @media (max-width: 768px) {
-  .modal-shell.item-modal-shell,
-  .modal-shell {
+.modal-shell.item-modal-shell,
+.modal-shell {
     padding: 12px !important;
     width: 100vw !important;
     height: 100dvh !important;
@@ -828,8 +704,8 @@ html[data-theme="dark"] .qr-add-btn.in-cart {
     max-height: none !important;
   }
 
-  .modal-card.item-modal-card,
-  .modal-card {
+.modal-card.item-modal-card,
+.modal-card {
     display: flex !important;
     flex-direction: column !important;
     grid-template-columns: none !important;
@@ -841,18 +717,19 @@ html[data-theme="dark"] .qr-add-btn.in-cart {
     border-radius: var(--radius-lg) !important;
     margin: auto !important;
   }
+
 }
 
-/* In-cart stepper on menu cards: tapping adds one more, never silently removes. */
 .qr-stepper {
   display: inline-flex;
   align-items: center;
   gap: 2px;
   padding: 2px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--brand);
   color: var(--on-brand);
 }
+
 .qr-stepper button {
   display: grid;
   place-items: center;
@@ -864,11 +741,13 @@ html[data-theme="dark"] .qr-add-btn.in-cart {
   color: inherit;
   cursor: pointer;
 }
+
 .qr-stepper button:hover { background: rgba(255, 255, 255, 0.16); }
+
 .qr-stepper button:focus-visible { outline: 3px solid var(--brand-bright); outline-offset: 1px; }
+
 .qr-stepper span { min-width: 18px; text-align: center; font-weight: var(--weight-bold); font-variant-numeric: tabular-nums; }
 
-/* "View order" bar: full width at the bottom, only when the cart has items. */
 .cart-bar {
   position: fixed;
   left: 50%;
@@ -882,7 +761,7 @@ html[data-theme="dark"] .qr-add-btn.in-cart {
   min-height: 56px;
   padding: 0 var(--space-4);
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--brand);
   color: var(--on-brand);
   box-shadow: var(--shadow-lg);
@@ -891,57 +770,32 @@ html[data-theme="dark"] .qr-add-btn.in-cart {
   font-weight: var(--weight-bold);
   cursor: pointer;
 }
+
 .cart-bar:hover { background: var(--brand-hover); }
+
 .cart-bar:focus-visible { outline: 3px solid var(--brand-bright); outline-offset: 3px; }
+
 .cart-bar-count {
   display: grid;
   place-items: center;
   min-width: 28px;
   height: 28px;
   padding: 0 var(--space-2);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.2);
   font-size: var(--text-sm);
 }
+
 .cart-bar-label { flex: 1; text-align: left; }
+
 .cart-bar-total { font-variant-numeric: tabular-nums; }
-/* Room under the last row of cards so the bar never covers them. */
+
 .qr-menu-wrapper { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 
-/* Checkout */
-.checkout-title { margin: var(--space-3) 0 0; font-size: var(--text-xl); line-height: 1.2; }
-.checkout-meta { margin: var(--space-1) 0 var(--space-4); color: var(--muted); font-size: var(--text-sm); }
-.checkout-remove {
-  display: grid;
-  place-items: center;
-  width: var(--tap);
-  height: var(--tap);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--danger);
-  cursor: pointer;
-}
-.checkout-methods { display: grid; gap: var(--space-2); margin: var(--space-4) 0; padding: 0; border: 0; }
-.checkout-methods legend { margin-bottom: var(--space-2); padding: 0; font-size: var(--text-md); font-weight: var(--weight-bold); color: var(--text); }
-.checkout-method {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  min-height: 52px;
-  padding: 0 var(--space-4);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  color: var(--text);
-  font-weight: var(--weight-bold);
-  cursor: pointer;
-}
 .checkout-method:has(input:checked) { border-color: var(--brand); background: var(--brand-soft); color: var(--brand-ink); }
-.checkout-method input { width: 20px; height: 20px; accent-color: var(--brand); }
+
 .checkout-method:has(input:focus-visible) { outline: 3px solid var(--brand-bright); outline-offset: 2px; }
 
-/* Tracking: shown once, right after placing an order. */
 .order-placed-banner {
   display: flex;
   align-items: center;

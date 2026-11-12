@@ -20,9 +20,9 @@ export function useConfirm() {
   const dialog = request ? (
     <Modal title={request.title} className="confirm-dialog" onClose={() => answer(false)}>
       <p>{request.message}</p>
-      <div className="row-actions">
-        <button type="button" className="danger-button" onClick={() => answer(true)}>{request.confirmLabel}</button>
-        <button type="button" className="ghost-button" autoFocus onClick={() => answer(false)}>Cancel</button>
+      <div className="ui-row">
+        <button type="button" className="ui-btn ui-btn--danger" onClick={() => answer(true)}>{request.confirmLabel}</button>
+        <button type="button" className="ui-btn" autoFocus onClick={() => answer(false)}>Cancel</button>
       </div>
     </Modal>
   ) : null

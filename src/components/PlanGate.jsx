@@ -27,7 +27,7 @@ export function FeatureLockedPage({ feature }) {
         >
           <Lock size={26} />
         </div>
-        <h1 style={{ fontSize: "1.4rem", marginBottom: 8 }}>Feature not included</h1>
+        <h1 style={{ fontSize: "var(--text-xl)", marginBottom: 8 }}>Feature not included</h1>
         {plan ? (
           <p style={{ color: "var(--text-2)", marginBottom: 12, lineHeight: 1.6 }}>
             <strong>{info?.name || feature}</strong> is not part of your current{" "}
@@ -39,29 +39,29 @@ export function FeatureLockedPage({ feature }) {
           </p>
         )}
         {info?.description ? (
-          <p style={{ color: "var(--text-2)", fontSize: "0.92rem", marginBottom: 16, lineHeight: 1.6 }}>
+          <p style={{ color: "var(--text-2)", fontSize: "var(--text-md)", marginBottom: 16, lineHeight: 1.6 }}>
             {info.description}
           </p>
         ) : null}
         <div
           style={{
             padding: "14px 16px",
-            borderRadius: 10,
+            borderRadius: "var(--radius-sm)",
             background: "var(--surface-2)",
             border: "1px solid var(--border)",
             marginBottom: 18,
             textAlign: "left",
-            fontSize: "0.9rem",
+            fontSize: "var(--text-md)",
             color: "var(--text-2)",
           }}
         >
           Ask your cafe owner to arrange a package change with the platform team.
         </div>
         <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link to={`/pricing?locked=${encodeURIComponent(feature)}`} className="primary-button" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+          <Link to={`/pricing?locked=${encodeURIComponent(feature)}`} className="ui-btn ui-btn--primary" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
             Compare packages <ArrowRight size={16} />
           </Link>
-          <Link to="/" className="ghost-button" style={{ display: "inline-flex", alignItems: "center" }}>
+          <Link to="/" className="ui-btn" style={{ display: "inline-flex", alignItems: "center" }}>
             Back to home
           </Link>
         </div>
@@ -94,7 +94,7 @@ export function PlanRoute({ feature, children }) {
     return children
   }
 
-  if (subscriptionStatus === "unavailable") return <main className="auth-page"><div className="auth-card"><h1>Access could not be verified</h1><p>Package information is temporarily unavailable. Please try again.</p><button type="button" className="primary-button" onClick={() => window.location.reload()}>Try again</button></div></main>
+  if (subscriptionStatus === "unavailable") return <main className="auth-page"><div className="auth-card"><h1>Access could not be verified</h1><p>Package information is temporarily unavailable. Please try again.</p><button type="button" className="ui-btn ui-btn--primary" onClick={() => window.location.reload()}>Try again</button></div></main>
   if (subscriptionStatus === "loading") {
     return (
       <main className="page-pad splash-loader-container" style={{ minHeight: "60vh", display: "grid", placeItems: "center" }}>

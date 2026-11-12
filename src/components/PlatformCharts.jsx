@@ -12,7 +12,7 @@ export function DistributionChart({ title, description, items, donut = false }) 
     return `${item.color || colors[index % colors.length]} ${start}% ${offset}%`
   })
   return (
-    <section className="sa-panel sa-chart">
+    <section className="ui-card ui-card--stack sa-chart">
       <div className="sa-chart-heading"><span className="sa-visual-icon">{donut ? <Coffee size={20} /> : <BarChart3 size={20} />}</span><div><h2>{title}</h2><p>{description}</p></div></div>
       <div className={donut ? "sa-distribution" : ""}>
         {donut && <div className="sa-donut" aria-hidden="true" style={{ background: total ? `conic-gradient(${stops.join(",")})` : "var(--border)" }}><span><strong>{total.toLocaleString()}</strong><small>Total cafes</small></span></div>}
@@ -27,7 +27,7 @@ export function DistributionChart({ title, description, items, donut = false }) 
 
 export function RequestTrend({ items }) {
   const max = Math.max(1, ...items.map(item => item.value))
-  return <section className="sa-panel sa-chart"><div className="sa-chart-heading"><span className="sa-visual-icon"><BarChart3 size={20} /></span><div><h2>Request activity</h2><p>Requests received · last six calendar months</p></div></div><ol className="sa-month-chart">{items.map(item => <li key={item.key}><strong>{item.value.toLocaleString()}</strong><div className="sa-month-track" aria-hidden="true"><span style={{ height: `${item.value / max * 100}%` }} /></div><span>{item.label}</span></li>)}</ol></section>
+  return <section className="ui-card ui-card--stack sa-chart"><div className="sa-chart-heading"><span className="sa-visual-icon"><BarChart3 size={20} /></span><div><h2>Request activity</h2><p>Requests received · last six calendar months</p></div></div><ol className="sa-month-chart">{items.map(item => <li key={item.key}><strong>{item.value.toLocaleString()}</strong><div className="sa-month-track" aria-hidden="true"><span style={{ height: `${item.value / max * 100}%` }} /></div><span>{item.label}</span></li>)}</ol></section>
 }
 
 export function VisualSummary({ icon: Icon, title, children }) {
@@ -35,5 +35,5 @@ export function VisualSummary({ icon: Icon, title, children }) {
 }
 
 export function FeedState({ loading, error }) {
-  return <div className="sa-panel sa-feed-state" role={error ? "alert" : "status"}>{error ? <><strong>This information could not load.</strong><p>Please refresh the page to try again.</p><button type="button" className="ghost-button" onClick={() => window.location.reload()}>Refresh page</button></> : loading ? "Loading platform information…" : null}</div>
+  return <div className="ui-card ui-card--stack sa-feed-state" role={error ? "alert" : "status"}>{error ? <><strong>This information could not load.</strong><p>Please refresh the page to try again.</p><button type="button" className="ui-btn" onClick={() => window.location.reload()}>Refresh page</button></> : loading ? "Loading platform information…" : null}</div>
 }

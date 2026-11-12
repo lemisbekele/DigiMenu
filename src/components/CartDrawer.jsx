@@ -74,10 +74,10 @@ export function CartDrawer() {
       <aside className={`cart-drawer ${cartOpen ? "open" : ""}`} aria-hidden={!cartOpen}>
         <div className="drawer-head">
           <div>
-            <p className="eyebrow">{t("currentOrder")}</p>
+            <p className="ui-muted">{t("currentOrder")}</p>
             <h2>{t("yourCart")}</h2>
           </div>
-          <button className="icon-button" type="button" onClick={() => setCartOpen(false)} aria-label={t("closeCart")}>
+          <button className="ui-btn ui-btn--quiet ui-btn--icon" type="button" onClick={() => setCartOpen(false)} aria-label={t("closeCart")}>
             <X size={20} />
           </button>
         </div>
@@ -114,7 +114,7 @@ export function CartDrawer() {
                 <div className="quantity-row">
                   <div className="qty-controls">
                     <button
-                      className="icon-button small qty-btn"
+                      className="ui-btn ui-btn--quiet ui-btn--icon qty-btn"
                       type="button"
                       onClick={() => updateQuantity(item.cartId, item.quantity - 1)}
                       aria-label={t("decreaseQuantity")}
@@ -123,7 +123,7 @@ export function CartDrawer() {
                     </button>
                     <span className="qty-count">{item.quantity}</span>
                     <button
-                      className="icon-button small qty-btn"
+                      className="ui-btn ui-btn--quiet ui-btn--icon qty-btn"
                       type="button"
                       onClick={() => updateQuantity(item.cartId, item.quantity + 1)}
                       aria-label={t("increaseQuantity")}
@@ -132,7 +132,7 @@ export function CartDrawer() {
                     </button>
                   </div>
                   <button
-                    className="icon-button small danger-button remove-cart-item"
+                    className="ui-btn ui-btn--quiet ui-btn--icon ui-btn ui-btn--danger remove-cart-item"
                     type="button"
                     onClick={() => removeItem(item.cartId)}
                     aria-label={t("removeItem")}
@@ -163,8 +163,8 @@ export function CartDrawer() {
             <span>{t("total")}</span>
             <strong>{money(totals.totalAmount)}</strong>
           </div>
-          {error ? <p className="form-error" role="alert">{error}</p> : null}
-          <button className="primary-button place-order-btn" type="button" disabled={placing || items.length === 0} onClick={placeOrder}>
+          {error ? <p className="ui-error" role="alert">{error}</p> : null}
+          <button className="ui-btn ui-btn--primary place-order-btn" type="button" disabled={placing || items.length === 0} onClick={placeOrder}>
             {placing ? t("placingOrder") : `${t("placeOrder")} — ${money(totals.totalAmount)}`}
           </button>
           <p className="cart-pay-hint">{t("payAfterOrder", "You choose how to pay after placing the order.")}</p>

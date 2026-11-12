@@ -1,4 +1,5 @@
 import { DistributionChart, FeedState } from "../components/PlatformCharts"
+import { Kpi } from "../ui"
 import { useConfirm } from "../hooks/useConfirm"
 import { cafeDistribution } from "../services/platformMetrics"
 import { isSubscriptionActive } from "../services/planService"
@@ -9,7 +10,7 @@ import { Building2, Search, CheckCircle2, XCircle, AlertTriangle, Pencil, Packag
 import { fetchRegisteredCafes, observeRegisteredCafes, updateCafeStatus, updateCafeOwnerEmail, deleteCafe } from "../services/cafeService"
 import { observeSubscriptionRequests, assignPackageToCafe } from "../services/subscriptionService"
 import { observePackages } from "../services/packageService"
-import "./superadmin.css"
+import "./superadmin-layout.css"
 
 const TABS = [
   { key: "all", label: "All Cafes" },
@@ -157,9 +158,9 @@ export function SuperAdminCafes() {
   if (cafesLoading || cafesError) return <FeedState loading={cafesLoading} error={cafesError} />
 
   return (
-    <div className="sa-page sa-cafes-page">
+    <div className="ui-stack sa-cafes-page">
       {confirmDialog}
-      <div className="sa-head">
+      <div className="ui-page-header">
         <h1>Cafe Management</h1>
         <p>
           View all registered cafes, manage their access status, update owner contact details, and change the package each cafe is entitled to.
@@ -167,46 +168,38 @@ export function SuperAdminCafes() {
       </div>
 
       {notice && (
-        <div className={`sa-alert ${notice.type === "success" ? "sa-alert-success" : "sa-alert-error"}`} style={{ marginBottom: "1.25rem" }}>
+        <div className={`ui-notice ${notice.type === "success" ? "sa-alert-success" : "sa-alert-error"}`} style={{ marginBottom: "1.25rem" }}>
           {notice.text}
         </div>
       )}
 
-      <div className="sa-stats">
+      <div className="kpis">
         {[
           { label: "Total Cafes", value: counts.all, icon: Building2, color: "var(--brand)" },
           { label: "Active", value: counts.active, icon: CheckCircle2, color: "var(--brand)" },
           { label: "Suspended", value: counts.suspended, icon: AlertTriangle, color: "var(--warning)" },
         ].map((s) => (
-          <article key={s.label} className="sa-stat" style={{ color: s.color, borderTop: `3px solid ${s.color}` }}>
-            <div className="sa-stat-icon" style={{ background: `color-mix(in srgb, ${s.color} 12%, transparent)`, color: s.color }}>
-              <s.icon size={22} />
-            </div>
-            <div>
-              <strong className="sa-stat-value" style={{ color: "var(--brand-ink)" }}>{s.value}</strong>
-              <span className="sa-stat-label">{s.label}</span>
-            </div>
-          </article>
+          <Kpi key={s.label} icon={s.icon} label={s.label} value={s.value} />
         ))}
       </div>
 
       <DistributionChart title="Cafe access at a glance" description="Current status of registered cafes" items={cafeDistribution(cafes)} />
 
-      <div className="sa-page-toolbar">
-        <div className="sa-tabs">
+      <div className="ui-toolbar">
+        <div className="ui-seg">
           {TABS.map((tab) => (
             <button
               key={tab.key}
               type="button"
               onClick={() => setActiveTab(tab.key)}
-              className={`sa-tab ${activeTab === tab.key ? "is-active" : ""}`}
+              className={` ${activeTab === tab.key ? "is-active" : ""}`}
             >
               {tab.label} ({counts[tab.key] || 0})
             </button>
           ))}
         </div>
 
-        <div className="sa-search">
+        <div className="ui-search">
           <Search size={16} />
           <input
             value={search}
@@ -216,15 +209,15 @@ export function SuperAdminCafes() {
         </div>
       </div>
 
-      <section className="sa-panel-flush">
+      <section className="ui-card--flush">
         {filtered.length === 0 ? (
-          <div className="sa-empty">
+          <div className="ui-empty">
             <Building2 size={32} />
             <div>No cafes found.</div>
           </div>
         ) : (
-          <div className="sa-table-wrap">
-            <table className="sa-table">
+          <div className="ui-table-wrap">
+            <table className="ui-table">
               <thead>
                 <tr>
                   <th>Cafe</th>
@@ -252,35 +245,35 @@ export function SuperAdminCafes() {
                           href={`/${cafe.slug}/menu`}
                           target="_blank"
                           rel="noreferrer"
-                          style={{ color: "var(--brand)", fontSize: "0.85rem", textDecoration: "none", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}
+                          style={{ color: "var(--brand)", fontSize: "var(--text-md)", textDecoration: "none", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}
                           title="Open Customer Menu"
                         >
                           /{cafe.slug} <ExternalLink size={12} />
                         </a>
                       </td>
-                      <td data-label="Owner Email" style={{ color: "var(--text-3)", fontSize: "0.85rem" }}>{cafe.owner_email || "—"}</td>
+                      <td data-label="Owner Email" style={{ color: "var(--text-3)", fontSize: "var(--text-md)" }}>{cafe.owner_email || "—"}</td>
                       <td data-label="Package">
                         {pkg ? (
-                          <span className="sa-badge" style={{ background: "var(--info-bg)", color: pkg.id === "enterprise" ? "var(--info)" : "var(--info)" }}>
+                          <span className="ui-pill" style={{ background: "var(--info-bg)", color: pkg.id === "enterprise" ? "var(--info)" : "var(--info)" }}>
                             {pkg.name || pkg.id}
                           </span>
                         ) : (
-                          <span style={{ color: "var(--muted)", fontSize: "0.82rem" }}>No active package</span>
+                          <span style={{ color: "var(--muted)", fontSize: "var(--text-sm)" }}>No active package</span>
                         )}
                       </td>
                       <td data-label="Status">
-                        <span className="sa-badge" style={{ background: s.bg, color: s.color }}>{s.text}</span>
+                        <span className="ui-pill" style={{ background: s.bg, color: s.color }}>{s.text}</span>
                       </td>
-                      <td data-label="Created" style={{ color: "var(--text-3)", fontSize: "0.82rem" }}>
+                      <td data-label="Created" style={{ color: "var(--text-3)", fontSize: "var(--text-sm)" }}>
                         {cafe.created_at ? formatDateTime(cafe.created_at, { timeStyle: undefined }) : "—"}
                       </td>
                       <td data-label="Actions" style={{ textAlign: "right" }}>
-                        <div className="sa-inline-actions">
+                        <div className="ui-row">
                           <a
                             href={`/${cafe.slug}/menu`}
                             target="_blank"
                             rel="noreferrer"
-                            className="ghost-button compact-btn"
+                            className="ui-btn"
                             title="Open Live Menu"
                             style={{ textDecoration: "none" }}
                           >
@@ -290,7 +283,7 @@ export function SuperAdminCafes() {
                             type="button"
                             title="Change assigned package"
                             onClick={() => { setPackageModal(cafe); setSelectedPlanKey(sub?.plan_key || "") }}
-                            className="ghost-button compact-btn"
+                            className="ui-btn"
                           >
                             <Package size={14} /> Package
                           </button>
@@ -298,7 +291,7 @@ export function SuperAdminCafes() {
                             type="button"
                             title="Edit owner email"
                             onClick={() => { setOwnerModal(cafe); setOwnerEmail(cafe.owner_email || "") }}
-                            className="ghost-button compact-btn"
+                            className="ui-btn"
                           >
                             <Pencil size={14} /> Owner
                           </button>
@@ -308,7 +301,7 @@ export function SuperAdminCafes() {
                               disabled={loading}
                               onClick={() => handleStatus(cafe, "suspended")}
                               title="Suspend cafe access"
-                              className="ghost-button compact-btn"
+                              className="ui-btn"
                             >
                               <XCircle size={14} /> Suspend
                             </button>
@@ -318,7 +311,7 @@ export function SuperAdminCafes() {
                               disabled={loading}
                               onClick={() => handleStatus(cafe, "active")}
                               title="Restore cafe access"
-                              className="primary-button compact-btn"
+                              className="ui-btn ui-btn--primary"
                             >
                               <CheckCircle2 size={14} /> Restore
                             </button>
@@ -328,7 +321,7 @@ export function SuperAdminCafes() {
                             disabled={loading}
                             onClick={() => handleDelete(cafe)}
                             title="Permanently delete cafe"
-                            className="danger-button compact-btn"
+                            className="ui-btn ui-btn--danger"
                           >
                             <Trash2 size={14} /> Delete
                           </button>
@@ -347,19 +340,19 @@ export function SuperAdminCafes() {
         <div className="sa-modal-scrim">
           <form className="sa-modal" onSubmit={event => { event.preventDefault(); if (!loading) saveOwnerEmail() }}>
             <h3 style={{ margin: "0 0 0.5rem", color: "var(--brand-ink)" }}>Update Owner Email — {ownerModal.name}</h3>
-            <p className="sa-notice" style={{ margin: "0 0 1rem" }}>Set the account email used to manage this cafe.</p>
-            <label className="sa-field">
-              <span className="sa-label">Owner Email</span>
+            <p className="ui-muted" style={{ margin: "0 0 1rem" }}>Set the account email used to manage this cafe.</p>
+            <label className="ui-field">
+              <span className="">Owner Email</span>
               <input
                 type="email" required maxLength={254} autoComplete="email"
                 value={ownerEmail}
                 onChange={(e) => setOwnerEmail(e.target.value)}
-                className="sa-input"
+                className="ui-input"
               />
             </label>
-            <div className="sa-modal-actions">
-              <button type="button" onClick={() => setOwnerModal(null)} className="sa-ghost">Cancel</button>
-              <button type="submit" disabled={loading} className="primary-button">Save</button>
+            <div className="ui-dialog-actions">
+              <button type="button" onClick={() => setOwnerModal(null)} className="ui-btn">Cancel</button>
+              <button type="submit" disabled={loading} className="ui-btn ui-btn--primary">Save</button>
             </div>
           </form>
         </div>
@@ -369,15 +362,15 @@ export function SuperAdminCafes() {
         <div className="sa-modal-scrim">
           <form className="sa-modal" onSubmit={event => { event.preventDefault(); if (!loading) confirmPackageChange() }}>
             <h3 style={{ margin: "0 0 0.5rem", color: "var(--brand-ink)" }}>Change Package — {packageModal.name}</h3>
-            <p className="sa-notice" style={{ margin: "0 0 1rem" }}>
+            <p className="ui-muted" style={{ margin: "0 0 1rem" }}>
               Assign a new package to this cafe. Their navigation, routes and backend permissions update immediately via realtime.
             </p>
-            <label className="sa-field">
-              <span className="sa-label">Package</span>
+            <label className="ui-field">
+              <span className="">Package</span>
               <select
                 required value={selectedPlanKey}
                 onChange={(e) => setSelectedPlanKey(e.target.value)}
-                className="sa-select"
+                className="ui-input"
                 disabled={loading}
               >
                 <option value="">Select a package...</option>
@@ -388,12 +381,12 @@ export function SuperAdminCafes() {
                 ))}
               </select>
             </label>
-            <div className="sa-modal-actions">
-              <button type="button" onClick={() => setPackageModal(null)} className="sa-ghost">Cancel</button>
+            <div className="ui-dialog-actions">
+              <button type="button" onClick={() => setPackageModal(null)} className="ui-btn">Cancel</button>
               <button
                 type="submit"
                 disabled={loading || !selectedPlanKey}
-                className="primary-button"
+                className="ui-btn ui-btn--primary"
               >
                 {loading ? "Saving..." : "Change Package"}
               </button>

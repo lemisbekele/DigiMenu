@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import './theme.css'
+import './ui/ui.css'
 import './i18n.js'
 import App from './App.jsx'
 import './forms.css'
@@ -15,6 +16,10 @@ registerServiceWorker().catch(() => {})
 try {
   console.info(`[DigiMenu] ${import.meta.env.MODE} build · backend ${String(import.meta.env.VITE_SUPABASE_URL || "")}`)
 } catch {}
+
+if (import.meta.env.DEV) {
+  try { await (await import("./devLogin.js")).devLogin() } catch (e) { console.warn("[devLogin]", e) }
+}
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

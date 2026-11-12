@@ -22,6 +22,7 @@ describe("user-facing error messages", () => {
     ["invalid_credentials", "The email or password is incorrect. Please try again."],
     ["23505", "A matching record already exists. Check the details and try again."],
     ["42501", "You don’t have permission to do that. Contact your cafe owner if you need access."],
+    ["P0429", "Too many attempts. Please wait a few minutes and try again."],
   ])("uses safe copy for known code %s", (code, expected) => {
     expect(toUserMessage({ code, message: "private constraint and record data" })).toBe(expected)
   })

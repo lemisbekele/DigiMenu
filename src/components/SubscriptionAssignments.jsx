@@ -1,4 +1,5 @@
 import { usePlatformFeed, observeAllSubscriptions } from "../hooks/usePlatformFeed"
+import { Kpi } from "../ui"
 import { toUserMessage } from "../services/userMessages"
 import { formatDateTime } from "../services/regionalSettings"
 import { useMemo, useState } from "react"
@@ -11,7 +12,7 @@ import {
   SUBSCRIPTION_STATUS_LABELS,
 } from "../services/subscriptionService"
 import { observePackages } from "../services/packageService"
-import "../pages/superadmin.css"
+import "../pages/superadmin-layout.css"
 import { Link } from "react-router-dom"
 import { DistributionChart, FeedState } from "./PlatformCharts"
 import { isSubscriptionActive } from "../services/planService"
@@ -103,45 +104,37 @@ export function SubscriptionAssignments() {
   if (subscriptionFeed.loading || packageFeed.loading || subscriptionFeed.error || packageFeed.error) return <FeedState loading error={subscriptionFeed.error || packageFeed.error} />
 
   return (
-    <div className="sa-page">
-      {actionError ? <p className="form-error" role="alert">{actionError}</p> : null}
+    <div className="ui-stack">
+      {actionError ? <p className="ui-error" role="alert">{actionError}</p> : null}
       <p className="sa-section-intro">Review subscription history and adjust access for provisioned cafes.</p>
 
-      <div className="sa-stats">
+      <div className="kpis">
         {[
           { label: "Active", value: counts[SUBSCRIPTION_STATUS.ACTIVE] || 0, icon: CheckCircle2, color: "var(--brand)" },
           { label: "Expired", value: counts[SUBSCRIPTION_STATUS.EXPIRED] || 0, icon: Clock, color: "var(--muted)" },
           { label: "Pending", value: counts[SUBSCRIPTION_STATUS.PENDING_APPROVAL] || 0, icon: AlertTriangle, color: "var(--warning)" },
           { label: "Rejected", value: counts[SUBSCRIPTION_STATUS.REJECTED] || 0, icon: XCircle, color: "var(--danger)" },
         ].map((s) => (
-          <article key={s.label} className="sa-stat" style={{ color: s.color, borderTop: `3px solid ${s.color}` }}>
-            <div className="sa-stat-icon" style={{ background: `color-mix(in srgb, ${s.color} 12%, transparent)`, color: s.color }}>
-              <s.icon size={22} />
-            </div>
-            <div>
-              <strong className="sa-stat-value" style={{ color: "var(--brand-ink)" }}>{s.value}</strong>
-              <span className="sa-stat-label">{s.label}</span>
-            </div>
-          </article>
+          <Kpi key={s.label} icon={s.icon} label={s.label} value={s.value} />
         ))}
       </div>
 
       <DistributionChart title="Current assignments by package" description="Active or approved subscriptions that have not expired" items={packageBreakdown.map(item => ({ label: item.label, value: item.total }))} />
 
-      <div className="sa-tabs">
+      <div className="ui-seg">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             type="button"
             onClick={() => setActiveTab(tab.key)}
-            className={`sa-tab ${activeTab === tab.key ? "is-active" : ""}`}
+            className={` ${activeTab === tab.key ? "is-active" : ""}`}
           >
             {tab.label} ({counts[tab.key] || 0})
           </button>
         ))}
       </div>
 
-      <div className="sa-search">
+      <div className="ui-search">
         <Search size={16} />
         <input
           value={search}
@@ -150,15 +143,15 @@ export function SubscriptionAssignments() {
         />
       </div>
 
-      <section className="sa-panel-flush">
+      <section className="ui-card--flush">
         {filtered.length === 0 ? (
-          <div className="sa-empty">
+          <div className="ui-empty">
             <CreditCard size={32} />
             <div>No subscriptions found.</div>
           </div>
         ) : (
-          <div className="sa-table-wrap">
-            <table className="sa-table">
+          <div className="ui-table-wrap">
+            <table className="ui-table">
               <thead>
                 <tr>
                   <th>Customer / Organization</th>
@@ -178,32 +171,32 @@ export function SubscriptionAssignments() {
                     <tr key={sub.id}>
                       <td>
                         <strong style={{ color: "var(--brand-ink)", display: "block" }}>{sub.customer_name}</strong>
-                        <span style={{ color: "var(--text-3)", fontSize: "0.8rem" }}>{sub.email}</span>
+                        <span style={{ color: "var(--text-3)", fontSize: "var(--text-sm)" }}>{sub.email}</span>
                       </td>
                       <td>
                         <span className="sa-package-tag">{plan?.name || sub.plan_key}</span>
                       </td>
-                      <td style={{ color: "var(--brand)", fontSize: "0.84rem" }}>
+                      <td style={{ color: "var(--brand)", fontSize: "var(--text-sm)" }}>
                         {sub.cafe_slug ? `/${sub.cafe_slug}` : "—"}
                       </td>
                       <td>
-                        <span className="sa-badge" style={{ background: style.bg, color: style.color }}>
+                        <span className="ui-pill" style={{ background: style.bg, color: style.color }}>
                           {SUBSCRIPTION_STATUS_LABELS[sub.status] || sub.status}
                         </span>
                       </td>
-                      <td style={{ color: "var(--text-3)", fontSize: "0.82rem" }}>
+                      <td style={{ color: "var(--text-3)", fontSize: "var(--text-sm)" }}>
                         {sub.requested_at ? formatDateTime(sub.requested_at, { timeStyle: undefined }) : "—"}
                       </td>
                       <td style={{ textAlign: "right" }}>
-                        <div className="sa-inline-actions">
-                          {sub.status === SUBSCRIPTION_STATUS.PENDING_APPROVAL && <Link className="ghost-button" to="/superadmin/requests">Review request</Link>}
+                        <div className="ui-row">
+                          {sub.status === SUBSCRIPTION_STATUS.PENDING_APPROVAL && <Link className="ui-btn" to="/superadmin/requests">Review request</Link>}
                           {(sub.status === SUBSCRIPTION_STATUS.ACTIVE || sub.status === SUBSCRIPTION_STATUS.APPROVED) ? (
                             <button
                               type="button"
                               disabled={isBusy}
                               onClick={() => handleStatus(sub, SUBSCRIPTION_STATUS.EXPIRED)}
                               title="Mark as expired"
-                              className="danger-button"
+                              className="ui-btn ui-btn--danger"
                             >
                               <XCircle size={14} /> Expire
                             </button>
@@ -214,7 +207,7 @@ export function SubscriptionAssignments() {
                               disabled={isBusy}
                               onClick={() => handleStatus(sub, SUBSCRIPTION_STATUS.ACTIVE)}
                               title="Mark as active"
-                              className="primary-button"
+                              className="ui-btn ui-btn--primary"
                             >
                               <RotateCcw size={14} /> Activate
                             </button>

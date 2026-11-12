@@ -7,7 +7,7 @@ import { useLanguage } from "../context/languageContextValue"
 import { useRBAC } from "../context/rbacContextValue"
 import { Modal } from "../components/Modal"
 import "./menu-editor.css"
-import "./staff.css"
+import "./staff-layout.css"
 import { ImageUploader } from "../components/ImageUploader"
 import { OptimizedImage } from "../components/OptimizedImage"
 import {
@@ -199,14 +199,14 @@ export function AdminMenu() {
   }
 
   return (
-    <div className="oc-page">
+    <div className="ui-stack">
       {confirmDialog}
-      <header className="oc-head">
+      <header className="ui-page-header">
         <div>
           <h1>Menu</h1>
           <p>{items.length} items · {items.filter((item) => item.available).length} on the menu now</p>
         </div>
-        <button className="oc-head-action" type="button" onClick={() => {
+        <button className="ui-btn ui-btn--primary" type="button" onClick={() => {
           setCaloriesError("")
           setSaveError("")
           setPendingBlob(null)
@@ -215,25 +215,25 @@ export function AdminMenu() {
           <Plus size={18} /> Add item
         </button>
       </header>
-      {loadError ? <p className="form-error" role="alert">{loadError}</p> : null}
+      {loadError ? <p className="ui-error" role="alert">{loadError}</p> : null}
 
-      <section className="oc-toolbar">
-        <label className="oc-search">
+      <section className="ui-toolbar">
+        <label className="ui-search">
           <Search size={18} />
           <input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder={t("searchItems")} aria-label={t("searchItems")} />
         </label>
-        <div className="oc-chips" role="group" aria-label={t("filterCategory")}>
+        <div className="ui-chips" role="group" aria-label={t("filterCategory")}>
           {categories.map((category) => (
-            <button key={category} type="button" className="oc-chip" aria-pressed={categoryFilter === category}
+            <button key={category} type="button" className="ui-chip" aria-pressed={categoryFilter === category}
               onClick={() => { setCategoryFilter(category); setSubcategoryFilter("All") }}>
               {category === "All" ? t("all") : category}
             </button>
           ))}
         </div>
         {categoryFilter !== "All" && subcategories.length > 2 ? (
-          <div className="oc-chips" role="group" aria-label={t("filterSubcategory")}>
+          <div className="ui-chips" role="group" aria-label={t("filterSubcategory")}>
             {subcategories.map((subcategory) => (
-              <button key={subcategory} type="button" className="oc-chip" aria-pressed={subcategoryFilter === subcategory} onClick={() => setSubcategoryFilter(subcategory)}>
+              <button key={subcategory} type="button" className="ui-chip" aria-pressed={subcategoryFilter === subcategory} onClick={() => setSubcategoryFilter(subcategory)}>
                 {subcategory === "All" ? t("all") : subcategory}
               </button>
             ))}
@@ -242,37 +242,38 @@ export function AdminMenu() {
       </section>
 
       {filteredItems.length === 0 ? (
-        <div className="oc-empty">
+        <div className="ui-empty">
           <Search size={32} strokeWidth={1.5} />
           <strong>{t("noItemsFound")}</strong>
           <p>Try another category or search, or add a new item.</p>
         </div>
       ) : (
-        <div className="ad-list">
+        <div className="menu-grid">
           {filteredItems.map((item) => (
-            <article className={`ad-row${item.available ? "" : " is-muted"}`} key={item.id}>
-              <div className="ad-thumb">
-                <OptimizedImage src={item.imageUrl} alt="" aspectRatio="1/1" />
+            <article className={`ui-card ui-product${item.available ? "" : " is-muted"}`} key={item.id}>
+              <OptimizedImage src={item.imageUrl} alt="" className="menu-grid-photo" />
+              <div className="ui-product-info">
+                <div>
+                  <small>{item.category}{item.subcategory ? ` · ${item.subcategory}` : ""}</small>
+                  <b title={item.name}>{item.name}</b>
+                  <span className="ui-num">{money(item.price)}</span>
+                  {item.estimatedMinutes ? <small>{item.estimatedMinutes} {t("minutes")}</small> : null}
+                </div>
               </div>
-              <div className="ad-row-main">
-                <h3 className="ad-row-title">{item.name}</h3>
-                <p className="ad-row-sub">
-                  {money(item.price)} · {item.category}{item.subcategory ? ` / ${item.subcategory}` : ""}
-                  {item.estimatedMinutes ? ` · ${item.estimatedMinutes} ${t("minutes")}` : ""}
-                </p>
-              </div>
-              <div className="ad-row-actions">
-                <label className="ad-switch">
+              <div className="menu-grid-actions">
+                <label className="ui-switch">
                   <input checked={Boolean(item.available)} type="checkbox" onChange={(event) => toggleAvailable(item, event.target.checked)} />
                   <span aria-hidden="true" />
                   On menu
                 </label>
-                <button className="ad-icon" type="button" onClick={() => edit(item)} aria-label={`${t("editItem")}: ${item.name}`} title={t("editItem")}>
-                  <Edit3 size={18} />
-                </button>
-                <button className="ad-icon oc-danger" type="button" onClick={() => removeItem(item)} aria-label={`${t("removeItem")}: ${item.name}`} title={t("removeItem")}>
-                  <Trash2 size={18} />
-                </button>
+                <div className="ui-row">
+                  <button className="ui-btn ui-btn--quiet ui-btn--icon" type="button" onClick={() => edit(item)} aria-label={`${t("editItem")}: ${item.name}`} title={t("editItem")}>
+                    <Edit3 size={16} />
+                  </button>
+                  <button className="ui-btn ui-btn--quiet ui-btn--icon ui-btn--danger" type="button" onClick={() => removeItem(item)} aria-label={`${t("removeItem")}: ${item.name}`} title={t("removeItem")}>
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
             </article>
           ))}
@@ -291,22 +292,22 @@ export function AdminMenu() {
                     <span><strong>Item details</strong><small>What guests see in the menu</small></span>
                   </legend>
                   <div className="menu-item-editor-fields menu-item-editor-fields--details">
-                    <label className="field menu-item-editor-name">
+                    <label className="ui-field menu-item-editor-name">
                       <span>{t("name", "Name")} <b className="menu-required" aria-hidden="true">*</b></span>
                       <input maxLength={120} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="e.g. Caesar Salad" required />
                     </label>
-                    <label className="field menu-item-editor-description">
+                    <label className="ui-field menu-item-editor-description">
                       <span>{t("description", "Description")} <b className="menu-required" aria-hidden="true">*</b></span>
                       <textarea maxLength={1000} value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} placeholder="Briefly describe flavour, ingredients, or serving style" required />
                     </label>
-                    <label className="field">
+                    <label className="ui-field">
                       <span>Price <b className="menu-required" aria-hidden="true">*</b></span>
                       <div className="menu-item-editor-money-input">
                         <span aria-hidden="true">{currentRegion().currency}</span>
                         <input type="number" step="0.01" min="0" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} placeholder="0.00" required />
                       </div>
                     </label>
-                    <label className="field">
+                    <label className="ui-field">
                       <span>Calories <b className="menu-required" aria-hidden="true">*</b></span>
                       <div className="field-suffix">
                         <input
@@ -324,10 +325,10 @@ export function AdminMenu() {
                         />
                         <span>kcal</span>
                       </div>
-                      {caloriesError ? <p className="form-error menu-item-editor-error">{caloriesError}</p> : null}
+                      {caloriesError ? <p className="ui-error menu-item-editor-error">{caloriesError}</p> : null}
                     </label>
                     {isManager ? (
-                      <label className="field">
+                      <label className="ui-field">
                         <span>Prep time</span>
                         <div className="field-suffix">
                           <input type="number" min="0" max="1440" step="1" value={form.estimatedMinutes || ""} onChange={(event) => setForm({ ...form, estimatedMinutes: event.target.value })} placeholder="0" />
@@ -335,11 +336,11 @@ export function AdminMenu() {
                         </div>
                       </label>
                     ) : null}
-                    <label className="field">
+                    <label className="ui-field">
                       <span>Category <b className="menu-required" aria-hidden="true">*</b></span>
                       <input maxLength={80} value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} placeholder="e.g. Main Course" required />
                     </label>
-                    <label className="field">
+                    <label className="ui-field">
                       <span>Subcategory</span>
                       <input maxLength={80} value={form.subcategory || ""} onChange={(event) => setForm({ ...form, subcategory: event.target.value })} placeholder="e.g. Pasta" />
                     </label>
@@ -374,15 +375,15 @@ export function AdminMenu() {
 
                     <span><strong>Customize</strong><small>Give guests useful choices</small></span>
                   </legend>
-                  <label className="field">
+                  <label className="ui-field">
                     <span>{t("ingredientsLabel")}</span>
                     <textarea rows="3" value={form.ingredientsText || ""} onChange={(event) => setForm({ ...form, ingredientsText: event.target.value })} placeholder="One per line — e.g.&#10;Lettuce&#10;Croutons&#10;Parmesan" />
-                    <p className="field-hint">One ingredient per line.</p>
+                    <p className="ui-muted">One ingredient per line.</p>
                   </label>
-                  <label className="field">
+                  <label className="ui-field">
                     <span>Options</span>
                     <textarea rows="4" value={form.optionsText} onChange={(event) => setForm({ ...form, optionsText: event.target.value })} placeholder="Format: Option name: choice +price, choice +price&#10;e.g.&#10;Extra: Cheese +2.50, Bacon +3.00&#10;Size: Large +1.00, Small +0.00" />
-                    <p className="field-hint">One option per line. Use <strong>Label: choice +price</strong>.</p>
+                    <p className="ui-muted">One option per line. Use <strong>Label: choice +price</strong>.</p>
                   </label>
                 </fieldset>
 
@@ -391,21 +392,21 @@ export function AdminMenu() {
 
                     <span><strong>Translations</strong><small>Optional localized menu content</small></span>
                   </legend>
-                  <p className="field-hint menu-item-editor-section-intro">Leave a translation blank to use the default name and description.</p>
+                  <p className="ui-muted menu-item-editor-section-intro">Leave a translation blank to use the default name and description.</p>
                   <details className="menu-locale-details"><summary><Globe size={16} /> Add or edit translations</summary><div className="locale-fields">
-                    <label className="field">
+                    <label className="ui-field">
                       <span className="locale-tab"><Globe size={14} /> Amharic Name</span>
                       <input value={form.nameAm || ""} onChange={(event) => setForm({ ...form, nameAm: event.target.value })} placeholder="ስም (e.g. የቄሳር ሰላጣ)" />
                     </label>
-                    <label className="field">
+                    <label className="ui-field">
                       <span className="locale-tab"><Globe size={14} /> Amharic Description</span>
                       <textarea rows="2" value={form.descriptionAm || ""} onChange={(event) => setForm({ ...form, descriptionAm: event.target.value })} placeholder="አጭር መግለጫ (e.g. ትኩስ ሰላጣ ከፓርሜሳን አይብ ጋር)" />
                     </label>
-                    <label className="field">
+                    <label className="ui-field">
                       <span className="locale-tab"><Globe size={14} /> Afaan Oromo Name</span>
                       <input value={form.nameOm || ""} onChange={(event) => setForm({ ...form, nameOm: event.target.value })} placeholder="Maqaa (e.g. Salaada Kaesar)" />
                     </label>
-                    <label className="field">
+                    <label className="ui-field">
                       <span className="locale-tab"><Globe size={14} /> Afaan Oromo Description</span>
                       <textarea rows="2" value={form.descriptionOm || ""} onChange={(event) => setForm({ ...form, descriptionOm: event.target.value })} placeholder="Ibsa (e.g. Salaada haaraa waraabeesii Paarmeezaan)" />
                     </label>
@@ -414,13 +415,13 @@ export function AdminMenu() {
               </div>
             </div>
 
-            <footer className="edit-modal-actions menu-item-editor-actions">
-              {saveError ? <p className="form-error" role="alert">{saveError}</p> : null}
+            <footer className="ui-dialog-actions menu-item-editor-actions">
+              {saveError ? <p className="ui-error" role="alert">{saveError}</p> : null}
               <div className="menu-item-editor-action-buttons">
-                <button className="ghost-button" type="button" disabled={saving} onClick={() => { setForm(null); setPendingBlob(null) }}>
+                <button className="ui-btn" type="button" disabled={saving} onClick={() => { setForm(null); setPendingBlob(null) }}>
                   {t("cancel")}
                 </button>
-                <button className="primary-button" type="submit" disabled={saving}>
+                <button className="ui-btn ui-btn--primary" type="submit" disabled={saving}>
                   <Save size={18} />
                   {saving ? t("saving") : form.id ? "Save changes" : "Add item"}
                 </button>

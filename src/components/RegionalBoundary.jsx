@@ -13,7 +13,7 @@ export function RegionalBoundary({ slug, children }) {
     window.addEventListener("cafe-region-updated", load)
     return () => { live = false; window.removeEventListener("cafe-region-updated", load) }
   }, [slug, attempt])
-  if (state.slug === slug && state.error) return <div className="page-pad" role="alert"><p>{t("region.loadError", "Cafe settings could not load.")}</p><button className="primary-button" onClick={() => setAttempt(attempt + 1)}>{t("refresh")}</button></div>
+  if (state.slug === slug && state.error) return <div className="page-pad" role="alert"><p>{t("region.loadError", "Cafe settings could not load.")}</p><button className="ui-btn ui-btn--primary" onClick={() => setAttempt(attempt + 1)}>{t("refresh")}</button></div>
   if (state.slug !== slug || !state.ready) return <div className="page-pad" role="status">{t("region.loading", "Loading cafe settings…")}</div>
   return children
 }

@@ -1,10 +1,11 @@
 :root {
   background: var(--bg);
   color: var(--text);
-  /* Noto Sans Ethiopic covers Amharic (Ge'ez), which Plus Jakarta Sans lacks. */
-  --font-sans: "Plus Jakarta Sans", "Noto Sans Ethiopic", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Noto Sans Ethiopic covers Amharic (Ge'ez), which Figtree lacks. */
+  --font-sans: "Figtree", "Noto Sans Ethiopic", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Bricolage Grotesque", var(--font-sans);
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: var(--text-md);
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "tnum" 0;
@@ -14,8 +15,7 @@ html,
 body,
 #root {
   min-height: 100dvh;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow-x: clip; /* clip, not hidden: hidden makes these scroll containers and breaks position: sticky */
   overscroll-behavior: auto;
   width: 100%;
 }
@@ -39,21 +39,21 @@ img {
 
 button, input, select, textarea { font: inherit; }
 button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
-:focus-visible { outline: 3px solid var(--brand, #34821b); outline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--brand, var(--brand)); outline-offset: 3px; }
 button:disabled { cursor: wait; opacity: .65; }
 input, select, textarea { max-width: 100%; min-width: 0; }
 h1, h2, h3 { line-height: 1.2; overflow-wrap: anywhere; letter-spacing: -0.015em; font-weight: 700; }
 h4, h5, h6, strong, b { font-weight: 600; }
 .admin-content, .dash-panel, .summary-panel, .kds-root { min-width: 0; }
 .workspace-nav { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; padding: .75rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border); }
-.workspace-nav a { padding: .5rem; border-radius: .5rem; text-decoration: none; }
+.workspace-nav a { padding: .5rem; border-radius: var(--radius-sm); text-decoration: none; }
 .workspace-nav a.active { color: var(--brand); background: var(--brand-soft); }
 .workspace-nav button { margin-left: auto; }
 .inventory-form { margin-block: 1rem; max-width: 40rem; display: grid; gap: .75rem; }
 .inventory-actions { display: flex; gap: .5rem; margin-top: .75rem; }
 [role="dialog"], .modal-content, .modal-card { max-width: calc(100vw - 2rem); max-height: calc(100dvh - 2rem); overflow-y: auto; }
 @media (max-width: 600px) {
-  input, select, textarea { font-size: 1rem; }
+  input, select, textarea { font-size: var(--text-lg); }
   .notification-dropdown { width: min(360px, calc(100vw - 2rem)); }
 }
 @media (prefers-reduced-motion: reduce) {

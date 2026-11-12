@@ -2,7 +2,9 @@ import { DistributionChart } from "../components/PlatformCharts"
 import { formatDateTime } from "../services/regionalSettings"
 import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "react-router-dom"
-import { Download, Activity, Search } from "lucide-react"
+import { Download, Search } from "lucide-react"
+import { DataTable, EmptyState, PageHeader, StatCard } from "../ui"
+import "./staff-layout.css"
 import { useAuth } from "../context/authContextValue"
 import { money, observeOrders, observeAuditLogs } from "../services/dataService"
 import { buildReport, buildSalesCsv, orderCompletedAt, orderItems, reportRange, REPORT_TYPES } from "../services/reporting"
@@ -75,6 +77,8 @@ export function AdminAuditLogs() {
   const range = useMemo(() => reportRange(reportType, from, to), [from, reportType, to])
   const report = useMemo(() => buildReport(orders, range, search), [orders, range, search])
   const rangeLabel = `${formatDateTime(range.from, { timeStyle: undefined })} - ${formatDateTime(new Date(range.to.getTime() - 1), { timeStyle: undefined })}`
+  const [rangeFrom, rangeTo] = rangeLabel.split(" - ")
+  const rangeText = rangeFrom === rangeTo ? rangeFrom : rangeLabel
 
   const filteredAuditLogs = useMemo(() => {
     if (!auditSearch) return auditLogs
@@ -87,32 +91,40 @@ export function AdminAuditLogs() {
     )
   }, [auditLogs, auditSearch])
 
-  return (
-    <div className="admin-stack audit-page">
-      <div className="admin-head audit-page-head">
-        <div>
-          <p className="eyebrow">Data & History</p>
-          <h2>{isPlatform ? "Platform Audit Logs" : "Reports & Audit Logs"}</h2>
-        </div>
-        {!isPlatform && <div className="two-col" style={{ maxWidth: 260 }}>
-          <button
-            className={activeTab === "reports" ? "primary-button" : "ghost-button"}
-            type="button"
-            onClick={() => setActiveTab("reports")}
-          >
-            Reports
-          </button>
-          <button
-            className={activeTab === "audit" ? "primary-button" : "ghost-button"}
-            type="button"
-            onClick={() => setActiveTab("audit")}
-          >
-            <Activity size={16} /> Audit Log
-          </button>
-        </div>}
-      </div>
+  const salesColumns = [
+    { key: "completed", label: "Completed", render: (order) => formatDateTime(orderCompletedAt(order)) },
+    { key: "table", label: "Table", render: (order) => <strong>Table {order.tableNumber}</strong> },
+    { key: "items", label: "Items", render: (order) => <span title={orderItems(order)}>{orderItems(order)}</span> },
+    { key: "total", label: "Total", align: "right", render: (order) => money(order.totalAmount) },
+  ]
+  const auditColumns = [
+    { key: "action", label: "Action", render: (log) => <span title={formatAuditAction(log)}>{formatAuditAction(log)}</span> },
+    { key: "actor", label: "Actor", render: (log) => log.actor || "system" },
+    { key: "time", label: "Time", render: (log) => <span className="ui-muted">{formatTime(log.createdAtMs ? new Date(log.createdAtMs) : log.createdAt)}</span> },
+  ]
 
-      {loadError ? <p className="form-error">{loadError}</p> : null}
+  return (
+    <div className="ui-stack">
+      <PageHeader
+        title={isPlatform ? "Audit logs" : "Reports"}
+        subtitle={isPlatform ? "Everything that changed on the platform" : "Sales reports and the activity history"}
+        action={!isPlatform && activeTab === "reports" ? (
+          <button className="ui-btn ui-btn--primary" type="button" onClick={() => downloadCsv(report, rangeLabel)} disabled={!report.completedOrders.length}>
+            <Download size={16} /> Export CSV
+          </button>
+        ) : null}
+      />
+
+      {!isPlatform ? (
+        <div className="ui-toolbar">
+          <div className="ui-seg">
+            <button type="button" aria-pressed={activeTab === "reports"} onClick={() => setActiveTab("reports")}>Reports</button>
+            <button type="button" aria-pressed={activeTab === "audit"} onClick={() => setActiveTab("audit")}>Audit log</button>
+          </div>
+        </div>
+      ) : null}
+
+      {loadError ? <p className="ui-error">{loadError}</p> : null}
 
       {isPlatform && !loadError && auditLogs.length > 0 && <DistributionChart title="Recent activity by area" description="Distribution of the loaded audit entries, before search filtering" items={[
         { label: "Access & subscriptions", value: auditLogs.filter(log => String(log.action).startsWith("subscription.")).length },
@@ -123,144 +135,76 @@ export function AdminAuditLogs() {
 
       {activeTab === "reports" ? (
         <>
-          <section className="admin-panel">
-            <div className="audit-section-head">
-              <div>
-                <p className="eyebrow">Sales reporting</p>
-                <h2>Reports</h2>
-                <p className="admin-hint">Completed orders preserved for reporting and analytics.</p>
-              </div>
-              <button className="primary-button" type="button" onClick={() => downloadCsv(report, rangeLabel)} disabled={!report.completedOrders.length}>
-                <Download size={18} />
-                Export CSV
-              </button>
-            </div>
-            <div className="admin-filter-bar audit-filter-bar">
-              <label className="field">
-                <span>Report</span>
-                <select value={reportType} onChange={(event) => setReportType(event.target.value)}>
-                  {REPORT_TYPES.map((entry) => <option key={entry} value={entry}>{entry}</option>)}
-                </select>
-              </label>
-              <label className="field">
-                <span>Search history</span>
-                <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Table, item, order ID..." />
-              </label>
-              {reportType === "custom" ? (
-                <>
-                  <label className="field">
-                    <span>From</span>
-                    <input type="date" value={from} onChange={(event) => setFrom(event.target.value)} />
-                  </label>
-                  <label className="field">
-                    <span>To</span>
-                    <input type="date" value={to} onChange={(event) => setTo(event.target.value)} />
-                  </label>
-                </>
-              ) : null}
-            </div>
-          </section>
+          <div className="ui-form-row">
+            <label className="ui-field">
+              Report
+              <select value={reportType} onChange={(event) => setReportType(event.target.value)}>
+                {REPORT_TYPES.map((entry) => <option key={entry} value={entry}>{entry}</option>)}
+              </select>
+            </label>
+            <label className="ui-field">
+              Search history
+              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Table, item, order ID..." />
+            </label>
+            {reportType === "custom" ? (
+              <>
+                <label className="ui-field">
+                  From
+                  <input type="date" value={from} onChange={(event) => setFrom(event.target.value)} />
+                </label>
+                <label className="ui-field">
+                  To
+                  <input type="date" value={to} onChange={(event) => setTo(event.target.value)} />
+                </label>
+              </>
+            ) : null}
+          </div>
 
-          <section className="audit-summary-grid">
-            <article>
-              <span>Completed orders</span>
-              <strong>{report.totalOrders}</strong>
-            </article>
-            <article>
-              <span>Total revenue</span>
-              <strong>{money(report.totalRevenue)}</strong>
-            </article>
-            <article>
-              <span>Average order value</span>
-              <strong>{money(report.averageOrderValue)}</strong>
-            </article>
-            <article>
-              <span>Report range</span>
-              <strong>{rangeLabel}</strong>
-            </article>
-          </section>
+          <div className="ui-stats">
+            <StatCard label="Completed orders" value={report.totalOrders} />
+            <StatCard label="Total revenue" value={money(report.totalRevenue)} />
+            <StatCard label="Average order value" value={money(report.averageOrderValue)} />
+            <StatCard label="Report range" value={rangeText} />
+          </div>
 
-          <section className="report-breakdown-grid">
-            <article className="audit-table-card">
-              <h3>Most ordered items</h3>
-              {report.itemCounts.length ? report.itemCounts.slice(0, 8).map(([name, data]) => (
-                <div className="report-row" key={name}>
-                  <span>{name}</span>
-                  <strong>{data.count}</strong>
-                </div>
-              )) : <div className="empty-state">No item sales in this range.</div>}
-            </article>
-            <article className="audit-table-card">
-              <h3>Orders by table</h3>
-              {report.tableCounts.length ? report.tableCounts.slice(0, 8).map(([table, count]) => (
-                <div className="report-row" key={table}>
-                  <span>Table {table}</span>
-                  <strong>{count}</strong>
-                </div>
-              )) : <div className="empty-state">No table history in this range.</div>}
-            </article>
-          </section>
+          <div className="ui-grid report-breakdown">
+            <section className="ui-card ui-card--stack">
+              <div className="ui-section-head"><h2>Most ordered items</h2></div>
+              {report.itemCounts.length ? (
+                <ul className="ui-lines">
+                  {report.itemCounts.slice(0, 8).map(([name, data]) => (
+                    <li className="ui-line" key={name}><span className="ui-truncate">{name}</span><strong className="ui-num">{data.count}</strong></li>
+                  ))}
+                </ul>
+              ) : <EmptyState title="No item sales in this range" />}
+            </section>
+            <section className="ui-card ui-card--stack">
+              <div className="ui-section-head"><h2>Orders by table</h2></div>
+              {report.tableCounts.length ? (
+                <ul className="ui-lines">
+                  {report.tableCounts.slice(0, 8).map(([table, count]) => (
+                    <li className="ui-line" key={table}><span>Table {table}</span><strong className="ui-num">{count}</strong></li>
+                  ))}
+                </ul>
+              ) : <EmptyState title="No table history in this range" />}
+            </section>
+          </div>
 
-          <section className="audit-table-card">
-            {report.completedOrders.length ? (
-              <div className="audit-table" role="table">
-                <div className="audit-row audit-row-head sales-row" role="row">
-                  <span>Completed</span>
-                  <span>Table</span>
-                  <span>Items</span>
-                  <span>Total</span>
-                </div>
-                {report.completedOrders.map((order) => (
-                  <div className="audit-row sales-row" role="row" key={order.id}>
-                    <span>{formatDateTime(orderCompletedAt(order))}</span>
-                    <strong>Table {order.tableNumber}</strong>
-                    <span>{orderItems(order)}</span>
-                    <strong>{money(order.totalAmount)}</strong>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="empty-state">No completed orders match this report.</div>
-            )}
-          </section>
+          <DataTable columns={salesColumns} rows={report.completedOrders} rowKey="id" empty={{ title: "No completed orders match this report", body: "Try another report type or clear the search." }} />
         </>
       ) : null}
 
       {activeTab === "audit" ? (
-        <section className="audit-table-card">
-          <div style={{ padding: "14px 14px 0" }}>
-            <div className="audit-section-head" style={{ marginBottom: 8 }}>
-              <h3>Activity History</h3>
-              <span className="admin-hint">{auditLogs.length} entries</span>
-            </div>
-            <div className="input-with-icon">
+        <>
+          <div className="ui-toolbar">
+            <span className="ui-muted">{auditLogs.length} entries</span>
+            <div className="ui-search">
               <Search size={16} />
-              <input
-                value={auditSearch}
-                onChange={(e) => setAuditSearch(e.target.value)}
-                placeholder="Search action, actor, or description..."
-              />
+              <input value={auditSearch} onChange={(e) => setAuditSearch(e.target.value)} placeholder="Search action, actor or description" aria-label="Search the audit log" />
             </div>
           </div>
-          {filteredAuditLogs.length === 0 ? (
-            <div className="empty-state" style={{ margin: 14 }}>No audit logs found.</div>
-          ) : (
-            <div className="audit-table">
-              <div className="audit-row audit-row-head">
-                <span>Action</span>
-                <span>Actor</span>
-                <span>Time</span>
-              </div>
-              {filteredAuditLogs.map((log) => (
-                <div className="audit-row" key={log.id}>
-                  <span>{formatAuditAction(log)}</span>
-                  <span>{log.actor || "system"}</span>
-                  <span style={{ color: "var(--muted)", fontSize: "0.86rem" }}>{formatTime(log.createdAtMs ? new Date(log.createdAtMs) : log.createdAt)}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+          <DataTable columns={auditColumns} rows={filteredAuditLogs} rowKey="id" empty={{ title: "No audit entries found", body: auditSearch ? "Try a different search." : "Activity appears here as people use the app." }} />
+        </>
       ) : null}
     </div>
   )

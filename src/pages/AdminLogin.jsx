@@ -36,10 +36,10 @@ export function AdminLogin() {
       <p>Current account: <strong>{user.email}</strong></p>
       <p>{role === ROLES.SUPERADMIN ? "Platform administration" : authCafeSlug ? `Cafe: ${authCafeSlug}` : "Your account profile is unavailable."}</p>
       <p>Other tabs in this browser use the same signed-in account.</p>
-      {error && <p className="form-error" role="alert">{error}</p>}
+      {error && <p className="ui-error" role="alert">{error}</p>}
       <div className="form-actions">
-        {target && <Link className="primary-button" to={target}>Continue to my dashboard</Link>}
-        <button className="ghost-button" type="button" disabled={submitting} onClick={async () => {
+        {target && <Link className="ui-btn ui-btn--primary" to={target}>Continue to my dashboard</Link>}
+        <button className="ui-btn" type="button" disabled={submitting} onClick={async () => {
           setSubmitting(true); setError("")
           try { await logout(); setEmail(""); setPassword(""); setResetSent(false) }
           catch (err) { setError(toUserMessage(err, "We couldn’t sign you out. Please try again.")) }
@@ -90,11 +90,11 @@ export function AdminLogin() {
             <h1 id="login-title">Sign in</h1>
             <p>{routeCafeSlug ? "Welcome back to your cafe workspace." : "Welcome back. Sign in to your workspace."}</p>
           </header>
-          <label className="field" htmlFor="login-email"><span>Email</span>
+          <label className="ui-field" htmlFor="login-email"><span>Email</span>
             <input ref={emailRef} id="login-email" name="email" type="email" autoComplete="username" autoCapitalize="none" spellCheck={false}
               value={email} onChange={event => { setEmail(event.target.value); setResetSent(false) }} placeholder="you@example.com" required disabled={submitting} />
           </label>
-          <div className="field">
+          <div className="ui-field">
             <div className="login-label-row"><label htmlFor="login-password">Password</label>
               <button className="login-text-button" type="button" disabled={submitting} onClick={requestReset}>{resetting ? "Sending…" : "Forgot password?"}</button>
             </div>
@@ -106,10 +106,10 @@ export function AdminLogin() {
               </button>
             </div>
           </div>
-          {error && <p className="form-error" role="alert">{error}</p>}
+          {error && <p className="ui-error" role="alert">{error}</p>}
           {error === "Use the platform sign-in page for your superadmin account." && <Link className="login-text-button" to="/login">Go to platform sign-in</Link>}
           {resetSent && <p className="success-note" role="status">If an account exists, a password reset link has been sent.</p>}
-          <button className="primary-button login-submit" type="submit" disabled={submitting}>
+          <button className="ui-btn ui-btn--primary login-submit" type="submit" disabled={submitting}>
             {submitting && !resetting ? <><LoaderCircle className="login-spinner" size={18} /> Signing in…</> : <>Sign in <ArrowRight size={18} /></>}
           </button>
           <p className="login-security"><LockKeyhole size={14} /> Secure access to your workspace</p>

@@ -7,9 +7,10 @@ import { useRBAC } from "../context/rbacContextValue"
 import { currentRegion } from "../services/regionalSettings"
 import { PERMISSIONS } from "../services/roleService"
 import { Modal } from "../components/Modal"
-import "./kitchen.css"
-import "./staff.css"
+import "./service-layout.css"
+import "./staff-layout.css"
 
+import { StatusPill } from "../ui"
 const STATUS = {
   out: { label: "Out" },
   low: { label: "Low" },
@@ -97,76 +98,83 @@ export function KitchenInventory() {
   const blank = { name: "", category: "", unit: "units", quantity: 0, lowStockThreshold: 5, supplierCost: 0 }
 
   return (
-    <div className="oc-page">
+    <div className="ui-stack">
       {confirmDialog}
-      <header className="oc-head">
+      <header className="ui-page-header">
         <div>
           <h1>Inventory</h1>
           <p>{items.length} items · {summary.low} low · {summary.out} out</p>
         </div>
         {canManage ? (
-          <button className="oc-head-action" type="button" onClick={() => { setFormError(""); setForm(blank) }}>
+          <button className="ui-btn ui-btn--primary" type="button" onClick={() => { setFormError(""); setForm(blank) }}>
             <Plus size={18} /> Add item
           </button>
         ) : null}
       </header>
-      {actionError ? <p className="form-error" role="alert">{actionError}</p> : null}
+      {actionError ? <p className="ui-error" role="alert">{actionError}</p> : null}
 
-      <section className="oc-toolbar">
-        <label className="oc-search">
+      <section className="kpis" aria-label="Stock levels">
+        <article className="ui-card kpi"><span className="kpi-label">Tracked</span><strong className="kpi-value">{items.length}</strong></article>
+        <article className="ui-card kpi"><span className="kpi-label">In stock</span><strong className="kpi-value">{summary.ok}</strong></article>
+        <article className="ui-card kpi"><span className="kpi-label">Running low</span><strong className="kpi-value">{summary.low}</strong><span className="kpi-trend" data-dir={summary.low ? "down" : "flat"}>{summary.low ? "Reorder soon" : "Nothing low"}</span></article>
+        <article className="ui-card kpi"><span className="kpi-label">Out of stock</span><strong className="kpi-value">{summary.out}</strong><span className="kpi-trend" data-dir={summary.out ? "down" : "flat"}>{summary.out ? "Hidden items may be affected" : "All available"}</span></article>
+      </section>
+
+      <section className="ui-toolbar">
+        <label className="ui-search">
           <Search size={18} />
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search ingredients" aria-label="Search inventory" />
         </label>
-        <div className="oc-chips" role="group" aria-label="Show">
+        <div className="ui-chips" role="group" aria-label="Show">
           {FILTERS.map((f) => (
-            <button key={f.key} type="button" className="oc-chip" aria-pressed={filter === f.key} onClick={() => setFilter(f.key)}>
-              {f.label}{f.key !== "all" ? <span className="oc-chip-count">{summary[f.key]}</span> : null}
+            <button key={f.key} type="button" className="ui-chip" aria-pressed={filter === f.key} onClick={() => setFilter(f.key)}>
+              {f.label}{f.key !== "all" ? <span className="ui-muted">{summary[f.key]}</span> : null}
             </button>
           ))}
         </div>
       </section>
 
       {loadError ? (
-        <div className="oc-empty">
+        <div className="ui-empty">
           <AlertTriangle size={28} />
           <strong role="alert">{loadError}</strong>
-          <button className="oc-quiet" type="button" onClick={() => setVersion((v) => v + 1)}>Try again</button>
+          <button className="ui-btn" type="button" onClick={() => setVersion((v) => v + 1)}>Try again</button>
         </div>
       ) : loading ? (
-        <div className="kq-ticket kq-skeleton" aria-hidden="true" />
+        <div className="ui-card kq-skeleton" aria-hidden="true" />
       ) : shown.length === 0 ? (
-        <div className="oc-empty">
+        <div className="ui-empty">
           <Package size={28} strokeWidth={1.5} />
           <strong>{items.length === 0 ? "Nothing tracked yet" : "Nothing matches"}</strong>
           <p>{items.length === 0 ? "Add the ingredients you want to keep an eye on." : "Try another search or filter."}</p>
         </div>
       ) : (
-        <div className="ad-list">
+        <div className="ui-list">
           {shown.map((item) => {
             const key = statusOf(item)
             return (
-              <article className="ad-row" key={item.id}>
-                <div className="ad-row-main">
-                  <h3 className="ad-row-title">
+              <article className="ui-list-row" key={item.id}>
+                <div className="ui-list-main">
+                  <h3 className="ui-list-title">
                     {item.name || item.ingredient || "Unknown"}
-                    {key !== "ok" ? <span className={`badge ${key === "out" ? "rejected" : "pending"}`} style={{ marginLeft: 8 }}>{STATUS[key].label}</span> : null}
+                    {key !== "ok" ? <>{" "}<StatusPill tone={key === "out" ? "late" : "preparing"}>{STATUS[key].label}</StatusPill></> : null}
                   </h3>
-                  <p className="ad-row-sub">{item.category || "No category"} · alert at {item.lowStockThreshold ?? 5} {item.unit || ""}</p>
+                  <p className="ui-list-sub">{item.category || "No category"} · alert at {item.lowStockThreshold ?? 5} {item.unit || ""}</p>
                 </div>
-                <div className="ad-row-actions">
+                <div className="ui-row">
                   {canManage ? (
                     <div className="ad-stepper" role="group" aria-label={`Count for ${item.name}`}>
-                      <button type="button" className="ad-icon" onClick={() => adjust(item, -1)} disabled={qtyOf(item) <= 0} aria-label="One less"><Minus size={16} /></button>
+                      <button type="button" className="ui-btn ui-btn--quiet ui-btn--icon" onClick={() => adjust(item, -1)} disabled={qtyOf(item) <= 0} aria-label="One less"><Minus size={16} /></button>
                       <span className="ad-qty"><strong>{qtyOf(item)}</strong> {item.unit}</span>
-                      <button type="button" className="ad-icon" onClick={() => adjust(item, 1)} aria-label="One more"><Plus size={16} /></button>
+                      <button type="button" className="ui-btn ui-btn--quiet ui-btn--icon" onClick={() => adjust(item, 1)} aria-label="One more"><Plus size={16} /></button>
                     </div>
                   ) : (
                     <span className="ad-qty"><strong>{qtyOf(item)}</strong> {item.unit}</span>
                   )}
                   {canManage ? (
                     <>
-                      <button className="ad-icon" type="button" onClick={() => { setFormError(""); setForm(item) }} aria-label={`Edit ${item.name}`} title="Edit"><Pencil size={18} /></button>
-                      <button className="ad-icon oc-danger" type="button" aria-label={`Remove ${item.name}`} title="Remove" onClick={async () => {
+                      <button className="ui-btn ui-btn--quiet ui-btn--icon" type="button" onClick={() => { setFormError(""); setForm(item) }} aria-label={`Edit ${item.name}`} title="Edit"><Pencil size={18} /></button>
+                      <button className="ui-btn ui-btn--quiet ui-btn--icon ui-btn--danger" type="button" aria-label={`Remove ${item.name}`} title="Remove" onClick={async () => {
                         if (!(await confirm(`Remove ${item.name} from inventory?`, { title: "Remove item?", confirmLabel: "Remove" }))) return
                         try { await deleteInventory(item.id); setVersion((v) => v + 1) }
                         catch (error) { setActionError(toUserMessage(error)) }
@@ -182,27 +190,27 @@ export function KitchenInventory() {
 
       {form && canManage ? (
         <Modal title={form.id ? `Edit ${form.name}` : "Add an inventory item"} busy={saving} onClose={() => setForm(null)}>
-          <form className="ad-form" onSubmit={async (event) => {
+          <form className="ui-form" onSubmit={async (event) => {
             event.preventDefault(); if (saving) return; setSaving(true); setFormError("")
             try { await saveInventory(form); setForm(null); setVersion((v) => v + 1) }
             catch (error) { setFormError(toUserMessage(error)) } finally { setSaving(false) }
           }}>
-            <div className="ad-fields">
-              <label className="ad-field">Name<input required maxLength={120} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Coffee beans" /></label>
-              <label className="ad-field">Category <small>(optional)</small><input maxLength={80} value={form.category || ""} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="e.g. Ingredients" /></label>
+            <div className="ui-form-row">
+              <label className="ui-field">Name<input required maxLength={120} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Coffee beans" /></label>
+              <label className="ui-field">Category <small>(optional)</small><input maxLength={80} value={form.category || ""} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="e.g. Ingredients" /></label>
             </div>
-            <div className="ad-fields">
-              <label className="ad-field">Unit<input required maxLength={40} list="inventory-units" value={form.unit || ""} onChange={(e) => setForm({ ...form, unit: e.target.value })} placeholder="kg, litres, units" /><datalist id="inventory-units"><option value="kg" /><option value="g" /><option value="litres" /><option value="ml" /><option value="units" /></datalist></label>
-              <label className="ad-field">On hand<input required type="number" min="0" step="any" inputMode="decimal" value={form.quantity ?? ""} onChange={(e) => setForm({ ...form, quantity: e.target.value })} /></label>
+            <div className="ui-form-row">
+              <label className="ui-field">Unit<input required maxLength={40} list="inventory-units" value={form.unit || ""} onChange={(e) => setForm({ ...form, unit: e.target.value })} placeholder="kg, litres, units" /><datalist id="inventory-units"><option value="kg" /><option value="g" /><option value="litres" /><option value="ml" /><option value="units" /></datalist></label>
+              <label className="ui-field">On hand<input required type="number" min="0" step="any" inputMode="decimal" value={form.quantity ?? ""} onChange={(e) => setForm({ ...form, quantity: e.target.value })} /></label>
             </div>
-            <div className="ad-fields">
-              <label className="ad-field">Warn me at<input required type="number" min="0" step="any" inputMode="decimal" value={form.lowStockThreshold ?? ""} onChange={(e) => setForm({ ...form, lowStockThreshold: e.target.value })} /><small>Shows as Low at or below this amount.</small></label>
-              <label className="ad-field">Cost per unit ({currentRegion().currency}) <small>(optional)</small><input type="number" min="0" step="0.01" inputMode="decimal" value={form.supplierCost ?? ""} onChange={(e) => setForm({ ...form, supplierCost: e.target.value })} /></label>
+            <div className="ui-form-row">
+              <label className="ui-field">Warn me at<input required type="number" min="0" step="any" inputMode="decimal" value={form.lowStockThreshold ?? ""} onChange={(e) => setForm({ ...form, lowStockThreshold: e.target.value })} /><small>Shows as Low at or below this amount.</small></label>
+              <label className="ui-field">Cost per unit ({currentRegion().currency}) <small>(optional)</small><input type="number" min="0" step="0.01" inputMode="decimal" value={form.supplierCost ?? ""} onChange={(e) => setForm({ ...form, supplierCost: e.target.value })} /></label>
             </div>
-            {formError ? <p className="form-error" role="alert">{formError}</p> : null}
-            <div className="row-actions">
-              <button className="primary-button" type="submit" disabled={saving}>{saving ? "Saving…" : form.id ? "Save changes" : "Add item"}</button>
-              <button className="ghost-button" type="button" disabled={saving} onClick={() => setForm(null)}>Cancel</button>
+            {formError ? <p className="ui-error" role="alert">{formError}</p> : null}
+            <div className="ui-row">
+              <button className="ui-btn ui-btn--primary" type="submit" disabled={saving}>{saving ? "Saving…" : form.id ? "Save changes" : "Add item"}</button>
+              <button className="ui-btn" type="button" disabled={saving} onClick={() => setForm(null)}>Cancel</button>
             </div>
           </form>
         </Modal>

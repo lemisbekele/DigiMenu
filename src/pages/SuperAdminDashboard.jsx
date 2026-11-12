@@ -1,4 +1,5 @@
 import { useMemo } from "react"
+import { Kpi } from "../ui"
 import { Link } from "react-router-dom"
 import {
   Building2, Package, CreditCard, Inbox, Clock,
@@ -8,7 +9,7 @@ import { observeRegisteredCafes } from "../services/cafeService"
 import { observeAuditLogs } from "../services/dataService"
 import { SUBSCRIPTION_STATUS, SUBSCRIPTION_STATUS_LABELS } from "../services/subscriptionService"
 import { observePackages } from "../services/packageService"
-import "./superadmin.css"
+import "./superadmin-layout.css"
 import { usePlatformFeed, observeAllSubscriptions } from "../hooks/usePlatformFeed"
 import { isSubscriptionActive } from "../services/planService"
 import { cafeDistribution, requestTrend } from "../services/platformMetrics"
@@ -64,26 +65,9 @@ const statusStyle = (status) => {
   }
 }
 
-function StatCard({ icon: Icon, label, value, sub, color, to }) {
-  const body = (
-    <article
-      className="sa-stat"
-      style={{ color, borderTop: `3px solid ${color}` }}
-    >
-      <div className="sa-stat-icon" style={{ background: `color-mix(in srgb, ${color} 12%, transparent)`, color }}>
-        <Icon size={22} />
-      </div>
-      <div style={{ minWidth: 0 }}>
-        <strong className="sa-stat-value" style={{ color: "var(--brand-ink)" }}>{value}</strong>
-        <span className="sa-stat-label">{label}</span>
-        {sub ? <span className="sa-stat-sub">{sub}</span> : null}
-      </div>
-    </article>
-  )
-
-  return to ? (
-    <Link to={to} style={{ textDecoration: "none", display: "block" }}>{body}</Link>
-  ) : body
+function StatCard({ icon, label, value, sub, to }) {
+  const body = <Kpi icon={icon} label={label} value={value} note={sub} />
+  return to ? <Link to={to} className="kpi-link">{body}</Link> : body
 }
 
 export function SuperAdminDashboard() {
@@ -132,48 +116,48 @@ export function SuperAdminDashboard() {
   if (loading || error) return <FeedState loading={loading} error={error} />
 
   return (
-    <div className="sa-page">
-      <div className="sa-head">
+    <div className="ui-stack">
+      <div className="ui-page-header">
         <h1>Platform Overview</h1>
         <p>
           Monitor the DigiMenu SaaS platform, cafes, requests, packages, and subscriptions at a glance.
         </p>
       </div>
 
-      <div className="sa-stats">
-        <StatCard icon={Building2} label="Active Cafes" value={stats.activeCafes} sub={`${stats.totalCafes} total · ${stats.suspendedCafes} suspended`} color="var(--brand)" to="/superadmin/cafes" />
-        <StatCard icon={Inbox} label="Pending Requests" value={stats.pending.length} sub="Awaiting approval" color="var(--warning)" to="/superadmin/requests" />
-        <StatCard icon={CreditCard} label="Active Subscriptions" value={stats.activeSubs.length} sub={`${stats.expired.length} expired · ${stats.rejected.length} rejected`} color="var(--brand)" to="/superadmin/requests?view=subscriptions" />
-        <StatCard icon={ShieldCheck} label="Subscription Tiers" value={(packagesList || []).length} sub={`${(packagesList || []).map((p) => p.name || p.id).join(" · ") || "Loading packages…"}`} color="var(--info)" to="/superadmin/packages" />
+      <div className="kpis">
+        <StatCard icon={Building2} label="Active Cafes" value={stats.activeCafes} sub={`${stats.totalCafes} total · ${stats.suspendedCafes} suspended`} to="/superadmin/cafes" />
+        <StatCard icon={Inbox} label="Pending Requests" value={stats.pending.length} sub="Awaiting approval" to="/superadmin/requests" />
+        <StatCard icon={CreditCard} label="Active Subscriptions" value={stats.activeSubs.length} sub={`${stats.expired.length} expired · ${stats.rejected.length} rejected`} to="/superadmin/requests?view=subscriptions" />
+        <StatCard icon={ShieldCheck} label="Subscription Tiers" value={(packagesList || []).length} sub={`${(packagesList || []).map((p) => p.name || p.id).join(" · ") || "Loading packages…"}`} to="/superadmin/packages" />
       </div>
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <span style={{ fontSize: "0.8rem", background: "var(--warning-bg)", color: "var(--warning)", padding: "6px 14px", borderRadius: 20, fontWeight: 700 }}>
+        <span style={{ fontSize: "var(--text-sm)", background: "var(--warning-bg)", color: "var(--warning)", padding: "6px 14px", borderRadius: "var(--radius-lg)", fontWeight: 700 }}>
           {stats.pending.length} request{stats.pending.length === 1 ? "" : "s"} awaiting review
         </span>
-        <span style={{ fontSize: "0.8rem", background: "var(--success-bg)", color: "var(--brand-ink)", padding: "6px 14px", borderRadius: 20, fontWeight: 700 }}>
+        <span style={{ fontSize: "var(--text-sm)", background: "var(--success-bg)", color: "var(--brand-ink)", padding: "6px 14px", borderRadius: "var(--radius-lg)", fontWeight: 700 }}>
           {stats.todaySubs.length} request{stats.todaySubs.length === 1 ? "" : "s"} submitted today
         </span>
-        <span style={{ fontSize: "0.8rem", background: "rgba(52, 130, 27, 0.1)", color: "var(--brand)", padding: "6px 14px", borderRadius: 20, fontWeight: 700 }}>
+        <span style={{ fontSize: "var(--text-sm)", background: "rgba(52, 130, 27, 0.1)", color: "var(--brand)", padding: "6px 14px", borderRadius: "var(--radius-lg)", fontWeight: 700 }}>
           {stats.activeCafes}/{stats.totalCafes} cafes active
         </span>
       </div>
 
-      <div className="sa-grid-2">
+      <div className="ui-grid">
         <RequestTrend items={requestTrend(subscriptions)} />
         <DistributionChart title="Cafe status" description="Current access status across registered cafes" items={cafeDistribution(cafes)} donut />
       </div>
 
-      <div className="sa-grid-2">
+      <div className="ui-grid">
         {/* PENDING REQUESTS */}
-        <section className="sa-panel">
-          <div className="sa-panel-title">
+        <section className="ui-card ui-card--stack">
+          <div className="ui-section-head">
             <Inbox size={18} color="var(--warning)" />
-            <h3 style={{ margin: 0, fontSize: "1rem", color: "var(--brand-ink)" }}>Pending Cafe Requests</h3>
+            <h3 style={{ margin: 0, fontSize: "var(--text-lg)", color: "var(--brand-ink)" }}>Pending Cafe Requests</h3>
             <Link to="/superadmin/requests" className="sa-link" style={{ marginLeft: "auto" }}>View all →</Link>
           </div>
           {recentSubs.length === 0 ? (
-            <div style={{ color: "var(--muted)", fontSize: "0.88rem", padding: "1rem 0" }}>No requests are awaiting approval.</div>
+            <div style={{ color: "var(--muted)", fontSize: "var(--text-md)", padding: "1rem 0" }}>No requests are awaiting approval.</div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column" }}>
               {recentSubs.map((sub) => {
@@ -181,10 +165,10 @@ export function SuperAdminDashboard() {
                 return (
                   <div key={sub.id} className="sa-list-item">
                     <div style={{ minWidth: 0 }}>
-                      <strong style={{ color: "var(--brand-ink)", fontSize: "0.9rem", display: "block" }}>{sub.customer_name}</strong>
-                      <span style={{ color: "var(--text-3)", fontSize: "0.78rem" }}>{sub.email} · {packageById[sub.plan_key]?.name || sub.plan_key}</span>
+                      <strong style={{ color: "var(--brand-ink)", fontSize: "var(--text-md)", display: "block" }}>{sub.customer_name}</strong>
+                      <span style={{ color: "var(--text-3)", fontSize: "var(--text-xs)" }}>{sub.email} · {packageById[sub.plan_key]?.name || sub.plan_key}</span>
                     </div>
-                    <span className="sa-badge" style={{ background: style.bg, color: style.color }}>
+                    <span className="ui-pill" style={{ background: style.bg, color: style.color }}>
                       {SUBSCRIPTION_STATUS_LABELS[sub.status] || sub.status}
                     </span>
                   </div>
@@ -195,14 +179,14 @@ export function SuperAdminDashboard() {
         </section>
 
         {/* RECENT CAFES */}
-        <section className="sa-panel">
-          <div className="sa-panel-title">
+        <section className="ui-card ui-card--stack">
+          <div className="ui-section-head">
             <Building2 size={18} color="var(--brand)" />
-            <h3 style={{ margin: 0, fontSize: "1rem", color: "var(--brand-ink)" }}>Recently Registered Cafes</h3>
+            <h3 style={{ margin: 0, fontSize: "var(--text-lg)", color: "var(--brand-ink)" }}>Recently Registered Cafes</h3>
             <Link to="/superadmin/cafes" className="sa-link" style={{ marginLeft: "auto" }}>View all →</Link>
           </div>
           {recentCafes.length === 0 ? (
-            <div style={{ color: "var(--muted)", fontSize: "0.88rem", padding: "1rem 0" }}>No cafes registered yet.</div>
+            <div style={{ color: "var(--muted)", fontSize: "var(--text-md)", padding: "1rem 0" }}>No cafes registered yet.</div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column" }}>
               {recentCafes.map((cafe) => {
@@ -211,8 +195,8 @@ export function SuperAdminDashboard() {
                 return (
                   <div key={cafe.id} className="sa-list-item">
                     <div style={{ minWidth: 0 }}>
-                      <strong style={{ color: "var(--brand-ink)", fontSize: "0.9rem", display: "block" }}>{cafe.name}</strong>
-                      <span style={{ color: "var(--text-3)", fontSize: "0.78rem" }}>/{cafe.slug} · {cafe.owner_email || "no owner"}</span>
+                      <strong style={{ color: "var(--brand-ink)", fontSize: "var(--text-md)", display: "block" }}>{cafe.name}</strong>
+                      <span style={{ color: "var(--text-3)", fontSize: "var(--text-xs)" }}>/{cafe.slug} · {cafe.owner_email || "no owner"}</span>
                     </div>
                     {isActive ? <CheckCircle2 size={16} color="var(--brand)" /> : isSuspended ? <AlertTriangle size={16} color="var(--warning)" /> : <XCircle size={16} color="var(--danger)" />}
                   </div>
@@ -223,13 +207,13 @@ export function SuperAdminDashboard() {
         </section>
       </div>
 
-      <section className="sa-panel">
-        <div className="sa-panel-title">
+      <section className="ui-card ui-card--stack">
+        <div className="ui-section-head">
           <Activity size={18} color="var(--brand)" />
-          <h3 style={{ margin: 0, fontSize: "1rem", color: "var(--brand-ink)" }}>Recent Platform Activity</h3>
+          <h3 style={{ margin: 0, fontSize: "var(--text-lg)", color: "var(--brand-ink)" }}>Recent Platform Activity</h3>
         </div>
         {auditFeed.loading || auditFeed.error ? <FeedState loading={auditFeed.loading} error={auditFeed.error} /> : recentActivity.length === 0 ? (
-          <div style={{ color: "var(--muted)", fontSize: "0.88rem", padding: "1rem 0" }}>No recent activity.</div>
+          <div style={{ color: "var(--muted)", fontSize: "var(--text-md)", padding: "1rem 0" }}>No recent activity.</div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column" }}>
             {recentActivity.map((log) => {
@@ -239,10 +223,10 @@ export function SuperAdminDashboard() {
                 <div key={log.id} className="sa-list-item">
                   {isError ? <XCircle size={16} color="var(--danger)" /> : isSuccess ? <CheckCircle2 size={16} color="var(--brand)" /> : <Clock size={16} color="var(--muted)" />}
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <strong style={{ color: "var(--brand-ink)", fontSize: "0.88rem", display: "block" }}>{formatAction(log)}</strong>
-                    <span style={{ color: "var(--text-3)", fontSize: "0.75rem" }}>{log.actor || "system"}</span>
+                    <strong style={{ color: "var(--brand-ink)", fontSize: "var(--text-md)", display: "block" }}>{formatAction(log)}</strong>
+                    <span style={{ color: "var(--text-3)", fontSize: "var(--text-xs)" }}>{log.actor || "system"}</span>
                   </div>
-                  <span style={{ color: "var(--muted)", fontSize: "0.78rem", whiteSpace: "nowrap" }}>{formatTime(log.createdAt)}</span>
+                  <span style={{ color: "var(--muted)", fontSize: "var(--text-xs)", whiteSpace: "nowrap" }}>{formatTime(log.createdAt)}</span>
                 </div>
               )
             })}

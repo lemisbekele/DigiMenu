@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Bell, ChefHat, Globe, Moon, Sun, Volume2 } from "lucide-react"
+import { Bell, ChefHat, Moon, Sun, Volume2 } from "lucide-react"
 import { LogoutButton } from "../components/LogoutButton"
 import { useLanguage } from "../context/languageContextValue"
 import { useTheme } from "../context/themeContextValue"
@@ -26,6 +26,8 @@ function saveSetting(key, value) {
   localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value))
 }
 
+import "./service-layout.css"
+import "./staff-layout.css"
 export function KitchenSettings() {
   const { language, setLanguage: setUserLanguage } = useLanguage()
 
@@ -57,19 +59,17 @@ export function KitchenSettings() {
   }
 
   return (
-    <div className="admin-stack kds-settings-page">
-      <div className="admin-head">
-        <div>
-          <p className="eyebrow">Barista / Kitchen</p>
-          <h2>Settings</h2>
-          <p className="admin-hint">Alerts, appearance and language for this device.</p>
+    <div className="ui-stack kds-settings-page">
+      <div className="ui-page-header">
+        <div className="ui-page-header-text">
+          <h1>Settings</h1>
+          <p>Alerts, appearance and language for this device.</p>
         </div>
       </div>
 
-      <section className="admin-form settings-panel kds-settings-section">
-        <p className="eyebrow"><Bell size={13} style={{ verticalAlign: -1 }} /> Notifications</p>
+      <section className="ui-card ui-card--stack">
         <h2>Preferences</h2>
-        <div className="notification-settings" style={{ marginTop: 8 }}>
+        <div className="notification-settings">
           <label className="auto-ready-toggle">
             <input type="checkbox" checked={soundAlerts} onChange={(e) => toggle("soundAlerts", e.target.checked, setSoundAlerts)} />
             <Volume2 size={16} /> Sound alerts for new orders
@@ -103,26 +103,24 @@ export function KitchenSettings() {
           </label>
         </div>
         {message ? (
-          <p className={messageType === "error" ? "form-error" : "success-note"} style={{ marginTop: 8 }}>{message}</p>
+          <p className={messageType === "error" ? "ui-error" : "ad-success"}>{message}</p>
         ) : null}
       </section>
 
-      <section className="admin-form settings-panel kds-settings-section">
-        <p className="eyebrow"><ChefHat size={13} style={{ verticalAlign: -1 }} /> Kitchen queue</p>
+      <section className="ui-card ui-card--stack">
         <h2>Orders in progress at once</h2>
-        <label className="field" style={{ marginTop: 8 }}>
+        <label className="ui-field">
           <span>The oldest this many orders show as "Preparing"; the rest wait in line. Customers' wait times use this number.</span>
           <select value={capacity} onChange={(e) => changeCapacity(Number(e.target.value))}>
             {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
         </label>
-        {capacityNote ? <p className="admin-hint" role="status">{capacityNote}</p> : null}
+        {capacityNote ? <p className="ui-muted" role="status">{capacityNote}</p> : null}
       </section>
 
-      <section className="admin-form settings-panel kds-settings-section">
-        <p className="eyebrow"><Globe size={13} style={{ verticalAlign: -1 }} /> Regional</p>
+      <section className="ui-card ui-card--stack">
         <h2>Language</h2>
-        <label className="field" style={{ marginTop: 8 }}>
+        <label className="ui-field">
           <span>Interface language</span>
           <select value={language} onChange={(e) => setUserLanguage(e.target.value)}>
             <option value="en">English</option>

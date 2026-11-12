@@ -33,17 +33,17 @@ export function AccessDenied() {
         >
           <ShieldX size={26} />
         </div>
-        <h1 style={{ fontSize: "1.4rem", marginBottom: 8 }}>Access Denied</h1>
+        <h1 style={{ fontSize: "var(--text-xl)", marginBottom: 8 }}>Access Denied</h1>
         <p style={{ color: "var(--text-3)", marginBottom: 16, lineHeight: 1.6 }}>
           Your account does not have permission to view this page.
         </p>
         <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
           {home ? (
-            <Link to={home} className="primary-button" style={{ display: "inline-flex", alignItems: "center" }}>
+            <Link to={home} className="ui-btn ui-btn--primary" style={{ display: "inline-flex", alignItems: "center" }}>
               Go to my home
             </Link>
           ) : null}
-          <button type="button" className="ghost-button" onClick={() => logout().catch(() => {})}>
+          <button type="button" className="ui-btn" onClick={() => logout().catch(() => {})}>
             Sign out
           </button>
         </div>

@@ -102,7 +102,8 @@ export function OptimizedImage({
 
   return (
     <div
-      className={`optimized-image-container ${className}`.trim()}
+      className={`ui-photo optimized-image-container ${className}`.trim()}
+      data-empty={hasError || undefined}
       style={containerStyle}
       onClick={onClick}
     >

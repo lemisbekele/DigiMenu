@@ -1,42 +1,57 @@
-import { NavLink, useLocation, useParams } from "react-router-dom"
-import { LayoutDashboard, CreditCard, FileText, Settings, Users, Shield, TrendingUp, ClipboardList, Package, ListOrdered, Monitor, Bell, LogOut } from "lucide-react"
+import { Link, NavLink, useParams } from "react-router-dom"
+import {
+  LayoutDashboard, CreditCard, FileText, Settings, Users, Shield, TrendingUp, ClipboardList,
+  Package, ListOrdered, Monitor, Bell, LogOut, Inbox, Coffee, Megaphone,
+} from "lucide-react"
 import { useAuth } from "../context/authContextValue"
 import { useRBAC } from "../context/rbacContextValue"
 import { usePlan } from "../context/planContextValue"
-import { ROLE_NAV } from "../services/roleService"
+import { ROLE_NAV, ROLES } from "../services/roleService"
 import { PermissionGuard } from "../components/PermissionGuard"
 import { NotificationCenter } from "../components/NotificationCenter"
 import { LanguageToggle } from "../components/LanguageToggle"
 import { BrandLogo } from "../components/BrandLogo"
 import { ForcePasswordChangeModal } from "../components/ForcePasswordChangeModal"
-import "./staff-shell.css"
+import "../ui/shell.css"
+import "./superadmin-layout.css"
 
 const ICON_MAP = {
   LayoutDashboard, CreditCard, FileText,
   Settings, Users, Shield, TrendingUp, ClipboardList,
-  Package, ListOrdered, Monitor, Bell,
+  Package, ListOrdered, Monitor, Bell, Inbox, Coffee, Megaphone,
 }
 
+// Platform owner's links. Absolute paths; cafe roles use ROLE_NAV (relative to the cafe slug).
+const SUPERADMIN_NAV = [
+  { to: "/superadmin/dashboard", group: "Platform", label: "Dashboard", icon: "LayoutDashboard" },
+  { to: "/superadmin/requests", group: "Platform", label: "Access & subscriptions", icon: "Inbox" },
+  { to: "/superadmin/cafes", group: "Platform", label: "Cafes", icon: "Coffee" },
+  { to: "/superadmin/packages", group: "Platform", label: "Packages", icon: "Package" },
+  { to: "/superadmin/announcements", group: "Manage", label: "Announcements", icon: "Megaphone" },
+  { to: "/superadmin/audit-logs", group: "Manage", label: "Audit Logs", icon: "FileText" },
+]
+
+// One frame for every signed-in role: navigation | page | optional detail panel (see ui/DetailPanel).
+// Only the links and the page change with the role.
 export function RoleLayout({ children }) {
   const { logout } = useAuth()
   const { role, email } = useRBAC()
   const { hasFeature } = usePlan()
   const { cafeSlug } = useParams()
-  const location = useLocation()
-  const navItems = ROLE_NAV[role] || []
-  // Lowercase so /cafe/POS and /cafe/KDS count as focused workspaces too.
-  const isFocusedWorkspace = /\/[^/]+\/(?:pos|kds)\/?$/.test(location.pathname.toLowerCase())
-  const hasRoleNavigation = !isFocusedWorkspace
+  const isSuperadmin = role === ROLES.SUPERADMIN
+  // Restricted features must not surface in navigation.
+  const navItems = (isSuperadmin ? SUPERADMIN_NAV : ROLE_NAV[role] || []).filter((item) => !item.feature || hasFeature(item.feature))
+  const groups = [...new Set(navItems.map((item) => item.group))]
 
-  const cafePath = (to) => cafeSlug ? `/${cafeSlug}/${to}` : "/404"
+  const linkPath = (to) => (to.startsWith("/") ? to : cafeSlug ? `/${cafeSlug}/${to}` : "/404")
 
-  if (!navItems.length) {
+  if (!isSuperadmin && !(ROLE_NAV[role] || []).length) {
     return (
       <main className="auth-page">
         <div className="auth-card">
           <h1>Unknown Role</h1>
           <p>Your account role is not recognized. Please contact an administrator.</p>
-          <button className="ghost-button" type="button" onClick={logout} style={{ marginTop: "1rem" }}>
+          <button className="ui-btn" type="button" onClick={logout}>
             <LogOut size={18} /> Sign out
           </button>
         </div>
@@ -44,57 +59,50 @@ export function RoleLayout({ children }) {
     )
   }
 
+  const renderLink = (item) => {
+    const Icon = ICON_MAP[item.icon]
+    const link = (
+      <NavLink key={item.to} end={item.exact} to={linkPath(item.to)}>
+        {Icon ? <Icon size={16} /> : null}
+        <span>{item.label}</span>
+      </NavLink>
+    )
+    return item.permission
+      ? <PermissionGuard key={item.to} permission={item.permission}>{link}</PermissionGuard>
+      : link
+  }
+
   return (
-    <main className={`admin-shell role-${role}${hasRoleNavigation ? "" : " no-role-nav"}`}>
-      {role !== "superadmin" ? <ForcePasswordChangeModal /> : null}
-      {hasRoleNavigation ? (
-        <aside className="admin-sidebar">
-          <div className="sidebar-user">
-            <BrandLogo size="medium" />
-            <p className="admin-email">{email}</p>
-          </div>
-          <nav>
-            {navItems.map((item) => {
-              const Icon = ICON_MAP[item.icon]
-              const isUnlocked = !item.feature || hasFeature(item.feature)
-
-              // Restricted features must not surface in navigation.
-              if (!isUnlocked) return null
-
-              if (item.permission) {
-                return (
-                  <PermissionGuard key={item.to} permission={item.permission}>
-                    <NavLink end={item.exact} to={cafePath(item.to)} data-label={item.label}>
-                      {Icon ? <Icon size={20} /> : null}
-                      <span>{item.label}</span>
-                    </NavLink>
-                  </PermissionGuard>
-                )
-              }
-              return (
-                <NavLink key={item.to} end={item.exact} to={cafePath(item.to)} data-label={item.label}>
-                  {Icon ? <Icon size={20} /> : null}
-                  <span>{item.label}</span>
-                </NavLink>
-              )
-            })}
-          </nav>
-          <div className="sidebar-foot">
-            <button type="button" className="sidebar-signout" data-label="Sign out" onClick={logout} aria-label="Sign out" title="Sign out">
-              <LogOut size={18} /> <span>Sign out</span>
-            </button>
-          </div>
-        </aside>
-      ) : null}
-      <section className="admin-content">
-        {!hasRoleNavigation ? <nav className="workspace-nav" aria-label="Workspace navigation">
-          <BrandLogo size="small" />
-          {navItems.filter((item) => !item.feature || hasFeature(item.feature)).map((item) => <NavLink key={item.to} to={cafePath(item.to)} end={item.exact}>{item.label}</NavLink>)}
-          <button className="ghost-button" onClick={logout}>Sign out</button>
-        </nav> : null}
-        {hasRoleNavigation ? <div className="notif-corner" role="group" aria-label="Workspace controls"><LanguageToggle inline /><NotificationCenter /></div> : null}
-        {children}
+    <main className={`ui-shell role-${role}`}>
+      {!isSuperadmin ? <ForcePasswordChangeModal /> : null}
+      <aside className="ui-nav">
+        <div className="ui-nav-brand">
+          <BrandLogo size="medium" />
+          {isSuperadmin
+            ? <Link to="/superadmin/profile" className="ui-nav-email" title="Account & security">{email}</Link>
+            : <p className="ui-nav-email">{email}</p>}
+        </div>
+        <nav className="ui-nav-links" aria-label="Main">
+          {groups.map((group) => (
+            <div className="ui-nav-group" role="group" aria-label={group} key={group}>
+              <span className="ui-nav-group-label" aria-hidden="true">{group}</span>
+              {navItems.filter((item) => item.group === group).map(renderLink)}
+            </div>
+          ))}
+        </nav>
+        <div className="ui-nav-foot">
+          <button type="button" className="ui-nav-signout" onClick={logout} aria-label="Sign out" title="Sign out">
+            <LogOut size={16} /> <span>Sign out</span>
+          </button>
+        </div>
+      </aside>
+      <section className="ui-main">
+        <div className="ui-shell-controls" role="group" aria-label="Workspace controls"><LanguageToggle inline /><NotificationCenter /></div>
+        {/* Superadmin pages are still styled under .sa-shell until they move to the shared parts. */}
+        {isSuperadmin ? <div className="sa-shell sa-embedded">{children}</div> : children}
       </section>
+      {/* Filled by <DetailPanel> through a portal; empty means no third column. */}
+      <aside className="ui-detail" id="ui-detail-slot" aria-live="polite" />
     </main>
   )
 }

@@ -37,7 +37,7 @@ export function NotificationSettings({ buttonLabel = "", orderId = null, role = 
   if (status === "unsupported") return null
   if (status === "granted" && subscribed) {
     return (
-      <div className={`notification-settings ${compact ? "compact" : ""}`}>
+      <div className={`notification-settings ${compact ? "" : ""}`}>
         <span className="notif-granted-pill">
           <CheckCircle2 size={14} style={{ color: "var(--accent)" }} />
           <span>{subscribed ? t("pushOn") : "Notifications active"}</span>
@@ -47,10 +47,10 @@ export function NotificationSettings({ buttonLabel = "", orderId = null, role = 
   }
   if (status === "denied") {
     return (
-      <div className={`notification-settings ${compact ? "compact" : ""}`}>
+      <div className={`notification-settings ${compact ? "" : ""}`}>
         <div className="notif-blocked">
-          <p style={{ margin: 0, fontSize: "0.8rem" }}>Notifications are off in your browser settings</p>
-          <button className="enable-notif-btn small" type="button" onClick={() => setStatus(getPermission())}>
+          <p style={{ margin: 0, fontSize: "var(--text-sm)" }}>Notifications are off in your browser settings</p>
+          <button className="enable-notif-btn" type="button" onClick={() => setStatus(getPermission())}>
             <RefreshCw size={12} /> Check again
           </button>
         </div>
@@ -59,8 +59,8 @@ export function NotificationSettings({ buttonLabel = "", orderId = null, role = 
   }
 
   return (
-    <div className={`notification-settings ${compact ? "compact" : ""}`}>
-      {error ? <p className="form-error">{error}</p> : null}
+    <div className={`notification-settings ${compact ? "" : ""}`}>
+      {error ? <p className="ui-error">{error}</p> : null}
       <button className="enable-notif-btn" type="button" onClick={enable} disabled={busy}>
         <Bell size={15} />
         <span>{busy ? t("saving") || "Enabling\u2026" : buttonLabel || t("enableReadyNotification")}</span>

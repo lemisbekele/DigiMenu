@@ -8,8 +8,9 @@ import { useAuth } from "../context/authContextValue"
 import { usePlan } from "../context/planContextValue"
 import { useConfirm } from "../hooks/useConfirm"
 import { Modal } from "../components/Modal"
-import "./staff.css"
+import "./staff-layout.css"
 
+import { DataTable, StatusPill } from "../ui"
 function normalize(v) {
   return String(v || "").toLowerCase().trim()
 }
@@ -134,7 +135,7 @@ export function UserManagement() {
   const canManage = can(PERMISSIONS.USER_MANAGE) || can(PERMISSIONS.ROLE_MANAGE)
 
   if (!canManage) {
-    return <div className="empty-state">You do not have permission to manage users.</div>
+    return <div className="ui-empty">You do not have permission to manage users.</div>
   }
 
   const filtered = users.filter((u) => {
@@ -146,15 +147,15 @@ export function UserManagement() {
   const seatPercent = hasStaffLimit ? Math.min(100, Math.round((users.length / staffLimit) * 100)) : 0
 
   return (
-    <div className="oc-page">
+    <div className="ui-stack">
       {confirmDialog}
-      <header className="oc-head">
+      <header className="ui-page-header">
         <div>
           <h1>Team</h1>
           <p>{users.length} people · {users.filter((u) => !u.disabled).length} active</p>
         </div>
         <button
-          className="oc-head-action"
+          className="ui-btn ui-btn--primary"
           type="button"
           onClick={() => { setMessage(null); setShowForm(true) }}
           disabled={userCreationUnavailable}
@@ -170,91 +171,95 @@ export function UserManagement() {
         <p>{hasStaffLimit ? (staffSeatsRemaining ? `${staffSeatsRemaining} left` : userCreationReason) : userCreationReason}</p>
       </section>
 
-      {message && !showForm ? <p className={message.ok ? "ad-success" : "form-error"} role={message.ok ? "status" : "alert"}>{message.text}</p> : null}
+      {message && !showForm ? <p className={message.ok ? "ad-success" : "ui-error"} role={message.ok ? "status" : "alert"}>{message.text}</p> : null}
 
-      <section className="oc-toolbar">
-        <label className="oc-search">
+      <section className="ui-toolbar">
+        <label className="ui-search">
           <Search size={18} />
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Name or email" aria-label="Search people" />
         </label>
-        <div className="oc-chips" role="group" aria-label="Role">
-          <button type="button" className="oc-chip" aria-pressed={roleFilter === "all"} onClick={() => setRoleFilter("all")}>Everyone</button>
+        <div className="ui-chips" role="group" aria-label="Role">
+          <button type="button" className="ui-chip" aria-pressed={roleFilter === "all"} onClick={() => setRoleFilter("all")}>Everyone</button>
           {assignableRoles.map(([key, label]) => (
-            <button key={key} type="button" className="oc-chip" aria-pressed={roleFilter === key} onClick={() => setRoleFilter(key)}>{label}</button>
+            <button key={key} type="button" className="ui-chip" aria-pressed={roleFilter === key} onClick={() => setRoleFilter(key)}>{label}</button>
           ))}
         </div>
       </section>
 
       {filtered.length === 0 ? (
-        <div className="oc-empty">
+        <div className="ui-empty">
           <Search size={32} strokeWidth={1.5} />
           <strong>No one found</strong>
           <p>Try another name or role.</p>
         </div>
       ) : (
-        <div className="ad-list">
-          {filtered.map((u) => (
-            <article className={`ad-row${u.disabled ? " is-muted" : ""}`} key={u.id}>
-              <div className="ad-row-main">
-                <h3 className="ad-row-title">{u.displayName}{u.disabled ? <span className="badge rejected" style={{ marginLeft: 8 }}>Turned off</span> : null}</h3>
-                <p className="ad-row-sub">{u.email}</p>
+        <DataTable
+          rowKey="id"
+          rows={filtered}
+          empty={{ title: "No one found" }}
+          columns={[
+            { key: "person", label: "Person", render: (u) => (
+              <div className="team-person">
+                <span className="team-avatar" aria-hidden="true">{(u.displayName || u.email || "?").slice(0, 1).toUpperCase()}</span>
+                <span className="ui-truncate"><strong>{u.displayName}</strong><small className="ui-muted">{u.email}</small></span>
               </div>
-              <div className="ad-row-actions">
-                <select className="ad-select" value={u.role} onChange={(e) => assignRole(u.id, u.email, e.target.value)} aria-label={`Role for ${u.displayName}`}>
+            ) },
+            { key: "role", label: "Role", render: (u) => (
+              <div className="ui-row">
+                <select className="ui-input" value={u.role} onChange={(e) => assignRole(u.id, u.email, e.target.value)} aria-label={`Role for ${u.displayName}`}>
                   {assignableRoles.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
                 </select>
                 {u.role === ROLES.BARISTA ? (
-                  <select className="ad-select" value={u.station} onChange={(e) => assignStation(u, e.target.value)} aria-label={`Station for ${u.displayName}`}>
+                  <select className="ui-input" value={u.station} onChange={(e) => assignStation(u, e.target.value)} aria-label={`Station for ${u.displayName}`}>
                     <option value="">Food and drinks</option>
                     <option value="food">Food only (kitchen)</option>
                     <option value="drinks">Drinks only (barista)</option>
                   </select>
                 ) : null}
-                {u.id === me?.id ? (
-                  <span className="ad-row-sub">You</span>
-                ) : (
-                  <>
-                    <button className="oc-quiet" type="button" onClick={() => toggleDisable(u)}>
-                      {u.disabled ? <><CheckCircle size={16} /> Turn on</> : <><XCircle size={16} /> Turn off</>}
-                    </button>
-                    <button className="ad-icon oc-danger" type="button" onClick={() => removeUser(u)} aria-label={`Delete ${u.displayName}`} title="Delete">
-                      <Trash2 size={18} />
-                    </button>
-                  </>
-                )}
               </div>
-            </article>
-          ))}
-        </div>
+            ) },
+            { key: "status", label: "Status", render: (u) => u.disabled ? <StatusPill tone="late">Turned off</StatusPill> : <StatusPill tone="ready">Active</StatusPill> },
+            { key: "actions", label: "", align: "right", render: (u) => u.id === me?.id ? <span className="ui-muted">You</span> : (
+              <div className="ui-row team-actions">
+                <button className="ui-btn" type="button" onClick={() => toggleDisable(u)}>
+                  {u.disabled ? <><CheckCircle size={16} /> Turn on</> : <><XCircle size={16} /> Turn off</>}
+                </button>
+                <button className="ui-btn ui-btn--quiet ui-btn--icon ui-btn--danger" type="button" onClick={() => removeUser(u)} aria-label={`Delete ${u.displayName}`} title="Delete">
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ) },
+          ]}
+        />
       )}
 
       {showForm ? (
         <Modal title="Add a person" className="confirm-dialog" busy={saving} onClose={() => setShowForm(false)}>
-          <form className="ad-form" onSubmit={createUser}>
-            <label className="ad-field">
+          <form className="ui-form" onSubmit={createUser}>
+            <label className="ui-field">
               Name
               <input value={form.displayName} onChange={(e) => setForm({ ...form, displayName: e.target.value })} required maxLength={120} autoComplete="name" placeholder="Full name" />
             </label>
-            <label className="ad-field">
+            <label className="ui-field">
               Email
               <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required maxLength={254} autoComplete="email" placeholder="person@example.com" />
             </label>
-            <label className="ad-field">
+            <label className="ui-field">
               Temporary password
               <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required minLength={8} autoComplete="new-password" />
               <small>At least 8 characters. They change it the first time they sign in.</small>
             </label>
-            <label className="ad-field">
+            <label className="ui-field">
               Role
               <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
                 {assignableRoles.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
               </select>
               <small>Give only the access their work needs.</small>
             </label>
-            {message && !message.ok ? <p className="form-error" role="alert">{message.text}</p> : null}
-            <div className="row-actions">
-              <button className="primary-button" type="submit" disabled={saving}><Shield size={18} /> {saving ? "Adding…" : "Add person"}</button>
-              <button className="ghost-button" type="button" disabled={saving} onClick={() => setShowForm(false)}>Cancel</button>
+            {message && !message.ok ? <p className="ui-error" role="alert">{message.text}</p> : null}
+            <div className="ui-row">
+              <button className="ui-btn ui-btn--primary" type="submit" disabled={saving}><Shield size={18} /> {saving ? "Adding…" : "Add person"}</button>
+              <button className="ui-btn" type="button" disabled={saving} onClick={() => setShowForm(false)}>Cancel</button>
             </div>
           </form>
         </Modal>

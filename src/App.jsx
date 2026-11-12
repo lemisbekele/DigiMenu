@@ -42,7 +42,6 @@ const SuperAdminAccess = lazy(() => import("./pages/SuperAdminAccess").then((m) 
 const SuperAdminCafes = lazy(() => import("./pages/SuperAdminCafes").then((m) => ({ default: m.SuperAdminCafes })))
 
 import { SuperAdminGuard } from "./components/SuperAdminGuard"
-import { SuperAdminLayout } from "./components/SuperAdminLayout"
 import { TenantAdminRoute } from "./components/TenantAdminRoute"
 import { TenantGuard } from "./components/TenantGuard"
 import { AdminLogin } from "./pages/AdminLogin"
@@ -117,7 +116,7 @@ function NotFound() {
         <BrandLogo size="medium" style={{ marginBottom: 12, justifyContent: "center" }} />
         <h1>404</h1>
         <p>The page you are looking for does not exist.</p>
-        <a href="/pricing" className="primary-button" style={{ display: "inline-block", marginTop: "1rem" }}>
+        <a href="/pricing" className="ui-btn ui-btn--primary" style={{ display: "inline-block", marginTop: "1rem" }}>
           View Plans
         </a>
       </div>
@@ -150,7 +149,7 @@ function App() {
                     path="/superadmin/*"
                     element={
                       <SuperAdminGuard>
-                        <SuperAdminLayout>
+                        <RoleLayout>
                           <Routes>
                             <Route index element={<Navigate to="dashboard" replace />} />
                             <Route path="dashboard" element={<SuperAdminDashboard />} />
@@ -164,7 +163,7 @@ function App() {
                             <Route path="profile" element={<SuperAdminProfile />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
-                        </SuperAdminLayout>
+                        </RoleLayout>
                       </SuperAdminGuard>
                     }
                   />

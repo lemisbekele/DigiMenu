@@ -40,7 +40,7 @@ export function PaymentConfirmedPopup({ orderId, totalAmount, orderNumber, onDis
     >
       <div className={`payment-confirmed-card ${dismissing ? "slide-down" : ""}`}>
         <button
-          className="icon-button payment-confirmed-close"
+          className="ui-btn ui-btn--quiet ui-btn--icon payment-confirmed-close"
           type="button"
           onClick={handleDismiss}
           aria-label="Close"

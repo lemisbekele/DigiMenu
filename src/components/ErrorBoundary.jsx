@@ -23,7 +23,7 @@ export class ErrorBoundary extends Component {
             <h1>Something went wrong.</h1>
             <p className="muted">Please refresh the page and try again.</p>
             <button
-              className="primary-button"
+              className="ui-btn ui-btn--primary"
               type="button"
               style={{ marginTop: "1rem" }}
               onClick={() => this.setState({ failed: false })}

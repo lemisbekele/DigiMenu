@@ -69,7 +69,7 @@ export function PricingSection({ lockedFeatureKey = null, headingLevel = 2 }) {
         <div className="pricing-cards">{visible.map(pkg => <article key={pkg.id} className={`pricing-card ${plan === pkg.id ? "is-current" : ""}`}>
           <div><p className="marketing-eyebrow">{plan === pkg.id ? t("pricing.current", "Current plan") : t("pricing.subscription", "Subscription")}</p><h2>{pkg.name}</h2><p>{pkg.description}</p></div>
           <p className="pricing-amount"><strong>{pkg.price || t("pricing.onRequest", "Price on request")}</strong><span>{pkg.price ? pkg.period : ""}</span></p>
-          <button className="primary-button" onClick={() => open(pkg.id)}>{t("pricing.request", "Request {{name}}", { name: pkg.name })}<ArrowRight size={16} /></button>
+          <button className="ui-btn ui-btn--primary" onClick={() => open(pkg.id)}>{t("pricing.request", "Request {{name}}", { name: pkg.name })}<ArrowRight size={16} /></button>
           <dl className="pricing-limits">{[["menuItems", t("pricing.menuItems", "Menu items")], ["staffUsers", t("pricing.staffUsers", "Staff accounts")]].map(([key, name]) => <div key={key}><dt>{name}</dt><dd>{Number.isInteger(Number(pkg.limits?.[key])) && Number(pkg.limits?.[key]) > 0 ? new Intl.NumberFormat(i18n.resolvedLanguage).format(pkg.limits[key]) : t("pricing.confirmLimit", "Confirm with platform team")}</dd></div>)}</dl>
           <ul className="pricing-features">{included(pkg).map(key => <li key={key}><Check size={17} /><span>{label(key)}</span></li>)}</ul>
         </article>)}</div>
@@ -79,7 +79,7 @@ export function PricingSection({ lockedFeatureKey = null, headingLevel = 2 }) {
         </div></details>}
       </>}
     {selected && <Modal title={success ? t("pricing.received", "Request received") : t("pricing.request", "Request {{name}}", { name: selectedPackage?.name || selected })} busy={busy} onClose={() => setSelected(null)}>
-      {success ? <div className="request-success" role="status"><CheckCircle2 size={36} /><p>{t("pricing.success", "Thank you! We are verifying your payment. Your account details will be sent to your email or Telegram within 30 minutes.")}</p><button className="primary-button" onClick={() => setSelected(null)}>{t("close")}</button></div>
+      {success ? <div className="request-success" role="status"><CheckCircle2 size={36} /><p>{t("pricing.success", "Thank you! We are verifying your payment. Your account details will be sent to your email or Telegram within 30 minutes.")}</p><button className="ui-btn ui-btn--primary" onClick={() => setSelected(null)}>{t("close")}</button></div>
       : details ? <form className="product-form" onSubmit={submit}>
         <div className="form-context"><strong>{selectedPackage?.name}</strong><span>{selectedPackage?.price || t("pricing.onRequest", "Price on request")} {selectedPackage?.price ? selectedPackage.period : ""}</span></div>
         <p>{t("pricing.payCopy", "Pay the plan price to one of these accounts, then enter the transaction or reference number below.")}</p>
@@ -88,23 +88,23 @@ export function PricingSection({ lockedFeatureKey = null, headingLevel = 2 }) {
           <li><Check size={17} /><span><strong>CBE</strong> — Account name: YOUR NAME · Account no: 1000XXXXXXXXX</span></li>
           <li><Check size={17} /><span><strong>telebirr</strong> — Name: YOUR NAME · Phone: 09XXXXXXXX</span></li>
         </ul>
-        {error && <p className="form-error" role="alert">{error}</p>}
+        {error && <p className="ui-error" role="alert">{error}</p>}
         <label>{t("pricing.reference", "Transaction / reference number")} *<input name="reference" autoComplete="off" maxLength={80} required disabled={busy} /></label>
         <button className="marketing-secondary" type="button" disabled={busy} onClick={() => { setDetails(null); setError("") }}>{t("pricing.back", "Back")}</button>
-        <button className="primary-button" type="submit" disabled={busy || !selectedPackage}>{busy ? t("pricing.submitting", "Submitting…") : t("pricing.submit", "Submit request")}</button>
+        <button className="ui-btn ui-btn--primary" type="submit" disabled={busy || !selectedPackage}>{busy ? t("pricing.submitting", "Submitting…") : t("pricing.submit", "Submit request")}</button>
       </form>
       : <form className="product-form" onSubmit={next}>
         <div className="form-context"><strong>{selectedPackage?.name}</strong><span>{selectedPackage?.price || t("pricing.onRequest", "Price on request")} {selectedPackage?.price ? selectedPackage.period : ""}</span></div>
         <p>{t("pricing.formCopy", "Tell us about your cafe. Required fields are marked with an asterisk.")}</p>
         {!selectedPackage && <p role="alert">{t("pricing.changed", "This plan is no longer available. Close this window and choose another plan.")}</p>}
-        {error && <p className="form-error" role="alert">{error}</p>}
+        {error && <p className="ui-error" role="alert">{error}</p>}
         <label>{t("pricing.name", "Cafe or organization name")} *<input name="name" autoComplete="organization" maxLength={120} required disabled={busy} /></label>
         <label>{t("pricing.contactName", "Contact person’s name")} *<input name="contactName" autoComplete="name" maxLength={120} required disabled={busy} /></label>
         <label>{t("pricing.email", "Owner email address")} *<input name="email" type="email" autoComplete="email" maxLength={254} required disabled={busy} /></label>
         <label>{t("pricing.phone", "Phone number")} *<input name="phone" type="tel" autoComplete="tel" maxLength={40} required defaultValue={details?.phone} disabled={busy} /></label>
         <label>{t("pricing.location", "City and country (optional)")}<input name="location" autoComplete="off" placeholder={t("pricing.locationExample", "e.g. Addis Ababa, Ethiopia")} maxLength={160} disabled={busy} /></label>
         <label>{t("pricing.notes", "Tell us what you need (optional)")}<textarea name="notes" rows={3} maxLength={1500} disabled={busy} /></label>
-        <button className="primary-button" type="submit" disabled={busy || !selectedPackage}>{t("pricing.continueToPay", "Continue to payment")}</button>
+        <button className="ui-btn ui-btn--primary" type="submit" disabled={busy || !selectedPackage}>{t("pricing.continueToPay", "Continue to payment")}</button>
       </form>}
     </Modal>}
   </div>

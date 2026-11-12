@@ -5,7 +5,7 @@ import { TableQrCard } from "../components/TableQrCard"
 import { deleteTable, observeTables, saveTable } from "../services/dataService"
 import { useRBAC } from "../context/rbacContextValue"
 import { PERMISSIONS } from "../services/roleService"
-import "./staff.css"
+import "./staff-layout.css"
 
 export function AdminTables() {
   const { cafeSlug } = useParams()
@@ -49,63 +49,66 @@ export function AdminTables() {
   }
 
   return (
-    <div className="oc-page">
-      <header className="oc-head">
+    <div className="ui-stack">
+      <header className="ui-page-header">
         <div>
           <h1>Tables</h1>
           <p>Print a QR code for each table. Customers scan it to see the menu and order.</p>
         </div>
       </header>
-      {loadError ? <p className="form-error" role="alert">{loadError}</p> : null}
+      {loadError ? <p className="ui-error" role="alert">{loadError}</p> : null}
 
-      {canManage ? (
-        <form className="ad-section ad-form" onSubmit={addTable}>
-          <div className="ad-section-head">
-            <div>
-              <h2>Add a table</h2>
-              <p>The QR code is ready to print as soon as you add it.</p>
+      <div className={canManage ? "tables-layout" : undefined}>
+        <div className="tables-main">
+        {tables.length === 0 ? (
+          <div className="ui-empty">
+            <QrCode size={32} strokeWidth={1.5} />
+            <strong>No tables yet</strong>
+            <p>Add your first table to get a printable QR code.</p>
+          </div>
+        ) : (
+          <section className="ad-qr-grid">
+            {tables.map((table) => (
+              <TableQrCard
+                key={table.id}
+                table={table}
+                onDelete={canManage ? async (id) => { try { await deleteTable(id) } catch { setLoadError("Could not remove this table.") } } : undefined}
+                onSave={canManage ? (tableData) => saveTable(tableData, cafeSlug) : undefined}
+              />
+            ))}
+          </section>
+        )}
+          </div>
+        {canManage ? (
+          <form className="ui-card ui-card--stack ui-form" onSubmit={addTable}>
+            <div className="ui-section-head">
+              <div>
+                <h2>Add a table</h2>
+                <p>The QR code is ready to print as soon as you add it.</p>
+              </div>
             </div>
-          </div>
-          <div className="ad-fields">
-            <label className="ad-field">
-              Table number
-              <input type="number" min="1" step="1" inputMode="numeric" value={tableNumber} onChange={(event) => setTableNumber(event.target.value)} placeholder="e.g. 5" required />
-            </label>
-            <label className="ad-field">
-              Heading on the card <small>(optional)</small>
-              <input maxLength={120} value={printTitle} onChange={(event) => setPrintTitle(event.target.value)} placeholder="Scan to Order" />
-            </label>
-            <label className="ad-field">
-              Instructions on the card <small>(optional)</small>
-              <input maxLength={300} value={printNote} onChange={(event) => setPrintNote(event.target.value)} placeholder="Point your phone camera to view the menu" />
-            </label>
-          </div>
-          <div>
-            <button className="oc-head-action" type="submit" disabled={saving}>
-              <Plus size={18} /> {saving ? "Adding…" : "Add table"}
-            </button>
-          </div>
-        </form>
-      ) : null}
-
-      {tables.length === 0 ? (
-        <div className="oc-empty">
-          <QrCode size={32} strokeWidth={1.5} />
-          <strong>No tables yet</strong>
-          <p>Add your first table above to get a printable QR code.</p>
+            <div className="ui-form">
+              <label className="ui-field">
+                Table number
+                <input type="number" min="1" step="1" inputMode="numeric" value={tableNumber} onChange={(event) => setTableNumber(event.target.value)} placeholder="e.g. 5" required />
+              </label>
+              <label className="ui-field">
+                Heading on the card <small>(optional)</small>
+                <input maxLength={120} value={printTitle} onChange={(event) => setPrintTitle(event.target.value)} placeholder="Scan to Order" />
+              </label>
+              <label className="ui-field">
+                Instructions on the card <small>(optional)</small>
+                <input maxLength={300} value={printNote} onChange={(event) => setPrintNote(event.target.value)} placeholder="Point your phone camera to view the menu" />
+              </label>
+            </div>
+            <div>
+              <button className="ui-btn ui-btn--primary" type="submit" disabled={saving}>
+                <Plus size={18} /> {saving ? "Adding…" : "Add table"}
+              </button>
+            </div>
+          </form>
+        ) : null}
         </div>
-      ) : (
-        <section className="ad-qr-grid">
-          {tables.map((table) => (
-            <TableQrCard
-              key={table.id}
-              table={table}
-              onDelete={canManage ? async (id) => { try { await deleteTable(id) } catch { setLoadError("Could not remove this table.") } } : undefined}
-              onSave={canManage ? (tableData) => saveTable(tableData, cafeSlug) : undefined}
-            />
-          ))}
-        </section>
-      )}
     </div>
   )
 }

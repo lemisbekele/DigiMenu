@@ -100,11 +100,11 @@ export function TenantGuard({ children }) {
     if (hasBeenReadyRef.current) {
       return children
     }
-    return <main className="auth-page"><div className="auth-card"><BrandLogo size="medium" /><h1>Temporarily unavailable</h1><p>We couldn’t open this cafe right now. Please try again in a moment.</p><button className="primary-button" onClick={() => window.location.reload()}>Try again</button></div></main>
+    return <main className="auth-page"><div className="auth-card"><BrandLogo size="medium" /><h1>Temporarily unavailable</h1><p>We couldn’t open this cafe right now. Please try again in a moment.</p><button className="ui-btn ui-btn--primary" onClick={() => window.location.reload()}>Try again</button></div></main>
   }
 
   if (tenantAccess.status === TENANT_ACCESS.NOT_FOUND) {
-    return <main className="auth-page"><div className="auth-card"><BrandLogo size="medium" /><h1>Cafe Not Found</h1><p>We couldn’t find this cafe. Check the link or ask the cafe for a new QR code.</p><Link className="primary-button" to="/">Back to home</Link></div></main>
+    return <main className="auth-page"><div className="auth-card"><BrandLogo size="medium" /><h1>Cafe Not Found</h1><p>We couldn’t find this cafe. Check the link or ask the cafe for a new QR code.</p><Link className="ui-btn ui-btn--primary" to="/">Back to home</Link></div></main>
   }
   if (tenantAccess.status === TENANT_ACCESS.INACTIVE) {
     return <main className="auth-page"><div className="auth-card"><BrandLogo size="medium" /><h1>Cafe Inactive</h1><p>This cafe is currently suspended. Contact the Super Admin.</p></div></main>
@@ -152,7 +152,7 @@ export function TenantGuard({ children }) {
       <main className="auth-page">
         <div className="auth-card" style={{ textAlign: "center", padding: "2rem" }}>
           <h1 style={{ color: "var(--danger)", marginBottom: "0.5rem" }}>Access Denied</h1>
-          <p style={{ color: "var(--muted)", fontSize: "0.95rem", lineHeight: 1.5, marginBottom: "1.5rem" }}>
+          <p style={{ color: "var(--muted)", fontSize: "var(--text-lg)", lineHeight: 1.5, marginBottom: "1.5rem" }}>
             {userCafeSlug
               ? <>You are authenticated for <strong>{userCafeSlug}</strong> and cannot access <strong>{currentSlug}</strong>.</>
               : "Your account is not assigned to this cafe."}
@@ -160,7 +160,7 @@ export function TenantGuard({ children }) {
           {userCafeSlug ? (
             <a
               href={`/${userCafeSlug}/dashboard`}
-              className="primary-button"
+              className="ui-btn ui-btn--primary"
               style={{ display: "inline-block", textDecoration: "none" }}
             >
               Go to My Cafe Dashboard

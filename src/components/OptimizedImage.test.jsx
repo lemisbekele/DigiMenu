@@ -4,6 +4,13 @@ import React from "react"
 import { OptimizedImage } from "./OptimizedImage"
 
 describe("OptimizedImage component", () => {
+  it("keeps the photo well, marked empty, when an item has no photo", () => {
+    const { container } = render(<OptimizedImage src="" alt="Cortado" className="card-photo" />)
+    const well = container.firstChild
+    expect(well).toHaveClass("ui-photo", "card-photo")
+    expect(well).toHaveAttribute("data-empty", "true")
+  })
+
   it("renders responsive srcSet for Supabase webp images by default", () => {
     const supabaseUrl = "https://example.supabase.co/storage/v1/object/public/cafe-assets/menuImages/coffee.webp"
     render(<OptimizedImage src={supabaseUrl} alt="Coffee" />)
