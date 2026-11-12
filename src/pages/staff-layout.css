@@ -122,3 +122,12 @@
 .menu-grid .ui-product-info { padding-bottom: var(--space-2); }
 .menu-grid .ui-product-info > div { display: grid; gap: 2px; }
 .menu-grid-actions { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: var(--space-2) var(--space-3); border-top: 1px solid var(--border); }
+
+/* ---------- Team table ---------- */
+.team-person { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
+.team-person .ui-truncate { display: grid; }
+.team-person small { font-size: var(--text-xs); }
+.team-avatar { display: grid; place-items: center; flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--brand-soft); color: var(--brand-ink); font: var(--weight-bold) var(--text-sm)/1 var(--font-sans); }
+.team-actions { justify-content: flex-end; }
+.ui-table td .ui-input { width: auto; height: 32px; }
+.ui-table td:has(select), .ui-table td:has(.team-person) { max-width: none; overflow: visible; }

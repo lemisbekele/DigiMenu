@@ -10,7 +10,7 @@ import { useConfirm } from "../hooks/useConfirm"
 import { Modal } from "../components/Modal"
 import "./staff-layout.css"
 
-import { StatusPill } from "../ui"
+import { DataTable, StatusPill } from "../ui"
 function normalize(v) {
   return String(v || "").toLowerCase().trim()
 }
@@ -193,13 +193,18 @@ export function UserManagement() {
           <p>Try another name or role.</p>
         </div>
       ) : (
-        <div className="ui-list">
-          {filtered.map((u) => (
-            <article className={`ui-list-row${u.disabled ? " is-muted" : ""}`} key={u.id}>
-              <div className="ui-list-main">
-                <h3 className="ui-list-title">{u.displayName}{u.disabled ? <>{" "}<StatusPill tone="late">Turned off</StatusPill></> : null}</h3>
-                <p className="ui-list-sub">{u.email}</p>
+        <DataTable
+          rowKey="id"
+          rows={filtered}
+          empty={{ title: "No one found" }}
+          columns={[
+            { key: "person", label: "Person", render: (u) => (
+              <div className="team-person">
+                <span className="team-avatar" aria-hidden="true">{(u.displayName || u.email || "?").slice(0, 1).toUpperCase()}</span>
+                <span className="ui-truncate"><strong>{u.displayName}</strong><small className="ui-muted">{u.email}</small></span>
               </div>
+            ) },
+            { key: "role", label: "Role", render: (u) => (
               <div className="ui-row">
                 <select className="ui-input" value={u.role} onChange={(e) => assignRole(u.id, u.email, e.target.value)} aria-label={`Role for ${u.displayName}`}>
                   {assignableRoles.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
@@ -211,22 +216,21 @@ export function UserManagement() {
                     <option value="drinks">Drinks only (barista)</option>
                   </select>
                 ) : null}
-                {u.id === me?.id ? (
-                  <span className="ui-list-sub">You</span>
-                ) : (
-                  <>
-                    <button className="ui-btn" type="button" onClick={() => toggleDisable(u)}>
-                      {u.disabled ? <><CheckCircle size={16} /> Turn on</> : <><XCircle size={16} /> Turn off</>}
-                    </button>
-                    <button className="ui-btn ui-btn--quiet ui-btn--icon ui-btn--danger" type="button" onClick={() => removeUser(u)} aria-label={`Delete ${u.displayName}`} title="Delete">
-                      <Trash2 size={18} />
-                    </button>
-                  </>
-                )}
               </div>
-            </article>
-          ))}
-        </div>
+            ) },
+            { key: "status", label: "Status", render: (u) => u.disabled ? <StatusPill tone="late">Turned off</StatusPill> : <StatusPill tone="ready">Active</StatusPill> },
+            { key: "actions", label: "", align: "right", render: (u) => u.id === me?.id ? <span className="ui-muted">You</span> : (
+              <div className="ui-row team-actions">
+                <button className="ui-btn" type="button" onClick={() => toggleDisable(u)}>
+                  {u.disabled ? <><CheckCircle size={16} /> Turn on</> : <><XCircle size={16} /> Turn off</>}
+                </button>
+                <button className="ui-btn ui-btn--quiet ui-btn--icon ui-btn--danger" type="button" onClick={() => removeUser(u)} aria-label={`Delete ${u.displayName}`} title="Delete">
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ) },
+          ]}
+        />
       )}
 
       {showForm ? (

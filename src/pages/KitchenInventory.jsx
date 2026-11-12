@@ -113,6 +113,13 @@ export function KitchenInventory() {
       </header>
       {actionError ? <p className="ui-error" role="alert">{actionError}</p> : null}
 
+      <section className="kpis" aria-label="Stock levels">
+        <article className="ui-card kpi"><span className="kpi-label">Tracked</span><strong className="kpi-value">{items.length}</strong></article>
+        <article className="ui-card kpi"><span className="kpi-label">In stock</span><strong className="kpi-value">{summary.ok}</strong></article>
+        <article className="ui-card kpi"><span className="kpi-label">Running low</span><strong className="kpi-value">{summary.low}</strong><span className="kpi-trend" data-dir={summary.low ? "down" : "flat"}>{summary.low ? "Reorder soon" : "Nothing low"}</span></article>
+        <article className="ui-card kpi"><span className="kpi-label">Out of stock</span><strong className="kpi-value">{summary.out}</strong><span className="kpi-trend" data-dir={summary.out ? "down" : "flat"}>{summary.out ? "Hidden items may be affected" : "All available"}</span></article>
+      </section>
+
       <section className="ui-toolbar">
         <label className="ui-search">
           <Search size={18} />
