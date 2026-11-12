@@ -37,6 +37,7 @@ import {
 } from "../services/dataService"
 import "./customer-menu.css"
 import "./customer.css"
+import "./customer-redesign.css"
 
 function formatCardPrice(price) {
   const currency = currentRegion()?.currency || "ETB"
@@ -498,10 +499,12 @@ export function MenuPage() {
 
                 <div className="qr-item-body">
                   <h3 className="qr-item-title" title={localized.displayName}>{localized.displayName}</h3>
+                  {localized.displayDescription ? <p className="qr-item-desc">{localized.displayDescription}</p> : null}
                   <p className="qr-item-meta">
                     <span className="qr-item-price">{formatCardPrice(item.price)}</span>
                     {hasCalories ? <span> · {item.calories} kcal</span> : null}
                   </p>
+                  {isPopular && item.available ? <span className="qr-badge-popular">{t("popular", "Popular")}</span> : null}
                 </div>
               </article>
             )
