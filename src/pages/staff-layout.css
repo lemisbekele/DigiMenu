@@ -131,3 +131,7 @@
 .team-actions { justify-content: flex-end; }
 .ui-table td .ui-input { width: auto; height: 32px; }
 .ui-table td:has(select), .ui-table td:has(.team-person) { max-width: none; overflow: visible; }
+.kpis--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.order-tickets .oc-proof { margin: 0 var(--space-3); }
+@media (max-width: 1099px) { .kpis--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .kpis--3 { grid-template-columns: 1fr; } }

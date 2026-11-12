@@ -2,7 +2,6 @@ import { toUserMessage } from "../services/userMessages"
 import { dateKey, formatDateTime } from "../services/regionalSettings"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { CheckCircle2, CreditCard, Search, ShieldCheck, XCircle, X, Bell } from "lucide-react"
-import { StatusBadge } from "../components/StatusBadge"
 import { OptimizedImage } from "../components/OptimizedImage"
 import { OrderItemList } from "../components/OrderItemList"
 import { Modal } from "../components/Modal"
@@ -228,24 +227,24 @@ export function CashierDashboard() {
         <NotificationSettings role="cashier" buttonLabel="Turn on alerts" compact />
       </header>
 
-      <section className="ui-stats" aria-label="Today">
-        <div className="ui-stat"><span>Receipts to check</span><strong>{stats.pendingProofs}</strong></div>
-        <div className="ui-stat"><span>Unpaid orders</span><strong>{stats.unpaidOrders}</strong></div>
-        <div className="ui-stat"><span>Collected today</span><strong>{money(stats.todayPaidTotal)}</strong></div>
+      <section className="kpis kpis--3" aria-label="Today">
+        <article className="ui-card kpi"><div className="kpi-head"><span className="kpi-label">Receipts to check</span><span className="kpi-icon" aria-hidden="true"><ShieldCheck size={16} /></span></div><strong className="kpi-value">{stats.pendingProofs}</strong><span className="kpi-trend" data-dir={stats.pendingProofs ? "down" : "flat"}>{stats.pendingProofs ? "Waiting for you" : "Nothing to check"}</span></article>
+        <article className="ui-card kpi"><div className="kpi-head"><span className="kpi-label">Unpaid orders</span><span className="kpi-icon" aria-hidden="true"><XCircle size={16} /></span></div><strong className="kpi-value">{stats.unpaidOrders}</strong></article>
+        <article className="ui-card kpi"><div className="kpi-head"><span className="kpi-label">Collected today</span><span className="kpi-icon" aria-hidden="true"><CheckCircle2 size={16} /></span></div><strong className="kpi-value">{money(stats.todayPaidTotal)}</strong></article>
       </section>
 
       <section className="ui-toolbar">
-        <label className="ui-search">
-          <Search size={18} />
-          <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Table, order ID or payment method" aria-label="Search payments" />
-        </label>
-        <div className="ui-chips" role="group" aria-label="Show">
+        <div className="ui-seg" role="group" aria-label="Show">
           {chips.map((chip) => (
-            <button key={chip.key} type="button" className="ui-chip" aria-pressed={filter === chip.key} onClick={() => setFilter(chip.key)}>
+            <button key={chip.key} type="button" aria-pressed={filter === chip.key} onClick={() => setFilter(chip.key)}>
               {chip.label}{chip.count != null ? <span className="ui-muted">{chip.count}</span> : null}
             </button>
           ))}
         </div>
+        <label className="ui-search">
+          <Search size={16} />
+          <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Table, order ID or payment method" aria-label="Search payments" />
+        </label>
       </section>
 
       {filteredOrders.length === 0 ? (
@@ -255,22 +254,24 @@ export function CashierDashboard() {
           <p>No payments waiting here. New ones appear automatically.</p>
         </div>
       ) : (
-        <section className="ui-grid">
+        <section className="order-tickets">
           {filteredOrders.map((order) => {
             const hasProof = Boolean(order.paymentProofUrl)
             const safeProof = hasProof && isSafeStorageUrl(order.paymentProofUrl)
             return (
-              <article key={order.id} className="ui-card ui-card--stack">
-                <div className="oc-card-top">
-                  <div>
-                    <h3 className="oc-table">Table {order.tableNumber}</h3>
-                    <p className="oc-meta">#{order.id?.slice(-6)} · {order.paymentMethod || "No method yet"}</p>
-                  </div>
+              <article key={order.id} className="ui-card ui-ticket">
+                <header className="ui-ticket-head ui-tint" data-tone={order.paymentStatus === "pending" ? "preparing" : order.paymentStatus === "paid" ? "paid" : order.paymentStatus === "rejected" ? "late" : "waiting"}>
+                  <span>{order.paymentStatus === "pending" ? "Receipt to check" : order.paymentStatus === "paid" ? "Paid" : order.paymentStatus === "rejected" ? "Receipt rejected" : "Unpaid"}</span>
+                  <span>{order.paymentMethod || "No method yet"}</span>
+                </header>
+                <div className="ui-ticket-body">
+                <div className="order-ticket-top">
+                  <h3 className="ui-ticket-no">Table {order.tableNumber}</h3>
                   <span className="oc-total">{money(order.totalAmount)}</span>
                 </div>
                 <div className="oc-status">
-                  <StatusBadge type="payment" value={order.paymentStatus} label={order.paymentStatus} />
-                  <span>{queueStatus(order, queue)}</span>
+                  <span>#{order.id?.slice(-6)}</span>
+                  <span>· {queueStatus(order, queue)}</span>
                   {queue.has(order.id) ? <span>· about {queue.get(order.id).waitMinutes} min</span> : null}
                 </div>
                 <OrderItemList items={order.items} />
@@ -281,8 +282,9 @@ export function CashierDashboard() {
                 ) : hasProof ? (
                   <p className="oc-proof-missing">This receipt link can't be opened safely. Ask the customer to upload it again.</p>
                 ) : null}
+                </div>
                 {order.paymentStatus !== "paid" ? (
-                  <div className="ui-row">
+                  <div className="ui-ticket-foot ui-row">
                     <button className="ui-btn ui-btn--primary" type="button" onClick={() => approvePayment(order.id)}>
                       <CheckCircle2 size={18} /> {order.paymentStatus === "pending" ? "Approve payment" : "Mark as paid"}
                     </button>
