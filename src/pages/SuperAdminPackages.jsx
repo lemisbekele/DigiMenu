@@ -330,7 +330,7 @@ export function SuperAdminPackages() {
               </label>
               <label className="ui-field">
                 <span className="">Published price (include currency code)</span>
-                <input type="text" maxLength={80} placeholder="USD 29 (blank for price on request)" value={editingPackage.price} onChange={(e) => setEditingPackage({ ...editingPackage, price: e.target.value })} className="ui-input" />
+                <input type="text" maxLength={80} placeholder="ETB 1,500 (blank for price on request)" value={editingPackage.price} onChange={(e) => setEditingPackage({ ...editingPackage, price: e.target.value })} className="ui-input" />
               </label>
               <label className="ui-field">
                 <span className="">Billing Period Label</span>
@@ -401,7 +401,7 @@ export function SuperAdminPackages() {
               </label>
               <label className="ui-field">
                 <span className="">Published price (include currency code)</span>
-                <input type="text" maxLength={80} placeholder="USD 29 (blank for price on request)" value={creating.price} onChange={(e) => setCreating({ ...creating, price: e.target.value })} className="ui-input" />
+                <input type="text" maxLength={80} placeholder="ETB 1,500 (blank for price on request)" value={creating.price} onChange={(e) => setCreating({ ...creating, price: e.target.value })} className="ui-input" />
               </label>
               <label className="ui-field">
                 <span className="">Billing Period Label</span>
