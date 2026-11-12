@@ -1,4 +1,5 @@
 import { Megaphone } from "lucide-react"
+import { EmptyState } from "../ui"
 import { VisualSummary } from "../components/PlatformCharts"
 import { toUserMessage } from "../services/userMessages"
 import { useEffect, useState } from "react"
@@ -92,10 +93,7 @@ export function SuperAdminAnnouncements() {
       {notice?.type === "error" ? null : loading ? (
         <p className="ui-muted">Loading announcements...</p>
       ) : announcements.length === 0 ? (
-        <div className="ui-card ui-card--stack" style={{ textAlign: "center", padding: "2.5rem 1rem" }}>
-          <Megaphone size={40} color="var(--brand)" aria-hidden="true" style={{ marginBottom: 16 }} />
-          <p style={{ margin: 0, color: "var(--text-3)" }}>No announcements yet. Create the first broadcast with “+ New Announcement”.</p>
-        </div>
+        <EmptyState title="No announcements yet" body="Create the first broadcast with New Announcement. It appears on the cafe dashboards you pick." />
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {announcements.map((ann) => (

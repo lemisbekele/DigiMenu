@@ -1,6 +1,7 @@
 import { formatDateTime } from "../services/regionalSettings"
+import { PageHeader } from "../ui"
 import { useEffect, useMemo, useState } from "react"
-import { ArrowRight, Clock, Coffee, PackageCheck, Receipt, ShoppingBag } from "lucide-react"
+import { ArrowRight, Clock, Coffee, PackageCheck } from "lucide-react"
 import { Link } from "react-router-dom"
 import { StatusBadge } from "../components/StatusBadge"
 import { useLanguage } from "../context/languageContextValue"
@@ -44,15 +45,12 @@ export function MyOrdersPage() {
   const goToTableParam = tableNumber ? `?table=${tableNumber}` : ""
 
   return (
-    <main className="page-pad narrow my-orders-page">
-      <header style={{ marginBottom: 16 }}>
-        <p className="ui-muted">{t("myOrdersEyebrow")}</p>
-        <h1 style={{ margin: 0 }}>{t("myOrders")}</h1>
-      </header>
+    <main className="page-pad narrow my-orders-page ui-stack">
+      <PageHeader title={t("myOrders")} subtitle={t("myOrdersEyebrow")} />
 
       <section>
         <div className="orders-section-head">
-          <h2><span className="orders-section-icon"><ShoppingBag size={16} /></span> {t("activeOrders")}</h2>
+          <h2>{t("activeOrders")}</h2>
         </div>
         {active.length === 0 ? (
           <div className="ui-empty">
@@ -106,7 +104,7 @@ export function MyOrdersPage() {
 
       <section style={{ marginTop: 28 }}>
         <div className="orders-section-head">
-          <h2><span className="orders-section-icon"><Receipt size={16} /></span> {t("orderHistory")}</h2>
+          <h2>{t("orderHistory")}</h2>
         </div>
         {history.length === 0 ? (
           <div className="ui-empty" style={{ paddingBlock: 20 }}>

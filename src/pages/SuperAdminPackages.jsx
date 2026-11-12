@@ -1,4 +1,5 @@
 import { DistributionChart } from "../components/PlatformCharts"
+import { PageHeader } from "../ui"
 import { isSubscriptionActive } from "../services/planService"
 import { toUserMessage } from "../services/userMessages"
 import { useEffect, useMemo, useState } from "react"
@@ -87,7 +88,6 @@ export function SuperAdminPackages() {
     [packagesList, activeCafeCounts],
   )
 
-  const tierAccent = () => "var(--brand)"
 
   // The exact features stored in Supabase. No hardcoded fallback lists.
   const featureKeysOf = (pkg) => (Array.isArray(pkg?.features) ? pkg.features : [])
@@ -229,24 +229,17 @@ export function SuperAdminPackages() {
 
   return (
     <div className="ui-stack">
-      <div className="ui-page-header">
-        <h1>SaaS Package Management</h1>
-        <p>
-          Define packages, their feature entitlements and limits. Changes take effect instantly for every assigned cafe — no browser refresh required.
-        </p>
-      </div>
+      <PageHeader
+        title="SaaS Package Management"
+        subtitle="Define packages, their features and limits. Changes reach every assigned cafe straight away."
+        action={<button type="button" onClick={() => setCreating({ ...EMPTY_PACKAGE })} className="ui-btn ui-btn--primary">+ New Package</button>}
+      />
 
       {notice && (
         <div className={`ui-notice ${notice.type === "success" ? "sa-alert-success" : "sa-alert-error"}`} style={{ marginBottom: "1.25rem" }}>
           {notice.text}
         </div>
       )}
-
-      <div style={{ marginBottom: "1.25rem" }}>
-        <button type="button" onClick={() => setCreating({ ...EMPTY_PACKAGE })} className="ui-btn ui-btn--primary">
-          + New Package
-        </button>
-      </div>
 
       {!loading && !notice?.type?.includes("error") && <DistributionChart title="Package adoption" description="Current active or approved subscriptions, excluding expired access" items={displayList.map(pkg => ({ key: pkg.id, label: pkg.name, value: pkg.activeCafes }))} />}
 
@@ -257,18 +250,16 @@ export function SuperAdminPackages() {
             <div
               key={pkg.id}
               className="sa-fact-card"
-              style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", borderTop: `3px solid ${tierAccent(pkg.id)}`, opacity: isActive ? 1 : 0.6 }}
+              style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", opacity: isActive ? 1 : 0.6 }}
             >
               <div>
                 <div className="sa-row" style={{ marginBottom: "1rem" }}>
-                  <span style={{ fontSize: "0.8rem", textTransform: "uppercase", fontWeight: 800, letterSpacing: 1, color: tierAccent(pkg.id) }}>
-                    {pkg.id} TIER
-                  </span>
+                  <span className="ui-muted">{pkg.id.charAt(0).toUpperCase() + pkg.id.slice(1)} tier</span>
                   <span className={isActive ? "ui-pill sa-badge-success" : "ui-pill"}>{isActive ? `${pkg.activeCafes} Active Cafes` : "Deactivated"}</span>
                 </div>
-                <h2 style={{ fontSize: "1.4rem", margin: "0 0 4px" }}>{pkg.name}</h2>
+                <h2 className="pkg-name">{pkg.name}</h2>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 4, margin: "8px 0 16px" }}>
-                  <span style={{ fontSize: "2rem", fontWeight: 800, color: tierAccent(pkg.id) }}>{pkg.price}</span>
+                  <span className="pkg-price">{pkg.price}</span>
                   <span style={{ fontSize: "0.85rem", color: "var(--text-3)" }}>{pkg.period}</span>
                 </div>
                 <p style={{ fontSize: "0.88rem", color: "var(--text-3)", marginBottom: "1.25rem" }}>{pkg.description}</p>

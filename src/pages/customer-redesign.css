@@ -18,7 +18,8 @@
 .qr-item-action { position: absolute; right: -6px; bottom: -6px; }
 .qr-add-btn { width: 32px; height: 32px; min-height: 0; border: 1px solid var(--border-strong); border-radius: 50%; background: var(--surface); color: var(--text); box-shadow: none; }
 .qr-add-btn:hover { background: var(--brand); border-color: var(--brand); color: var(--on-brand); }
-.qr-stepper { border: 1px solid var(--border-strong); border-radius: var(--radius-pill); background: var(--surface); box-shadow: none; }
+.qr-stepper { height: 32px; border: 1px solid var(--border-strong); border-radius: var(--radius-pill); background: var(--surface); color: var(--text); box-shadow: none; }
+.qr-stepper button, .qr-stepper span { height: 30px; min-height: 0; color: var(--text); font-weight: var(--weight-bold); font-variant-numeric: tabular-nums; }
 
 .qr-badge-popular { top: auto; bottom: auto; left: auto; position: static; display: inline-flex; width: max-content; height: 20px; padding: 0 var(--space-2); border-radius: var(--radius-pill); background: var(--brand-soft); color: var(--brand-ink); font: var(--weight-bold) var(--text-xs)/20px var(--font-sans); }
 .qr-item-image-wrap .qr-badge-popular { display: none; }
