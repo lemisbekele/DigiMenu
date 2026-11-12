@@ -593,3 +593,9 @@ a.sa-stat:hover {
 .sa-shell .ui-grid { --ui-grid-min: 320px; }
 .sa-distribution { flex-wrap: wrap; }
 .sa-distribution .sa-chart-bars { flex: 1 1 180px; min-width: 0; }
+
+/* Redesign: card headings are plain title + description everywhere; drop the old tinted icon tiles. */
+.sa-chart-heading .sa-visual-icon, .sa-visual-summary .sa-visual-icon { display: none; }
+.sa-chart-heading h2, .sa-chart-heading h3 { margin: 0; color: var(--text); font: var(--weight-bold) var(--text-lg)/1.3 var(--font-sans); }
+.sa-chart-heading p { margin: 2px 0 0; color: var(--muted); font-size: var(--text-sm); }
+.sa-visual-summary { padding: var(--space-4); border-radius: var(--radius-md); }
