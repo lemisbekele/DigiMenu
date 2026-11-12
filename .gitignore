@@ -38,3 +38,6 @@ desktop.ini
 # Local tooling and generated output
 .claude/
 graphify-out/
+
+# Personal notes
+docs/TESTING_BACKLOG.md
