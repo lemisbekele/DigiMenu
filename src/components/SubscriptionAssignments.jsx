@@ -169,25 +169,25 @@ export function SubscriptionAssignments() {
                   const isBusy = busy === sub.id
                   return (
                     <tr key={sub.id}>
-                      <td>
+                      <td data-label="Customer / Organization">
                         <strong style={{ color: "var(--brand-ink)", display: "block" }}>{sub.customer_name}</strong>
                         <span style={{ color: "var(--text-3)", fontSize: "var(--text-sm)" }}>{sub.email}</span>
                       </td>
-                      <td>
+                      <td data-label="Package">
                         <span className="sa-package-tag">{plan?.name || sub.plan_key}</span>
                       </td>
-                      <td style={{ color: "var(--brand)", fontSize: "var(--text-sm)" }}>
+                      <td data-label="Cafe" style={{ color: "var(--brand)", fontSize: "var(--text-sm)" }}>
                         {sub.cafe_slug ? `/${sub.cafe_slug}` : "—"}
                       </td>
-                      <td>
+                      <td data-label="Status">
                         <span className="ui-pill" style={{ background: style.bg, color: style.color }}>
                           {SUBSCRIPTION_STATUS_LABELS[sub.status] || sub.status}
                         </span>
                       </td>
-                      <td style={{ color: "var(--text-3)", fontSize: "var(--text-sm)" }}>
+                      <td data-label="Requested" style={{ color: "var(--text-3)", fontSize: "var(--text-sm)" }}>
                         {sub.requested_at ? formatDateTime(sub.requested_at, { timeStyle: undefined }) : "—"}
                       </td>
-                      <td style={{ textAlign: "right" }}>
+                      <td data-label="Actions" style={{ textAlign: "right" }}>
                         <div className="ui-row">
                           {sub.status === SUBSCRIPTION_STATUS.PENDING_APPROVAL && <Link className="ui-btn" to="/superadmin/requests">Review request</Link>}
                           {(sub.status === SUBSCRIPTION_STATUS.ACTIVE || sub.status === SUBSCRIPTION_STATUS.APPROVED) ? (

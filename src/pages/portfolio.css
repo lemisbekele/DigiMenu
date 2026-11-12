@@ -262,3 +262,7 @@
 .marketing-footer nav { justify-content: start; }
 
 }
+
+/* Comparison table scrolls sideways on phones instead of wrapping feature names. */
+.pricing-comparison { overflow-x: auto; }
+.pricing-comparison th { white-space: nowrap; }
