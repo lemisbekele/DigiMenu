@@ -182,7 +182,7 @@ export function OwnerDashboard() {
   return (
     <div className="ui-stack dash">
       <PageHeader
-        title={role === ROLES.MANAGER ? "Operations" : "Dashboard"}
+        title={role === ROLES.MANAGER ? "Operations Dashboard" : "Business Dashboard"}
         subtitle={new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}
         action={<button className="ui-btn ui-btn--primary" type="button" onClick={() => navigate(`/${cafeSlug}/orders`)}>Open orders</button>}
       />
