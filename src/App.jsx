@@ -42,7 +42,6 @@ const SuperAdminAccess = lazy(() => import("./pages/SuperAdminAccess").then((m) 
 const SuperAdminCafes = lazy(() => import("./pages/SuperAdminCafes").then((m) => ({ default: m.SuperAdminCafes })))
 
 import { SuperAdminGuard } from "./components/SuperAdminGuard"
-import { SuperAdminLayout } from "./components/SuperAdminLayout"
 import { TenantAdminRoute } from "./components/TenantAdminRoute"
 import { TenantGuard } from "./components/TenantGuard"
 import { AdminLogin } from "./pages/AdminLogin"
@@ -150,7 +149,7 @@ function App() {
                     path="/superadmin/*"
                     element={
                       <SuperAdminGuard>
-                        <SuperAdminLayout>
+                        <RoleLayout>
                           <Routes>
                             <Route index element={<Navigate to="dashboard" replace />} />
                             <Route path="dashboard" element={<SuperAdminDashboard />} />
@@ -164,7 +163,7 @@ function App() {
                             <Route path="profile" element={<SuperAdminProfile />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
-                        </SuperAdminLayout>
+                        </RoleLayout>
                       </SuperAdminGuard>
                     }
                   />

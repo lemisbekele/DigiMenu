@@ -16,6 +16,10 @@ try {
   console.info(`[DigiMenu] ${import.meta.env.MODE} build · backend ${String(import.meta.env.VITE_SUPABASE_URL || "")}`)
 } catch {}
 
+if (import.meta.env.DEV) {
+  try { await (await import("./devLogin.js")).devLogin() } catch (e) { console.warn("[devLogin]", e) }
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>

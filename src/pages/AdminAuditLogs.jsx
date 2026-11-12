@@ -75,6 +75,8 @@ export function AdminAuditLogs() {
   const range = useMemo(() => reportRange(reportType, from, to), [from, reportType, to])
   const report = useMemo(() => buildReport(orders, range, search), [orders, range, search])
   const rangeLabel = `${formatDateTime(range.from, { timeStyle: undefined })} - ${formatDateTime(new Date(range.to.getTime() - 1), { timeStyle: undefined })}`
+  const [rangeFrom, rangeTo] = rangeLabel.split(" - ")
+  const rangeText = rangeFrom === rangeTo ? rangeFrom : rangeLabel
 
   const filteredAuditLogs = useMemo(() => {
     if (!auditSearch) return auditLogs
@@ -94,7 +96,7 @@ export function AdminAuditLogs() {
           <p className="eyebrow">Data & History</p>
           <h2>{isPlatform ? "Platform Audit Logs" : "Reports & Audit Logs"}</h2>
         </div>
-        {!isPlatform && <div className="two-col" style={{ maxWidth: 260 }}>
+        {!isPlatform && <div style={{ display: "flex", gap: 8, flexShrink: 0, whiteSpace: "nowrap" }}>
           <button
             className={activeTab === "reports" ? "primary-button" : "ghost-button"}
             type="button"
@@ -176,7 +178,7 @@ export function AdminAuditLogs() {
             </article>
             <article>
               <span>Report range</span>
-              <strong>{rangeLabel}</strong>
+              <strong style={{ fontSize: "1.1rem" }}>{rangeText}</strong>
             </article>
           </section>
 

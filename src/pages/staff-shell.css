@@ -13,13 +13,11 @@ main.admin-shell {
   font-family: var(--font-sans);
   overflow: visible;
 }
-main.admin-shell.no-role-nav { grid-template-columns: minmax(0, 1fr); }
 
 /* ---------- Sidebar ---------- */
 main.admin-shell .admin-sidebar {
   position: sticky;
-  top: 0;
-  inset: auto;
+  inset: 0 auto auto auto; /* top: 0 for sticky; clears App.css left/bottom */
   height: 100dvh;
   width: auto;
   max-height: none;
@@ -95,38 +93,10 @@ main.admin-shell .notif-corner {
   margin: 0 0 var(--space-2);
 }
 
-/* Kitchen and cashier: full screen with a slim top bar instead of the sidebar. */
-main.admin-shell .workspace-nav {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  margin: calc(-1 * var(--space-5)) calc(-1 * var(--space-6)) var(--space-4);
-  padding: var(--space-2) var(--space-4);
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
-  overflow-x: auto;
-}
-main.admin-shell .workspace-nav .brand-logo { margin-right: var(--space-3); }
-main.admin-shell .workspace-nav a {
-  min-height: 40px;
-  padding: 0 var(--space-3);
-  border-radius: var(--radius-sm);
-  color: var(--text-2);
-  font-size: var(--text-md);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-}
-main.admin-shell .workspace-nav a:hover { background: var(--surface-2); }
-main.admin-shell .workspace-nav a.active { background: var(--brand-soft); color: var(--brand-ink); font-weight: var(--weight-bold); }
-main.admin-shell .workspace-nav .ghost-button { margin-left: auto; min-height: 40px; }
-
 /* ---------- Phones and small tablets ---------- */
 @media (max-width: 899px) {
   main.admin-shell { display: block; padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
-  main.admin-shell.no-role-nav { padding-bottom: 0; }
-
+  
   /* Top bar: logo left, sign-out right; the controls row sits in it (see .notif-corner). */
   main.admin-shell .admin-sidebar {
     position: sticky;
@@ -178,6 +148,7 @@ main.admin-shell .workspace-nav .ghost-button { margin-left: auto; min-height: 4
   }
   main.admin-shell .admin-sidebar nav a.active { background: none; }
   main.admin-shell .admin-sidebar nav a.active svg { color: var(--brand); }
+  main.admin-shell .admin-sidebar nav a span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 
   main.admin-shell .admin-content { padding: var(--space-4) var(--space-4) var(--space-5); }
   /* Controls move up into the top bar, left of sign-out. */
@@ -188,24 +159,15 @@ main.admin-shell .workspace-nav .ghost-button { margin-left: auto; min-height: 4
     z-index: 41;
     margin: 0;
   }
-  main.admin-shell .workspace-nav { margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) var(--space-4); flex-wrap: nowrap; }
-  main.admin-shell .workspace-nav .digimenu-brand-name { display: none; }
-  main.admin-shell .workspace-nav a { padding: 0 var(--space-2); }
 }
 
 /* Shared bits that broke on phones. */
-main.admin-shell .workspace-nav .ghost-button { flex: none; white-space: nowrap; }
 @media (max-width: 599px) {
   /* Summary numbers side by side instead of three tall boxes. */
   main.admin-shell .oc-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
   main.admin-shell .oc-stats .oc-stat { padding: var(--space-3); min-width: 0; }
   main.admin-shell .oc-stats .oc-stat > span { font-size: 0.75rem; line-height: 1.3; }
   main.admin-shell .oc-stats .oc-stat strong { font-size: var(--text-lg); overflow-wrap: anywhere; }
-}
-@media (max-width: 599px) {
-  main.admin-shell .workspace-nav { gap: 2px; padding: var(--space-2) var(--space-3); }
-  main.admin-shell .workspace-nav a { font-size: var(--text-sm); padding: 0 var(--space-2); }
-  main.admin-shell .workspace-nav .ghost-button { min-height: 36px; padding: 0 var(--space-3); font-size: var(--text-sm); }
 }
 
 /* v2 — approved mockup (Dashboard.dc.html) */

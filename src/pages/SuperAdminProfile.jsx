@@ -51,15 +51,15 @@ export function SuperAdminProfile() {
         <div className="sa-fact-grid">
           <div>
             <span className="sa-fact-label">Account Email</span>
-            <strong className="sa-fact-value" style={{ display: "block", marginTop: 2 }}>{user?.email || "Unavailable"}</strong>
+            <strong className="sa-fact-value" style={{ marginLeft: 6 }}>{user?.email || "Unavailable"}</strong>
           </div>
           <div>
             <span className="sa-fact-label">Assigned Role</span>
-            <span className="sa-fact-success" style={{ display: "block", marginTop: 2 }}>● Platform Superadmin</span>
+            <span className="sa-fact-success" style={{ marginLeft: 6 }}>● Platform Superadmin</span>
           </div>
           <div>
             <span className="sa-fact-label">Security Status</span>
-            <span className="sa-fact-brand" style={{ display: "block", marginTop: 2 }}>Signed in</span>
+            <span className="sa-fact-brand" style={{ marginLeft: 6 }}>Signed in</span>
           </div>
         </div>
       </div>

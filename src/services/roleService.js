@@ -213,10 +213,8 @@ export async function setUserDisabled(uid, disabled) {
   if (error) throw error
 }
 
-// Cafe-staff navigation only. The Superadmin console defines its own layout
-// (SuperAdminLayout) and never passes through RoleLayout, so there is no
-// SUPERADMIN entry here — adding one would only describe routes the guard
-// immediately redirects away.
+// Cafe-staff navigation only. Superadmin links live in RoleLayout (SUPERADMIN_NAV)
+// because they are absolute platform routes, not paths under a cafe slug.
 export const ROLE_NAV = {
   [ROLES.ADMIN]: [
     { to: "dashboard", label: "Dashboard", icon: "LayoutDashboard", exact: true, feature: "analytics" },

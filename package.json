@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host --port 3000",
+    "dev:local": "vite --mode devlocal --port 3000",
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",

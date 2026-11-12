@@ -236,6 +236,12 @@ a.sa-stat:hover {
   border-bottom: 1px solid #eef2ef;
   vertical-align: top;
   min-width: 90px;
+  white-space: nowrap; /* wrap scrolls sideways instead of breaking names mid-word */
+}
+
+/* Requests rows carry free-text notes/reasons and turn into cards on phones. */
+.sa-requests-page .sa-table td {
+  white-space: normal;
   overflow-wrap: anywhere;
 }
 
@@ -499,7 +505,7 @@ a.sa-stat:hover {
 }
 
 .sa-fact-label {
-  display: block;
+  display: inline;
   color: var(--sa-muted-2);
   font-size: 0.74rem;
   text-transform: uppercase;
@@ -1490,17 +1496,8 @@ a.sa-stat:hover {
 }
 
 .sa-cafes-page .sa-table .sa-inline-actions {
-  display: grid;
+  display: flex;
   gap: 8px;
-  grid-template-columns: repeat(2, minmax(120px, 1fr));
-  justify-content: stretch;
-  min-width: 256px;
-}
-
-.sa-cafes-page .sa-table th:last-child,
-.sa-cafes-page .sa-table td:last-child {
-  min-width: 280px;
-  width: 280px;
 }
 
 .sa-cafes-page .sa-table .sa-inline-actions > * {
@@ -1672,3 +1669,6 @@ a.sa-stat:hover {
   .sa-workspace-tabs a { flex:1 1 100%; }
   .sa-visual-summary { align-items:flex-start; padding:16px; }
 }
+
+/* Superadmin pages inside the shared staff shell (RoleLayout): keep the page styles, drop the old full-page frame. */
+.sa-shell.sa-embedded { display: block; min-height: 0; background: none; }

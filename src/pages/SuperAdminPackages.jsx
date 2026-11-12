@@ -302,14 +302,14 @@ export function SuperAdminPackages() {
                     limits: { menuItems: pkg.limits?.menuItems ?? 50, staffUsers: pkg.limits?.staffUsers ?? 1 },
                   })}
                   className="ghost-button"
-                  style={{ flex: "1 1 120px", justifyContent: "center" }}
+                  style={{ flex: "1 1 auto", justifyContent: "center", whiteSpace: "nowrap" }}
                 >
                   Edit Package
                 </button>
-                <button type="button" onClick={() => { setAssigningPackage(pkg); setSelectedCafe("") }} className="primary-button" style={{ flex: "1 1 120px", justifyContent: "center" }}>
+                <button type="button" onClick={() => { setAssigningPackage(pkg); setSelectedCafe("") }} className="primary-button" style={{ flex: "1 1 auto", justifyContent: "center", whiteSpace: "nowrap" }}>
                   Assign Cafe
                 </button>
-                <button type="button" onClick={() => toggleStatus(pkg)} disabled={busy} className="ghost-button" style={{ flex: "1 1 120px", justifyContent: "center" }}>
+                <button type="button" onClick={() => toggleStatus(pkg)} disabled={busy} className="ghost-button" style={{ flex: "1 1 auto", justifyContent: "center", whiteSpace: "nowrap" }}>
                   {isActive ? "Deactivate" : "Activate"}
                 </button>
               </div>
