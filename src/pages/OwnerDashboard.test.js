@@ -12,3 +12,15 @@ describe("dashboard trend wording", () => {
     expect(trendOf(50, 0, "last Friday")).toEqual({ dir: "up", text: "New since last Friday" })
   })
 })
+
+import { soFarToday } from "./OwnerDashboard"
+
+describe("same-time comparison", () => {
+  it("only counts last week's orders placed before the current time of day", () => {
+    const now = new Date(2026, 10, 12, 9, 30)
+    expect(soFarToday(new Date(2026, 10, 5, 9, 0), now)).toBe(true)
+    expect(soFarToday(new Date(2026, 10, 5, 9, 30), now)).toBe(true)
+    expect(soFarToday(new Date(2026, 10, 5, 14, 0), now)).toBe(false)
+    expect(soFarToday(null, now)).toBe(false)
+  })
+})

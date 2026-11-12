@@ -50,6 +50,14 @@ function formatAuditAction(log) {
   return map[log.action] || String(log.action).replace(/\./g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
+// True when a timestamp's time of day is no later than now's, so "today so far" is compared with
+// the same stretch of the comparison day instead of that whole day.
+export function soFarToday(value, now) {
+  const d = toDate(value)
+  if (!d) return false
+  return d.getHours() * 60 + d.getMinutes() <= now.getHours() * 60 + now.getMinutes()
+}
+
 // Change against a comparison value, worded for people: "Up 12% on last Friday".
 export function trendOf(now, before, against) {
   if (!before && !now) return { dir: "flat", text: `Same as ${against}` }
@@ -90,7 +98,8 @@ export function OwnerDashboard() {
     return observeAuditLogs((logs) => setAuditLogs((logs || []).slice(0, 6)), setLoadError)
   }, [])
 
-  const days = useMemo(() => lastDays(15, dateKey(new Date())), [])
+  const todayKey = dateKey(new Date())
+  const days = useMemo(() => lastDays(15, todayKey), [todayKey])
 
   const kpis = useMemo(() => {
     const paid = orders.filter((o) => o.orderStatus === "paid")
@@ -98,16 +107,17 @@ export function OwnerDashboard() {
     const lastWeekDay = days[7].key
     const thisWeek = new Set(days.slice(8).map((d) => d.key))
     const prevWeek = new Set(days.slice(1, 8).map((d) => d.key))
-    const paidOn = (key) => paid.filter((o) => dayOf(o.paidAt || o.updatedAt) === key)
+    const now = new Date()
+    const paidOn = (key, sameTime = false) => paid.filter((o) => dayOf(o.paidAt || o.updatedAt) === key && (!sameTime || soFarToday(o.paidAt || o.updatedAt, now)))
     const paidIn = (set) => paid.filter((o) => set.has(dayOf(o.paidAt || o.updatedAt)))
-    const placedOn = (key) => orders.filter((o) => dayOf(o.createdAt) === key).length
+    const placedOn = (key, sameTime = false) => orders.filter((o) => dayOf(o.createdAt) === key && (!sameTime || soFarToday(o.createdAt, now))).length
     const avg = (list) => (list.length ? total(list) / list.length : 0)
     const weekday = new Date(`${today}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "long", timeZone: "UTC" })
     return {
       salesToday: total(paidOn(today)),
-      salesTrend: trendOf(total(paidOn(today)), total(paidOn(lastWeekDay)), `last ${weekday}`),
+      salesTrend: trendOf(total(paidOn(today)), total(paidOn(lastWeekDay, true)), `last ${weekday} by now`),
       ordersToday: placedOn(today),
-      ordersTrend: trendOf(placedOn(today), placedOn(lastWeekDay), `last ${weekday}`),
+      ordersTrend: trendOf(placedOn(today), placedOn(lastWeekDay, true), `last ${weekday} by now`),
       avgOrder: avg(paidIn(thisWeek)),
       avgTrend: trendOf(avg(paidIn(thisWeek)), avg(paidIn(prevWeek)), "the week before"),
       open: orders.filter((o) => !["paid", "rejected", "ready"].includes(o.orderStatus)).length,
