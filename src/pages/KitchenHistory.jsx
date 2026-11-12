@@ -77,7 +77,7 @@ export function KitchenHistory() {
             const minutes = Math.max(1, Math.round((doneMs(order) - createdMs(order)) / 60000))
             const items = stationItems(order, station)
             return (
-              <article key={order.id} className={`ui-list-row${order.orderStatus === "rejected" ? "is-muted" : ""}`}>
+              <article key={order.id} className={`ui-list-row${order.orderStatus === "rejected" ? " is-muted" : ""}`}>
                 <div className="ui-list-main">
                   <p className="ui-list-title">Table {order.tableNumber || "—"} · {items.map((i) => `${i.quantity || 1}× ${i.name}`).join(", ")}</p>
                   <p className="ui-list-sub">

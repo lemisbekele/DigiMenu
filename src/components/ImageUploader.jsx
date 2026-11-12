@@ -89,17 +89,17 @@ export function ImageUploader({
   const hasPending = !!pendingFile
 
   return (
-    <div className={`image-uploader${dragOver ? "drag-over" : ""}`}>
+    <div className={`image-uploader${dragOver ? " drag-over" : ""}`}>
       <label className="ui-field" style={{ marginBottom: 6 }}>
         <span>{label}</span>
       </label>
 
       {!hasCurrent && !hasPending && onUrlChange ? (
         <div className="upload-mode-tabs" role="tablist">
-          <button type="button" role="tab" aria-selected={mode === "file"} className={`tab${mode === "file" ? "active" : ""}`} onClick={() => setMode("file")}>
+          <button type="button" role="tab" aria-selected={mode === "file"} className={`tab${mode === "file" ? " active" : ""}`} onClick={() => setMode("file")}>
             <UploadCloud size={16} /> Upload file
           </button>
-          <button type="button" role="tab" aria-selected={mode === "url"} className={`tab${mode === "url" ? "active" : ""}`} onClick={() => setMode("url")}>
+          <button type="button" role="tab" aria-selected={mode === "url"} className={`tab${mode === "url" ? " active" : ""}`} onClick={() => setMode("url")}>
             <Globe size={16} /> {activeUrlTabLabel}
           </button>
         </div>

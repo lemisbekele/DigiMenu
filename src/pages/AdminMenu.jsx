@@ -248,31 +248,32 @@ export function AdminMenu() {
           <p>Try another category or search, or add a new item.</p>
         </div>
       ) : (
-        <div className="ui-list">
+        <div className="menu-grid">
           {filteredItems.map((item) => (
-            <article className={`ui-list-row${item.available ? "" : "is-muted"}`} key={item.id}>
-              <div className="ad-thumb">
-                <OptimizedImage src={item.imageUrl} alt="" aspectRatio="1/1" />
+            <article className={`ui-card ui-product${item.available ? "" : " is-muted"}`} key={item.id}>
+              <OptimizedImage src={item.imageUrl} alt="" className="menu-grid-photo" />
+              <div className="ui-product-info">
+                <div>
+                  <small>{item.category}{item.subcategory ? ` · ${item.subcategory}` : ""}</small>
+                  <b title={item.name}>{item.name}</b>
+                  <span className="ui-num">{money(item.price)}</span>
+                  {item.estimatedMinutes ? <small>{item.estimatedMinutes} {t("minutes")}</small> : null}
+                </div>
               </div>
-              <div className="ui-list-main">
-                <h3 className="ui-list-title">{item.name}</h3>
-                <p className="ui-list-sub">
-                  {money(item.price)} · {item.category}{item.subcategory ? ` / ${item.subcategory}` : ""}
-                  {item.estimatedMinutes ? ` · ${item.estimatedMinutes} ${t("minutes")}` : ""}
-                </p>
-              </div>
-              <div className="ui-row">
+              <div className="menu-grid-actions">
                 <label className="ui-switch">
                   <input checked={Boolean(item.available)} type="checkbox" onChange={(event) => toggleAvailable(item, event.target.checked)} />
                   <span aria-hidden="true" />
                   On menu
                 </label>
-                <button className="ui-btn ui-btn--quiet ui-btn--icon" type="button" onClick={() => edit(item)} aria-label={`${t("editItem")}: ${item.name}`} title={t("editItem")}>
-                  <Edit3 size={18} />
-                </button>
-                <button className="ui-btn ui-btn--quiet ui-btn--icon ui-btn--danger" type="button" onClick={() => removeItem(item)} aria-label={`${t("removeItem")}: ${item.name}`} title={t("removeItem")}>
-                  <Trash2 size={18} />
-                </button>
+                <div className="ui-row">
+                  <button className="ui-btn ui-btn--quiet ui-btn--icon" type="button" onClick={() => edit(item)} aria-label={`${t("editItem")}: ${item.name}`} title={t("editItem")}>
+                    <Edit3 size={16} />
+                  </button>
+                  <button className="ui-btn ui-btn--quiet ui-btn--icon ui-btn--danger" type="button" onClick={() => removeItem(item)} aria-label={`${t("removeItem")}: ${item.name}`} title={t("removeItem")}>
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
             </article>
           ))}

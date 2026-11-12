@@ -107,3 +107,18 @@
 
 @media (max-width: 1099px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dash-row { grid-template-columns: 1fr; } }
 @media (max-width: 480px) { .kpi-value { font-size: var(--text-xl); } .week-bar-value { display: none; } }
+
+/* ---------- Orders: tickets like the kitchen's ---------- */
+.order-tickets { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--space-3); align-items: start; }
+.order-ticket-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); }
+.order-ticket-top .ui-ticket-no { margin: 0; font-size: var(--text-xl); }
+.ui-ticket-foot.ui-row > .ui-btn--primary { flex: 1; }
+.order-ticket-pay { margin: 0 var(--space-3) var(--space-3); }
+
+/* ---------- Menu admin: photo grid ---------- */
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--space-3); align-items: start; }
+.menu-grid .ui-product.is-muted .menu-grid-photo { opacity: 0.45; }
+.menu-grid-photo { width: 100%; height: 132px; aspect-ratio: auto; }
+.menu-grid .ui-product-info { padding-bottom: var(--space-2); }
+.menu-grid .ui-product-info > div { display: grid; gap: 2px; }
+.menu-grid-actions { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: var(--space-2) var(--space-3); border-top: 1px solid var(--border); }

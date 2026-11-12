@@ -35,11 +35,13 @@ const MAP = {
   "sa-table": "ui-table", "sa-table-wrap": "ui-table-wrap", "sa-inline-actions": "ui-row",
 }
 
+// Keep a leading/trailing space (e.g. " is-muted" appended to another class); only squeeze the middle.
+const keepEdges = (text) => { const lead = /^\s/.test(text) ? " " : "", trail = /\s$/.test(text) && text.trim() ? " " : ""; return lead + swap(text).trim() + trail }
 const swap = (text) => text.split(/(\s+)/).map((t) => (t in MAP ? MAP[t] : t)).join("").replace(/ {2,}/g, " ")
 // Only string literals are rewritten; ${...} holes and expressions are left alone.
 const inStrings = (expr) => expr
-  .replace(/"([^"]*)"/g, (m, s) => `"${swap(s).trim()}"`)
-  .replace(/'([^']*)'/g, (m, s) => `'${swap(s).trim()}'`)
+  .replace(/"([^"]*)"/g, (m, s) => `"${keepEdges(s)}"`)
+  .replace(/'([^']*)'/g, (m, s) => `'${keepEdges(s)}'`)
   .replace(/`([^`]*)`/g, (m, s) => "`" + s.split(/(\$\{[^}]*\})/).map((part) => (part.startsWith("${") ? inStrings(part) : swap(part))).join("") + "`")
 
 function migrate(source) {

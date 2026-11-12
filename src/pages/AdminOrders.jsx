@@ -8,6 +8,7 @@ import { queueStatus } from "../services/kitchenQueue"
 import { OptimizedImage } from "../components/OptimizedImage"
 import { OrderItemList } from "../components/OrderItemList"
 import { Modal } from "../components/Modal"
+import { EmptyState, PageHeader } from "../ui"
 import "./staff-layout.css"
 import { PermissionGuard } from "../components/PermissionGuard"
 import { useRBAC } from "../context/rbacContextValue"
@@ -321,38 +322,52 @@ export function AdminOrders() {
     return <p>Waiting for the customer to upload their transfer receipt.</p>
   }
 
+  const openOrders = orders.filter((o) => o.orderStatus !== "paid" && o.orderStatus !== "rejected")
+  const counts = {
+    open: openOrders.length,
+    preparing: openOrders.filter((o) => queue.get(o.id)?.preparing).length,
+    ready: openOrders.filter((o) => o.orderStatus === "ready").length,
+    due: openOrders.filter((o) => o.paymentStatus !== "paid").reduce((sum, o) => sum + Number(o.totalAmount || 0), 0),
+  }
+  const ticketTone = (order) => order.orderStatus === "ready" ? "ready" : queue.get(order.id)?.preparing ? "preparing" : "waiting"
+
   return (
     <div className="ui-stack">
-      <header className="ui-page-header">
-        <div>
-          <h1>Orders</h1>
-          <p>{visibleOrders.length} open{unreadCount ? ` · ${unreadCount} new alert${unreadCount === 1 ? "" : "s"}` : ""}</p>
-        </div>
-        {alerts.length ? (
-          <button className="ui-btn" type="button" onClick={() => { setAlerts([]); setUnreadCount(0) }}>Clear alerts</button>
-        ) : null}
-      </header>
+      <PageHeader
+        title="Orders"
+        subtitle={`${visibleOrders.length} open${unreadCount ? ` · ${unreadCount} new alert${unreadCount === 1 ? "" : "s"}` : ""}`}
+        action={alerts.length ? <button className="ui-btn" type="button" onClick={() => { setAlerts([]); setUnreadCount(0) }}>Clear alerts</button> : null}
+      />
       {loadError ? <p className="ui-error" role="alert">{loadError}</p> : null}
 
+      <section className="kpis" aria-label="Right now">
+        <article className="ui-card kpi"><span className="kpi-label">Open orders</span><strong className="kpi-value">{counts.open}</strong></article>
+        <article className="ui-card kpi"><span className="kpi-label">Preparing</span><strong className="kpi-value">{counts.preparing}</strong></article>
+        <article className="ui-card kpi"><span className="kpi-label">Ready to serve</span><strong className="kpi-value">{counts.ready}</strong></article>
+        <article className="ui-card kpi"><span className="kpi-label">Still to collect</span><strong className="kpi-value">{money(counts.due)}</strong></article>
+      </section>
+
       <section className="ui-toolbar">
+        <div className="ui-row">
+          <div className="ui-seg" role="group" aria-label="Status">
+            {STATUS_CHIPS.map((chip) => (
+              <button key={chip.key} type="button" aria-pressed={statusFilter === chip.key} onClick={() => setStatusFilter(chip.key)}>
+                {chip.label}
+              </button>
+            ))}
+          </div>
+          <div className="ui-chips" role="group" aria-label="Payment">
+            {PAYMENT_CHIPS.map((chip) => (
+              <button key={chip.key} type="button" className="ui-chip" aria-pressed={paymentFilter === chip.key} onClick={() => setPaymentFilter(chip.key)}>
+                {chip.label}
+              </button>
+            ))}
+          </div>
+        </div>
         <label className="ui-search">
-          <Search size={18} />
+          <Search size={16} />
           <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Table, item, status, order ID" aria-label="Search orders" />
         </label>
-        <div className="ui-chips" role="group" aria-label="Status">
-          {STATUS_CHIPS.map((chip) => (
-            <button key={chip.key} type="button" className="ui-chip" aria-pressed={statusFilter === chip.key} onClick={() => setStatusFilter(chip.key)}>
-              {chip.label}
-            </button>
-          ))}
-        </div>
-        <div className="ui-chips" role="group" aria-label="Payment">
-          {PAYMENT_CHIPS.map((chip) => (
-            <button key={chip.key} type="button" className="ui-chip" aria-pressed={paymentFilter === chip.key} onClick={() => setPaymentFilter(chip.key)}>
-              {chip.label}
-            </button>
-          ))}
-        </div>
       </section>
 
       {alerts.length ? (
@@ -367,36 +382,34 @@ export function AdminOrders() {
       ) : null}
 
       {visibleOrders.length === 0 ? (
-        <div className="ui-empty">
-          <Search size={32} strokeWidth={1.5} />
-          <strong>No open orders here</strong>
-          <p>New orders appear automatically. Try another filter or clear the search.</p>
-        </div>
+        <EmptyState title="No open orders here" body="New orders appear automatically. Try another filter or clear the search." />
       ) : (
-        <section className="ui-grid">
+        <section className="order-tickets">
           {visibleOrders.map((order) => {
             const q = queue.get(order.id)
             const showPayment = (order.orderStatus === "ready" || isCashMethod(order.paymentMethod)) && canProcessPayment && order.paymentStatus !== "paid"
             return (
-              <article className="ui-card ui-card--stack" key={order.id}>
-                <div className="oc-card-top">
-                  <div>
-                    <h3 className="oc-table">Table {order.tableNumber}</h3>
-                    <p className="oc-meta">{formatDateTime(orderCreatedAt(order), { dateStyle: undefined })} · #{String(order.id).slice(-6)}</p>
+              <article className="ui-card ui-ticket" key={order.id}>
+                <header className="ui-ticket-head ui-tint" data-tone={ticketTone(order)}>
+                  <span>{queueStatus(order, queue)}</span>
+                  <span>{q ? `about ${q.waitMinutes} min` : formatDateTime(orderCreatedAt(order), { dateStyle: undefined })}</span>
+                </header>
+                <div className="ui-ticket-body">
+                  <div className="order-ticket-top">
+                    <h3 className="ui-ticket-no">Table {order.tableNumber}</h3>
+                    <span className="oc-total">{money(order.totalAmount)}</span>
                   </div>
-                  <span className="oc-total">{money(order.totalAmount)}</span>
+                  <div className="oc-status">
+                    <StatusBadge type="payment" value={order.paymentStatus} />
+                    <span>#{String(order.id).slice(-6)}</span>
+                  </div>
+                  <OrderItemList items={order.items} />
                 </div>
-                <div className="oc-status">
-                  <StatusBadge value={q?.preparing ? "preparing" : order.orderStatus} label={queueStatus(order, queue)} />
-                  <StatusBadge type="payment" value={order.paymentStatus} />
-                  {q ? <span>about {q.waitMinutes} min</span> : null}
-                </div>
-                <OrderItemList items={order.items} />
                 <PermissionGuard permission={PERMISSIONS.ORDERS_UPDATE}>
                   {["received", "accepted", "preparing"].includes(order.orderStatus) ? (
-                    <div className="ui-row">
+                    <div className="ui-ticket-foot ui-row">
                       <button type="button" className="ui-btn ui-btn--primary" onClick={() => changeOrderStatus(order, "ready")}>
-                        <CheckCircle2 size={18} /> Done
+                        <CheckCircle2 size={16} /> Done
                       </button>
                       <button type="button" className="ui-btn ui-btn--danger" onClick={() => changeOrderStatus(order, "rejected")}>
                         Reject
@@ -404,7 +417,7 @@ export function AdminOrders() {
                     </div>
                   ) : null}
                   {showPayment ? (
-                    <section className="oc-pay" aria-label="Payment">
+                    <section className="oc-pay order-ticket-pay" aria-label="Payment">
                       <p className="oc-pay-title">Payment</p>
                       {paymentStep(order)}
                     </section>

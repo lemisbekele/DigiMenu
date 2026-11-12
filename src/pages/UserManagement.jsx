@@ -165,7 +165,7 @@ export function UserManagement() {
         </button>
       </header>
 
-      <section className={`ad-seats${userCreationUnavailable ? "is-full" : ""}`} aria-live="polite">
+      <section className={`ad-seats${userCreationUnavailable ? " is-full" : ""}`} aria-live="polite">
         <p><strong>{hasStaffLimit ? `${users.length} of ${staffLimit}` : "—"}</strong> staff accounts used{activePackage?.name ? ` on ${activePackage.name}` : ""}</p>
         {hasStaffLimit ? <div className="ad-seats-bar" aria-hidden="true"><span style={{ width: `${seatPercent}%` }} /></div> : null}
         <p>{hasStaffLimit ? (staffSeatsRemaining ? `${staffSeatsRemaining} left` : userCreationReason) : userCreationReason}</p>
@@ -195,7 +195,7 @@ export function UserManagement() {
       ) : (
         <div className="ui-list">
           {filtered.map((u) => (
-            <article className={`ui-list-row${u.disabled ? "is-muted" : ""}`} key={u.id}>
+            <article className={`ui-list-row${u.disabled ? " is-muted" : ""}`} key={u.id}>
               <div className="ui-list-main">
                 <h3 className="ui-list-title">{u.displayName}{u.disabled ? <>{" "}<StatusPill tone="late">Turned off</StatusPill></> : null}</h3>
                 <p className="ui-list-sub">{u.email}</p>

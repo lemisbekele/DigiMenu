@@ -171,7 +171,7 @@ export function AdminSettings() {
           ) : (
             <div className="ui-list">
               {paymentOptions.map((option) => (
-                <article key={option.id} className={`ui-list-row${option.active ? "" : "is-muted"}`}>
+                <article key={option.id} className={`ui-list-row${option.active ? "" : " is-muted"}`}>
                   <span className="ad-thumb" aria-hidden="true">
                     <PaymentTypeIcon type={option.type} />
                   </span>
