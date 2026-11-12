@@ -37,7 +37,6 @@ import {
 } from "../services/dataService"
 import "./customer-menu.css"
 import "./customer.css"
-import "./customer-redesign.css"
 
 function formatCardPrice(price) {
   const currency = currentRegion()?.currency || "ETB"
