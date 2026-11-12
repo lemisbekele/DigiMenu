@@ -27,3 +27,4 @@ dist-ssr
 *.sw?
 artifacts/audit/
 desktop.ini
+.superpowers/

@@ -1,8 +1,9 @@
 :root {
   background: var(--bg);
   color: var(--text);
-  /* Noto Sans Ethiopic covers Amharic (Ge'ez), which Plus Jakarta Sans lacks. */
-  --font-sans: "Plus Jakarta Sans", "Noto Sans Ethiopic", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Noto Sans Ethiopic covers Amharic (Ge'ez), which Figtree lacks. */
+  --font-sans: "Figtree", "Noto Sans Ethiopic", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Bricolage Grotesque", var(--font-sans);
   font-family: var(--font-sans);
   font-size: 15px;
   line-height: 1.45;
