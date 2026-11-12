@@ -33,7 +33,7 @@ export function AccessDenied() {
         >
           <ShieldX size={26} />
         </div>
-        <h1 style={{ fontSize: "1.4rem", marginBottom: 8 }}>Access Denied</h1>
+        <h1 style={{ fontSize: "var(--text-xl)", marginBottom: 8 }}>Access Denied</h1>
         <p style={{ color: "var(--text-3)", marginBottom: 16, lineHeight: 1.6 }}>
           Your account does not have permission to view this page.
         </p>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Bell, ChefHat, Globe, Moon, Sun, Volume2 } from "lucide-react"
+import { Bell, ChefHat, Moon, Sun, Volume2 } from "lucide-react"
 import { LogoutButton } from "../components/LogoutButton"
 import { useLanguage } from "../context/languageContextValue"
 import { useTheme } from "../context/themeContextValue"

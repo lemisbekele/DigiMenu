@@ -106,10 +106,10 @@ export function SuperAdminAnnouncements() {
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6, flexWrap: "wrap" }}>
                   <span className="ui-pill sa-badge-brand">{ann.target}</span>
                   <span className={`ui-pill ${ann.priority === "High" ? "sa-badge-error" : "sa-badge-neutral"}`}>{ann.priority}</span>
-                  <span style={{ fontSize: "0.75rem", color: "var(--text-3)" }}>{ann.date}</span>
+                  <span style={{ fontSize: "var(--text-xs)", color: "var(--text-3)" }}>{ann.date}</span>
                 </div>
-                <h3 style={{ fontSize: "1.1rem", color: "var(--brand-ink)", margin: "0 0 6px" }}>{ann.title}</h3>
-                <p style={{ fontSize: "0.9rem", color: "var(--text-3)", margin: 0 }}>{ann.message}</p>
+                <h3 style={{ fontSize: "var(--text-lg)", color: "var(--brand-ink)", margin: "0 0 6px" }}>{ann.title}</h3>
+                <p style={{ fontSize: "var(--text-md)", color: "var(--text-3)", margin: 0 }}>{ann.message}</p>
               </div>
               <button
                 type="button"

@@ -23,7 +23,7 @@
 
 form fieldset { min-width: 0; }
 
-.form-context { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; display: grid; gap: 4px; margin-bottom: 16px; overflow-wrap: anywhere; }
+.form-context { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; display: grid; gap: 4px; margin-bottom: 16px; overflow-wrap: anywhere; }
 
 .form-context p { margin: 0; }
 
@@ -31,7 +31,7 @@ form fieldset { min-width: 0; }
 
 :is(.admin-form, .inventory-form, .sa-modal, .product-form, .auth-card, .regional-form) :is(.field, .sa-field) { min-width: 0; }
 
-:is(.admin-form, .inventory-form, .sa-modal, .product-form, .auth-card, .regional-form) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); color: var(--text); padding: 11px 12px; }
+:is(.admin-form, .inventory-form, .sa-modal, .product-form, .auth-card, .regional-form) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); padding: 11px 12px; }
 
 :is(.admin-form, .inventory-form, .sa-modal, .product-form, .auth-card, .regional-form) textarea { min-height: 96px; resize: vertical; }
 
@@ -49,24 +49,24 @@ form fieldset { min-width: 0; }
 
 .sa-modal-wide { max-width: 760px; }
 
-.sa-modal .sa-alert-error { color: var(--danger-text); background: var(--danger-soft); padding: 12px; border-radius: 8px; }
+.sa-modal .sa-alert-error { color: var(--danger-text); background: var(--danger-soft); padding: 12px; border-radius: var(--radius-sm); }
 
-.qr-copy-form label { display: grid; gap: 6px; font-size: .85rem; color: var(--text-2); }
+.qr-copy-form label { display: grid; gap: 6px; font-size: var(--text-md); color: var(--text-2); }
 
-.password-change-panel { width: min(100%, 480px); max-height: calc(100dvh - 32px); overflow-y: auto; padding: clamp(20px, 4vw, 32px); background: var(--surface); border: 1px solid var(--border); border-radius: 16px; color: var(--text); }
+.password-change-panel { width: min(100%, 480px); max-height: calc(100dvh - 32px); overflow-y: auto; padding: clamp(20px, 4vw, 32px); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); color: var(--text); }
 
 .password-change-panel form { display: grid; gap: 18px; }
 
 .password-change-panel .field { display: grid; gap: 6px; }
 
-.password-change-panel input { width: 100%; min-height: 44px; padding: 12px; background: var(--surface-2); color: var(--text); border: 1px solid var(--border-strong); border-radius: 8px; }
+.password-change-panel input { width: 100%; min-height: 44px; padding: 12px; background: var(--surface-2); color: var(--text); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
 
 @media (max-width: 640px) {
 .form-actions > * { flex: 1 1 100%; width: 100%; }
 
 .sa-modal { padding: 18px; }
 
-:is(form, .sa-modal) :is(input, select, textarea) { font-size: 16px; }
+:is(form, .sa-modal) :is(input, select, textarea) { font-size: var(--text-lg); }
 
 .notif-corner { margin-top: 4px; }
 

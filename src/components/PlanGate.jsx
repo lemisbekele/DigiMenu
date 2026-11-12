@@ -27,7 +27,7 @@ export function FeatureLockedPage({ feature }) {
         >
           <Lock size={26} />
         </div>
-        <h1 style={{ fontSize: "1.4rem", marginBottom: 8 }}>Feature not included</h1>
+        <h1 style={{ fontSize: "var(--text-xl)", marginBottom: 8 }}>Feature not included</h1>
         {plan ? (
           <p style={{ color: "var(--text-2)", marginBottom: 12, lineHeight: 1.6 }}>
             <strong>{info?.name || feature}</strong> is not part of your current{" "}
@@ -39,19 +39,19 @@ export function FeatureLockedPage({ feature }) {
           </p>
         )}
         {info?.description ? (
-          <p style={{ color: "var(--text-2)", fontSize: "0.92rem", marginBottom: 16, lineHeight: 1.6 }}>
+          <p style={{ color: "var(--text-2)", fontSize: "var(--text-md)", marginBottom: 16, lineHeight: 1.6 }}>
             {info.description}
           </p>
         ) : null}
         <div
           style={{
             padding: "14px 16px",
-            borderRadius: 10,
+            borderRadius: "var(--radius-sm)",
             background: "var(--surface-2)",
             border: "1px solid var(--border)",
             marginBottom: 18,
             textAlign: "left",
-            fontSize: "0.9rem",
+            fontSize: "var(--text-md)",
             color: "var(--text-2)",
           }}
         >

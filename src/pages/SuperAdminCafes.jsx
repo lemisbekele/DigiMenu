@@ -245,26 +245,26 @@ export function SuperAdminCafes() {
                           href={`/${cafe.slug}/menu`}
                           target="_blank"
                           rel="noreferrer"
-                          style={{ color: "var(--brand)", fontSize: "0.85rem", textDecoration: "none", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}
+                          style={{ color: "var(--brand)", fontSize: "var(--text-md)", textDecoration: "none", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}
                           title="Open Customer Menu"
                         >
                           /{cafe.slug} <ExternalLink size={12} />
                         </a>
                       </td>
-                      <td data-label="Owner Email" style={{ color: "var(--text-3)", fontSize: "0.85rem" }}>{cafe.owner_email || "—"}</td>
+                      <td data-label="Owner Email" style={{ color: "var(--text-3)", fontSize: "var(--text-md)" }}>{cafe.owner_email || "—"}</td>
                       <td data-label="Package">
                         {pkg ? (
                           <span className="ui-pill" style={{ background: "var(--info-bg)", color: pkg.id === "enterprise" ? "var(--info)" : "var(--info)" }}>
                             {pkg.name || pkg.id}
                           </span>
                         ) : (
-                          <span style={{ color: "var(--muted)", fontSize: "0.82rem" }}>No active package</span>
+                          <span style={{ color: "var(--muted)", fontSize: "var(--text-sm)" }}>No active package</span>
                         )}
                       </td>
                       <td data-label="Status">
                         <span className="ui-pill" style={{ background: s.bg, color: s.color }}>{s.text}</span>
                       </td>
-                      <td data-label="Created" style={{ color: "var(--text-3)", fontSize: "0.82rem" }}>
+                      <td data-label="Created" style={{ color: "var(--text-3)", fontSize: "var(--text-sm)" }}>
                         {cafe.created_at ? formatDateTime(cafe.created_at, { timeStyle: undefined }) : "—"}
                       </td>
                       <td data-label="Actions" style={{ textAlign: "right" }}>

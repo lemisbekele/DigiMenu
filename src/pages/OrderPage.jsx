@@ -143,14 +143,14 @@ export function OrderPage() {
             <p className="ui-muted">{t("orderRejected")}</p>
             <h2>{t("rejectedTryAgain")}</h2>
             {order.rejectionReason ? (
-              <p style={{ background: "var(--bg-muted)", padding: 12, borderRadius: 8, marginTop: 12 }}>
+              <p style={{ background: "var(--bg-muted)", padding: 12, borderRadius: "var(--radius-sm)", marginTop: 12 }}>
                 {order.rejectionReason}
               </p>
             ) : null}
             <p style={{ marginTop: 8, opacity: 0.7 }}>{t("rejectedTryAgainBody")}</p>
           </div>
           <details style={{ marginBottom: 16 }}>
-            <summary style={{ cursor: "pointer", opacity: 0.6, fontSize: "0.9rem" }}>Order items</summary>
+            <summary style={{ cursor: "pointer", opacity: 0.6, fontSize: "var(--text-md)" }}>Order items</summary>
             <div className="summary-panel" style={{ marginTop: 8 }}>
               {(order.items || []).map((item, index) => (
                 <div className="summary-line" key={`${item.itemId}-${index}`}>
@@ -285,7 +285,7 @@ export function OrderPage() {
             <CheckCircle2 size={18} style={{ color: "var(--accent)" }} />
             <span>{t("paymentReceived")}</span>
           </div>
-          <p style={{ marginTop: 8, opacity: 0.7, fontSize: "0.9rem" }}>{t("receiptTableMessage")}</p>
+          <p style={{ marginTop: 8, opacity: 0.7, fontSize: "var(--text-md)" }}>{t("receiptTableMessage")}</p>
           {order.paymentMethod ? <span className="ui-pill">{paymentOptions.find((o) => o.type === order.paymentMethod)?.name || order.paymentMethod}</span> : null}
         </section>
       ) : (
@@ -314,7 +314,7 @@ export function OrderPage() {
           {proofError ? <p className="ui-error" style={{ marginBottom: 8 }}>{proofError}</p> : null}
 
           {!selectedMethod ? (
-            <p style={{ margin: 0, opacity: 0.7, fontSize: "0.9rem" }}>{t("choosePaymentMethod")}</p>
+            <p style={{ margin: 0, opacity: 0.7, fontSize: "var(--text-md)" }}>{t("choosePaymentMethod")}</p>
           ) : selectedMethod !== order.paymentMethod ? (
             (() => {
               const option = selectedOption
@@ -426,7 +426,7 @@ export function OrderPage() {
                 <div className="uploaded-proof-preview">
                   <p className="bank-field-label">{t("uploadedProof")}</p>
                   <a href={order.paymentProofUrl} target="_blank" rel="noopener noreferrer">
-                    <OptimizedImage src={order.paymentProofUrl} alt="Proof" fallbackType="receipt" aspectRatio="4/3" style={{ maxWidth: 240, borderRadius: 6 }} />
+                    <OptimizedImage src={order.paymentProofUrl} alt="Proof" fallbackType="receipt" aspectRatio="4/3" style={{ maxWidth: 240, borderRadius: "var(--radius-sm)" }} />
                   </a>
                 </div>
               ) : order.paymentProofUrl ? (
@@ -446,7 +446,7 @@ export function OrderPage() {
                 <div className="uploaded-proof-preview">
                   <p className="bank-field-label">{t("previousProof")}</p>
                   <a href={order.paymentProofUrl} target="_blank" rel="noopener noreferrer">
-                    <OptimizedImage src={order.paymentProofUrl} alt="Proof" fallbackType="receipt" aspectRatio="4/3" style={{ maxWidth: 240, borderRadius: 6 }} />
+                    <OptimizedImage src={order.paymentProofUrl} alt="Proof" fallbackType="receipt" aspectRatio="4/3" style={{ maxWidth: 240, borderRadius: "var(--radius-sm)" }} />
                   </a>
                 </div>
               ) : order.paymentProofUrl ? (
@@ -534,7 +534,7 @@ export function OrderPage() {
                   <span className="step-badge step-2">Step 2</span>
                   <h4>{t("uploadPaymentProof")}</h4>
                 </div>
-                <p style={{ margin: "0 0 6px", fontSize: "0.85rem" }}>
+                <p style={{ margin: "0 0 6px", fontSize: "var(--text-md)" }}>
                   {t("uploadProofAfterTransfer")}
                 </p>
                 {proofError ? <p className="ui-error">{proofError}</p> : null}

@@ -199,14 +199,14 @@ export function SuperAdminRequests() {
                     <tr key={req.id}>
                       <td data-label="Organization / Customer">
                         <strong style={{ color: "var(--brand-ink)", display: "block" }}>{req.customer_name}</strong>
-                        <span style={{ color: "var(--text-3)", fontSize: "0.8rem", display: "block" }}>{req.email}</span>
+                        <span style={{ color: "var(--text-3)", fontSize: "var(--text-sm)", display: "block" }}>{req.email}</span>
                         {req.phone ? (
-                          <span style={{ color: "var(--muted)", fontSize: "0.78rem", display: "flex", alignItems: "center", gap: 4 }}>
+                          <span style={{ color: "var(--muted)", fontSize: "var(--text-xs)", display: "flex", alignItems: "center", gap: 4 }}>
                             <Phone size={12} /> {req.phone}
                           </span>
                         ) : null}
                         {req.notes ? (
-                          <span style={{ color: "var(--muted)", fontSize: "0.78rem", display: "flex", alignItems: "center", gap: 4 }}>
+                          <span style={{ color: "var(--muted)", fontSize: "var(--text-xs)", display: "flex", alignItems: "center", gap: 4 }}>
                             <FileText size={12} /> {req.notes}
                           </span>
                         ) : null}
@@ -214,7 +214,7 @@ export function SuperAdminRequests() {
                       <td data-label="Requested Package">
                         <span className="sa-package-tag">{plan?.name || req.plan_key}</span>
                       </td>
-                      <td data-label="Submitted" style={{ color: "var(--text-3)", fontSize: "0.82rem" }}>
+                      <td data-label="Submitted" style={{ color: "var(--text-3)", fontSize: "var(--text-sm)" }}>
                         {req.requested_at ? formatDateTime(req.requested_at, { timeStyle: undefined }) : "—"}
                       </td>
                       <td data-label="Status">
@@ -222,7 +222,7 @@ export function SuperAdminRequests() {
                           {SUBSCRIPTION_STATUS_LABELS[req.status] || req.status}
                         </span>
                         {req.rejection_reason ? (
-                          <span style={{ display: "block", color: "var(--danger)", fontSize: "0.74rem", marginTop: 4 }}>Reason: {req.rejection_reason}</span>
+                          <span style={{ display: "block", color: "var(--danger)", fontSize: "var(--text-xs)", marginTop: 4 }}>Reason: {req.rejection_reason}</span>
                         ) : null}
                       </td>
                       <td data-label="Actions" style={{ textAlign: "right" }}>
@@ -246,7 +246,7 @@ export function SuperAdminRequests() {
                             </button>
                           </div>
                         ) : (
-                          <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>—</span>
+                          <span style={{ fontSize: "var(--text-sm)", color: "var(--muted)" }}>—</span>
                         )}
                       </td>
                     </tr>
@@ -265,26 +265,26 @@ export function SuperAdminRequests() {
               <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--success-bg)", color: "var(--brand)", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: "0.75rem" }}>
                 <ShieldCheck size={28} />
               </div>
-              <h2 style={{ margin: "0 0 0.5rem", fontSize: "1.3rem", color: "var(--brand-ink)" }}>Access Granted &amp; Account Provisioned</h2>
-              <p style={{ color: "var(--text-3)", fontSize: "0.9rem", margin: 0 }}>
+              <h2 style={{ margin: "0 0 0.5rem", fontSize: "var(--text-xl)", color: "var(--brand-ink)" }}>Access Granted &amp; Account Provisioned</h2>
+              <p style={{ color: "var(--text-3)", fontSize: "var(--text-md)", margin: 0 }}>
                 One admin account was created for this customer. Share these temporary credentials.
               </p>
             </div>
 
-            <div style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 10, padding: "1rem", marginBottom: "1.5rem" }}>
+            <div style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", padding: "1rem", marginBottom: "1.5rem" }}>
               <div style={{ marginBottom: "0.75rem" }}>
                 <span className="sa-fact-label">Admin Email</span>
-                <div style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--brand)", marginTop: 2 }}>{credentialModal.email}</div>
+                <div style={{ fontSize: "var(--text-lg)", fontWeight: 700, color: "var(--brand)", marginTop: 2 }}>{credentialModal.email}</div>
               </div>
               {credentialModal.cafeSlug ? (
                 <div style={{ marginBottom: "0.75rem" }}>
                   <span className="sa-fact-label">Assigned Cafe URL</span>
-                  <div style={{ fontSize: "1rem", fontWeight: 700, color: "var(--brand)", marginTop: 2 }}>/{credentialModal.cafeSlug}</div>
+                  <div style={{ fontSize: "var(--text-lg)", fontWeight: 700, color: "var(--brand)", marginTop: 2 }}>/{credentialModal.cafeSlug}</div>
                 </div>
               ) : null}
               <div>
                 <span className="sa-fact-label">Temporary Password</span>
-                <div style={{ fontSize: "1.1rem", fontFamily: "monospace", fontWeight: 800, color: "var(--warning)", marginTop: 2, letterSpacing: 1 }}>{credentialModal.temporaryPassword}</div>
+                <div style={{ fontSize: "var(--text-lg)", fontFamily: "monospace", fontWeight: 700, color: "var(--warning)", marginTop: 2, letterSpacing: 1 }}>{credentialModal.temporaryPassword}</div>
               </div>
             </div>
 
@@ -319,7 +319,7 @@ export function SuperAdminRequests() {
                 <button
                   type="button"
                   className="ui-btn"
-                  style={{ fontSize: "0.78rem", padding: "2px 8px", height: "auto", cursor: "pointer" }}
+                  style={{ fontSize: "var(--text-xs)", padding: "2px 8px", height: "auto", cursor: "pointer" }}
                   onClick={() => setTemporaryPassword(generateTemporaryPassword())}
                 >
                   Regenerate password

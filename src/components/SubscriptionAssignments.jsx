@@ -171,12 +171,12 @@ export function SubscriptionAssignments() {
                     <tr key={sub.id}>
                       <td>
                         <strong style={{ color: "var(--brand-ink)", display: "block" }}>{sub.customer_name}</strong>
-                        <span style={{ color: "var(--text-3)", fontSize: "0.8rem" }}>{sub.email}</span>
+                        <span style={{ color: "var(--text-3)", fontSize: "var(--text-sm)" }}>{sub.email}</span>
                       </td>
                       <td>
                         <span className="sa-package-tag">{plan?.name || sub.plan_key}</span>
                       </td>
-                      <td style={{ color: "var(--brand)", fontSize: "0.84rem" }}>
+                      <td style={{ color: "var(--brand)", fontSize: "var(--text-sm)" }}>
                         {sub.cafe_slug ? `/${sub.cafe_slug}` : "—"}
                       </td>
                       <td>
@@ -184,7 +184,7 @@ export function SubscriptionAssignments() {
                           {SUBSCRIPTION_STATUS_LABELS[sub.status] || sub.status}
                         </span>
                       </td>
-                      <td style={{ color: "var(--text-3)", fontSize: "0.82rem" }}>
+                      <td style={{ color: "var(--text-3)", fontSize: "var(--text-sm)" }}>
                         {sub.requested_at ? formatDateTime(sub.requested_at, { timeStyle: undefined }) : "—"}
                       </td>
                       <td style={{ textAlign: "right" }}>

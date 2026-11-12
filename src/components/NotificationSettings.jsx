@@ -49,7 +49,7 @@ export function NotificationSettings({ buttonLabel = "", orderId = null, role = 
     return (
       <div className={`notification-settings ${compact ? "" : ""}`}>
         <div className="notif-blocked">
-          <p style={{ margin: 0, fontSize: "0.8rem" }}>Notifications are off in your browser settings</p>
+          <p style={{ margin: 0, fontSize: "var(--text-sm)" }}>Notifications are off in your browser settings</p>
           <button className="enable-notif-btn" type="button" onClick={() => setStatus(getPermission())}>
             <RefreshCw size={12} /> Check again
           </button>

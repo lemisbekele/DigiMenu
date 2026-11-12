@@ -50,25 +50,37 @@ function walk(dir, out = []) {
   return out
 }
 
+// Files allowed to name colours directly: the theme itself, the logo mark, and the printable
+// QR card, which must stay black on white to scan whatever the screen theme is.
+const HEX_ALLOWED = ["theme.css", "brand.css", "TableQrCard.jsx"]
+
 export function auditSource(srcDir) {
   let inlineStyles = 0, hexOutsideTheme = 0
   const fontSizes = new Set(), radii = new Set()
   for (const file of walk(srcDir)) {
     const text = readFileSync(file, "utf8")
     inlineStyles += (text.match(/style=\{\{/g) || []).length
-    if (!file.endsWith("theme.css")) hexOutsideTheme += (text.match(/#[0-9a-fA-F]{3,8}\b/g) || []).filter((h) => [4, 7, 9].includes(h.length)).length
-    if (file.endsWith(".css")) {
-      for (const m of text.matchAll(/font-size:\s*([^;}\n]+)/g)) fontSizes.add(m[1].trim())
-      for (const m of text.matchAll(/border-radius:\s*([^;}\n]+)/g)) radii.add(m[1].trim())
+    if (!HEX_ALLOWED.some((name) => file.endsWith(name))) hexOutsideTheme += (text.match(/#[0-9a-fA-F]{3,8}\b/g) || []).filter((h) => [4, 7, 9].includes(h.length)).length
+    if (file.endsWith(".css") && !file.endsWith("theme.css")) {
+      // Off-scale = a literal size instead of a token. Fluid clamp() sizes are the marketing headlines (allowed by the spec).
+      for (const m of text.matchAll(/font-size:\s*([^;}\n]+)/g)) {
+        const v = m[1].trim()
+        if (/\d(px|rem|em)\b/.test(v) && !/^(clamp|calc)\(/.test(v)) fontSizes.add(v)
+      }
+      // Radii: tokens, 0 and 50% are on scale; literal values of 4px or less (bar ends) are allowed.
+      for (const m of text.matchAll(/border-radius:\s*([^;}\n]+)/g)) {
+        const v = m[1].trim()
+        if ([...v.matchAll(/(\d*\.?\d+)px/g)].some((p) => Number(p[1]) > 4)) radii.add(v)
+      }
     }
   }
-  return { inlineStyles, hexOutsideTheme, fontSizes: fontSizes.size, radii: radii.size }
+  return { inlineStyles, hexOutsideTheme, fontSizes: fontSizes.size, radii: radii.size, offScale: [...fontSizes, ...radii] }
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const src = join(fileURLToPath(new URL("..", import.meta.url)), "src")
   const result = { ...auditSource(src), contrastFailures: auditTokens(readFileSync(join(src, "theme.css"), "utf8")) }
   console.log(JSON.stringify(result, null, 2))
-  const ok = result.hexOutsideTheme === 0 && result.fontSizes <= 6 && result.radii <= 4 && result.contrastFailures.length === 0
+  const ok = result.hexOutsideTheme === 0 && result.fontSizes === 0 && result.radii === 0 && result.contrastFailures.length === 0
   if (process.argv.includes("--strict") && !ok) process.exit(1)
 }

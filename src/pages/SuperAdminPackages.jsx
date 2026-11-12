@@ -260,21 +260,21 @@ export function SuperAdminPackages() {
                 <h2 className="pkg-name">{pkg.name}</h2>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 4, margin: "8px 0 16px" }}>
                   <span className="pkg-price">{pkg.price}</span>
-                  <span style={{ fontSize: "0.85rem", color: "var(--text-3)" }}>{pkg.period}</span>
+                  <span style={{ fontSize: "var(--text-md)", color: "var(--text-3)" }}>{pkg.period}</span>
                 </div>
-                <p style={{ fontSize: "0.88rem", color: "var(--text-3)", marginBottom: "1.25rem" }}>{pkg.description}</p>
-                <div style={{ fontSize: "0.82rem", color: "var(--text-3)", marginBottom: "0.75rem" }}>
+                <p style={{ fontSize: "var(--text-md)", color: "var(--text-3)", marginBottom: "1.25rem" }}>{pkg.description}</p>
+                <div style={{ fontSize: "var(--text-sm)", color: "var(--text-3)", marginBottom: "0.75rem" }}>
                   <strong style={{ color: "var(--text)" }}>{featureKeysOf(pkg).length}</strong> enabled features
                   {" · "}menu items: <strong style={{ color: "var(--text)" }}>{pkg.limits?.menuItems ?? "—"}</strong>
                   {" · "}staff accounts: <strong style={{ color: "var(--text)" }}>{pkg.limits?.staffUsers ?? "—"}</strong>
                 </div>
-                <ul style={{ paddingLeft: 18, margin: "0 0 1rem", color: "var(--text-3)", fontSize: "0.82rem", display: "flex", flexDirection: "column", gap: 4 }}>
+                <ul style={{ paddingLeft: 18, margin: "0 0 1rem", color: "var(--text-3)", fontSize: "var(--text-sm)", display: "flex", flexDirection: "column", gap: 4 }}>
                   {featureKeysOf(pkg).filter((key) => catalogFeatureMap.has(key)).map((key) => (
                     <li key={key}>{catalogFeatureMap.get(key).name}</li>
                   ))}
                 </ul>
                 {pkg.activeCafes > 0 && (
-                  <div style={{ fontSize: "0.8rem", color: "var(--text-3)", marginBottom: "0.75rem", background: "var(--surface-2)", borderRadius: 8, padding: "8px 10px" }}>
+                  <div style={{ fontSize: "var(--text-sm)", color: "var(--text-3)", marginBottom: "0.75rem", background: "var(--surface-2)", borderRadius: "var(--radius-sm)", padding: "8px 10px" }}>
                     {subscriptions
                       .filter((s) => isSubscriptionActive(s) && s.plan_key === pkg.id)
                       .map((s) => cafeNamesBySlug[(s.cafe_slug || "").toLowerCase()] || s.cafe_slug || s.customer_name)
@@ -309,7 +309,7 @@ export function SuperAdminPackages() {
         })}
       </div>
 
-      <p className="ui-muted" style={{ marginTop: "1rem", fontSize: "0.85rem" }}>
+      <p className="ui-muted" style={{ marginTop: "1rem", fontSize: "var(--text-md)" }}>
         Package features are the single source of truth for entitlements: cafe routes, navigation, and backend writes all reject features your package does not include. Active cafe counts are computed live from Active subscriptions.
       </p>
 
