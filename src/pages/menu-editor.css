@@ -1,118 +1,112 @@
-dialog.ui-dialog.menu-editor-dialog { width: min(1000px, calc(100vw - 40px)); max-width: none; max-height: calc(100dvh - 40px); padding: 0; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); color: var(--text); overflow: hidden; box-shadow: var(--shadow-lg); }
+/* Menu item editor (AdminMenu.jsx) as a compact list, like a phone's settings screen:
+   each section is one card, each field one row — label on the left, value on the right, hairlines between.
+   Every selector starts at the dialog so these rules outrank the older form rules in App.css. */
 
-.menu-editor-dialog[open] { display: flex; flex-direction: column; }
+/* ---------- Frame ---------- */
+dialog.ui-dialog.menu-editor-dialog { width: min(640px, calc(100vw - 32px)); max-width: none; max-height: calc(100dvh - 32px); padding: 0; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg); color: var(--text); overflow: hidden; box-shadow: var(--shadow-lg); }
+dialog.menu-editor-dialog[open] { display: flex; flex-direction: column; }
+dialog.menu-editor-dialog::backdrop { background: rgba(22, 24, 26, 0.5); backdrop-filter: blur(3px); }
+dialog.menu-editor-dialog > .ui-dialog-head { flex-shrink: 0; padding: var(--space-3) var(--space-4); background: var(--surface); }
+dialog.menu-editor-dialog > .ui-dialog-head h2 { font: var(--weight-heavy) var(--text-lg)/1.3 var(--font-sans); letter-spacing: -0.01em; }
+dialog.menu-editor-dialog .menu-item-editor { display: flex; flex-direction: column; min-height: 0; width: 100%; max-width: none; margin: 0; padding: 0; gap: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
+dialog.menu-editor-dialog .menu-editor-intro { display: flex; justify-content: space-between; gap: var(--space-3); flex-shrink: 0; padding: var(--space-3) var(--space-4) 0; color: var(--muted); font-size: var(--text-xs); }
+dialog.menu-editor-dialog .menu-editor-intro p { margin: 0; }
+dialog.menu-editor-dialog .menu-editor-intro > span { white-space: nowrap; }
+dialog.menu-editor-dialog .menu-item-editor-body { min-height: 0; padding: var(--space-3) var(--space-4) var(--space-4); overflow-y: auto; }
+dialog.menu-editor-dialog .menu-item-editor-layout { display: grid; grid-template-columns: 1fr; gap: var(--space-4); }
 
-.menu-editor-dialog::backdrop { background: rgba(22, 24, 26, 0.5); backdrop-filter: blur(3px); }
+/* ---------- Section = one card; its title sits above it ---------- */
+dialog.menu-editor-dialog .menu-item-editor-section { display: block; min-width: 0; margin: 0; padding: 0; border: 0; background: none; }
+dialog.menu-editor-dialog .menu-item-editor-section legend { float: left; width: 100%; margin: 0 0 var(--space-2); padding: 0 var(--space-1); color: var(--muted); }
+dialog.menu-editor-dialog .menu-item-editor-section legend span { display: flex; align-items: baseline; gap: var(--space-2); }
+dialog.menu-editor-dialog .menu-item-editor-section legend strong { color: var(--text-2); font: var(--weight-bold) var(--text-xs)/1.2 var(--font-sans); letter-spacing: 0.06em; text-transform: uppercase; }
+dialog.menu-editor-dialog .menu-item-editor-section legend small { color: var(--muted); font-size: var(--text-xs); }
+dialog.menu-editor-dialog .menu-item-editor-section legend + * { clear: both; }
 
-.menu-editor-dialog > .ui-dialog-head { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; padding: 20px 28px; margin: 0; gap: 20px; border-bottom: 1px solid var(--border); }
-
-.menu-editor-dialog > .ui-dialog-head h2 { margin: 0; color: var(--text); font-size: var(--text-xl); font-weight: 700; letter-spacing: -.025em; }
-
-.menu-editor-dialog > .ui-dialog-head button { width: 40px; height: 40px; flex: 0 0 auto; color: var(--muted); background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); }
-
-.menu-editor-dialog .menu-item-editor { display: flex; flex-direction: column; min-height: 0; padding: 0; margin: 0; width: 100%; max-width: none; gap: 0; border: 0; border-radius: 0; background: var(--surface); box-shadow: none; }
-
-.menu-editor-intro { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 16px 28px 0; color: var(--muted); font-size: var(--text-sm); flex-shrink: 0; }
-
-.menu-editor-intro p { margin: 0; }
-
-.menu-editor-intro > span { white-space: nowrap; font-size: var(--text-xs); }
-
-.menu-editor-dialog .menu-item-editor-body { overflow-y: auto; min-height: 0; padding: 24px 28px; }
-
-.menu-editor-dialog .menu-item-editor-layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 26px; align-items: start; }
-
-.menu-editor-dialog .menu-item-editor-section { border: 0; padding: 0; border-radius: 0; background: transparent; gap: 18px; }
-
-.menu-editor-dialog .menu-item-editor-section legend { margin-bottom: 20px; padding: 0; color: var(--text); }
-
-.menu-editor-dialog .menu-item-editor-section legend strong { font-size: var(--text-md); line-height: 1.4; }
-
-.menu-editor-dialog .menu-item-editor-section legend small { font-size: var(--text-sm); font-weight: 400; line-height: 1.6; }
-
-.menu-editor-dialog .menu-item-editor-details { grid-column: 1; }
-
-.menu-editor-dialog .menu-item-editor-media { grid-column: 2; padding: 20px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); }
-
-.menu-editor-dialog .menu-item-editor-fields--details { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; }
-
-.menu-editor-dialog :is(.menu-item-editor-name, .menu-item-editor-description) { grid-column: 1 / -1; }
-
-.menu-editor-dialog .field > span:first-child { font-size: var(--text-sm); font-weight: 600; color: var(--text-2); }
-
-.menu-editor-dialog .field :is(input,textarea) { border-color: var(--border-strong); background: var(--surface); color: var(--text); border-radius: var(--radius-sm); }
-
-.menu-editor-dialog .menu-item-editor-money-input { border-color: var(--border-strong); background: var(--surface); border-radius: var(--radius-sm); }
-
-.menu-editor-dialog .menu-item-editor-money-input > span { color: var(--muted); background: var(--surface-2); border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
-
-.menu-editor-dialog .menu-item-editor-money-input > span { white-space: nowrap; flex: 0 0 auto; font-weight: 600; }
-
-.menu-editor-dialog .menu-item-editor .field .menu-item-editor-money-input input { flex: 1; width: 0; min-width: 0; border: 0; border-radius: 0; box-shadow: none; }
-
-.menu-editor-dialog .field-suffix { display: flex; align-items: center; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); overflow: hidden; }
-
-.menu-editor-dialog .field-suffix > span { flex: 0 0 auto; font-size: var(--text-xs); color: var(--muted); padding-right: 12px; font-weight: 500; }
-
-.menu-editor-dialog .menu-item-editor .field .field-suffix input { flex: 1; width: 0; min-width: 0; border: 0; border-radius: 0; box-shadow: none; }
-
-.menu-editor-dialog .field-suffix:focus-within { outline: 2px solid var(--brand); outline-offset: 2px; }
-
-.menu-editor-dialog .menu-item-editor-money-input input { border: 0; box-shadow: none; min-width: 0; }
-
-.menu-editor-dialog :is(.field-hint, .menu-item-editor-section-intro) { color: var(--muted); font-size: var(--text-sm); line-height: 1.5; margin: 0; }
-
-.menu-editor-dialog .menu-item-editor-customization { grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: 20px; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
-
-.menu-editor-dialog .menu-item-editor-customization legend { margin: 0; padding-top: 20px; }
-
-.menu-editor-dialog .menu-item-editor-translations { grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: 16px; }
-
-.menu-editor-dialog .menu-item-editor-translations > legend { display: none; }
-
-.menu-editor-dialog .menu-locale-details summary { display: flex; align-items: center; gap: 8px; color: var(--brand-ink); cursor: pointer; padding: 8px 0; font-size: var(--text-md); font-weight: 600; }
-
-.menu-editor-dialog .menu-locale-details[open] summary { margin-bottom: 16px; }
-
-.menu-editor-dialog .locale-fields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; }
-
-.menu-availability { display: flex; align-items: flex-start; gap: 10px; padding-top: 18px; border-top: 1px solid var(--border); }
-
-.menu-availability input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--brand); }
-
-.menu-availability span { display: grid; gap: 5px; }
-
-.menu-availability strong { font-size: var(--text-sm); font-weight: 600; color: var(--text); }
-
-.menu-availability small { color: var(--muted); font-size: var(--text-xs); line-height: 1.5; }
-
-.menu-editor-dialog .menu-item-editor-actions { flex-shrink: 0; padding: 18px 28px; border-top: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; flex-wrap: wrap; gap: 14px; }
-
-.menu-editor-dialog .menu-item-editor-action-buttons { margin-left: auto; display: flex; gap: 10px; }
-
-.menu-editor-dialog .menu-item-editor-actions button { min-height: 44px; border-radius: var(--radius-sm); }
-
-.menu-editor-dialog button { font-weight: 600; }
-
-@media (max-width: 700px) {
-dialog.ui-dialog.menu-editor-dialog { width: calc(100vw - 16px); max-height: calc(100dvh - 16px); border-radius: var(--radius-md); }
-
-.menu-editor-dialog > .ui-dialog-head { padding: 14px 18px; }
-
-.menu-editor-intro { padding: 14px 18px 0; flex-wrap: wrap; gap: 6px; }
-
-.menu-editor-dialog .menu-item-editor-body { padding: 20px 18px; }
-
-.menu-editor-dialog .menu-item-editor-layout { grid-template-columns: minmax(0,1fr); gap: 24px; }
-
-.menu-editor-dialog :is(.menu-item-editor-details,.menu-item-editor-media,.menu-item-editor-customization,.menu-item-editor-translations) { grid-column: 1; }
-
-.menu-editor-dialog :is(.menu-item-editor-customization,.locale-fields) { grid-template-columns: minmax(0,1fr); }
-
-.menu-editor-dialog .menu-item-editor-actions { padding: 14px 18px; }
-
-.menu-editor-dialog .menu-item-editor-action-buttons { width: 100%; }
-
-.menu-editor-dialog .menu-item-editor-action-buttons button { flex: 1; }
-
+/* The list card: the details grid, or the section's own rows. */
+dialog.menu-editor-dialog .menu-item-editor-fields,
+dialog.menu-editor-dialog .menu-item-editor-customization,
+dialog.menu-editor-dialog .locale-fields {
+  display: grid; gap: 0; overflow: hidden;
+  border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface);
 }
+dialog.menu-editor-dialog .menu-item-editor-customization { padding: 0; }
+dialog.menu-editor-dialog .menu-item-editor-customization legend { padding: var(--space-3) var(--space-4) 0; margin: 0; }
+
+/* ---------- Row ---------- */
+dialog.menu-editor-dialog .menu-item-editor .ui-field {
+  display: grid; grid-template-columns: 156px minmax(0, 1fr); align-items: center; gap: 2px var(--space-3);
+  min-height: 48px; margin: 0; padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--border); color: var(--text-2); font: var(--weight-medium) var(--text-sm)/1.3 var(--font-sans);
+}
+dialog.menu-editor-dialog .menu-item-editor .ui-field:last-child { border-bottom: 0; }
+dialog.menu-editor-dialog .menu-item-editor .ui-field:focus-within { background: var(--bg); }
+dialog.menu-editor-dialog .menu-item-editor .ui-field > span:first-child { display: inline-flex; align-items: center; gap: 4px; }
+dialog.menu-editor-dialog .menu-required { color: var(--danger-text); font-weight: var(--weight-bold); }
+
+/* The value side: borderless input that fills the row. */
+dialog.menu-editor-dialog .menu-item-editor .ui-field :is(input, textarea, select) {
+  width: 100%; height: 32px; min-height: 0; margin: 0; padding: 0 var(--space-2);
+  border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; color: var(--text);
+  font: var(--weight-regular) var(--text-md)/1.3 var(--font-sans); box-shadow: none;
+}
+dialog.menu-editor-dialog .menu-item-editor .ui-field :is(input, textarea, select):hover { background: var(--bg); }
+dialog.menu-editor-dialog .menu-item-editor .ui-field :is(input, textarea, select):focus { outline: none; border-color: var(--brand); background: var(--surface); }
+dialog.menu-editor-dialog .menu-item-editor .ui-field input::placeholder,
+dialog.menu-editor-dialog .menu-item-editor .ui-field textarea::placeholder { color: var(--muted); }
+
+/* Multi-line values: label on top, text below, still one row of the list. */
+dialog.menu-editor-dialog .menu-item-editor .ui-field:has(textarea) { grid-template-columns: 1fr; align-items: start; padding-top: var(--space-3); }
+dialog.menu-editor-dialog .menu-item-editor .ui-field textarea { height: auto; min-height: 56px; padding: var(--space-1) var(--space-2); margin-left: calc(-1 * var(--space-2)); width: calc(100% + var(--space-2)); resize: vertical; }
+dialog.menu-editor-dialog .menu-item-editor .ui-field > .ui-muted,
+dialog.menu-editor-dialog .menu-item-editor .ui-field > .ui-error { grid-column: 1 / -1; margin: 0; font-size: var(--text-xs); }
+dialog.menu-editor-dialog .menu-item-editor .ui-field:not(:has(textarea)) > .ui-muted,
+dialog.menu-editor-dialog .menu-item-editor .ui-field:not(:has(textarea)) > .ui-error { grid-column: 2; padding-left: var(--space-2); }
+
+/* Price and number fields with a unit: the unit sits quietly at the end of the value. */
+dialog.menu-editor-dialog :is(.menu-item-editor-money-input, .field-suffix) { display: flex; align-items: center; gap: var(--space-1); min-width: 0; border: 0; background: none; padding: 0; }
+dialog.menu-editor-dialog .menu-item-editor-money-input > span,
+dialog.menu-editor-dialog .field-suffix > span { flex: none; order: 2; padding: 0 var(--space-1); border: 0; background: none; color: var(--muted); font-size: var(--text-sm); }
+dialog.menu-editor-dialog :is(.menu-item-editor-money-input, .field-suffix) input { flex: 1; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---------- Photo card ---------- */
+dialog.menu-editor-dialog .menu-item-editor-media > :not(legend) { border: 1px solid var(--border); background: var(--surface); }
+dialog.menu-editor-dialog .menu-item-editor-media .image-uploader { display: grid; gap: var(--space-2); margin: 0; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md) var(--radius-md) 0 0; border-bottom: 0; }
+dialog.menu-editor-dialog .menu-item-editor-media .image-uploader > .ui-field { display: block; min-height: 0; padding: 0; border: 0; }
+dialog.menu-editor-dialog .menu-item-editor-media .upload-drop-zone { min-height: 96px; padding: var(--space-3); border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); background: var(--bg); font-size: var(--text-sm); }
+dialog.menu-editor-dialog .menu-availability { display: flex; align-items: center; gap: var(--space-3); min-height: 48px; margin: 0; padding: var(--space-2) var(--space-4); border-radius: 0 0 var(--radius-md) var(--radius-md); cursor: pointer; font-size: var(--text-sm); }
+dialog.menu-editor-dialog .menu-availability input { width: 18px; height: 18px; flex: none; margin: 0; accent-color: var(--brand); }
+dialog.menu-editor-dialog .menu-availability span { display: grid; gap: 2px; }
+dialog.menu-editor-dialog .menu-availability small { color: var(--muted); font-size: var(--text-xs); }
+
+/* ---------- Translations: a single disclosure row that opens into its own list ---------- */
+dialog.menu-editor-dialog .menu-item-editor-translations .menu-item-editor-section-intro { margin: 0 0 var(--space-2); padding: 0 var(--space-1); font-size: var(--text-xs); }
+dialog.menu-editor-dialog .menu-locale-details { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); overflow: hidden; }
+dialog.menu-editor-dialog .menu-locale-details summary { display: flex; align-items: center; gap: var(--space-2); min-height: 48px; padding: 0 var(--space-4); color: var(--text); font: var(--weight-bold) var(--text-sm)/1 var(--font-sans); cursor: pointer; list-style: none; }
+dialog.menu-editor-dialog .menu-locale-details summary::-webkit-details-marker { display: none; }
+dialog.menu-editor-dialog .menu-locale-details summary::after { content: "›"; margin-left: auto; color: var(--muted); font-size: var(--text-lg); transition: transform 0.15s; }
+dialog.menu-editor-dialog .menu-locale-details[open] summary { border-bottom: 1px solid var(--border); }
+dialog.menu-editor-dialog .menu-locale-details[open] summary::after { transform: rotate(90deg); }
+dialog.menu-editor-dialog .menu-locale-details .locale-fields { border: 0; border-radius: 0; }
+dialog.menu-editor-dialog .locale-tab { display: inline-flex; align-items: center; gap: 4px; padding: 0; border: 0; background: none; color: var(--text-2); }
+
+/* ---------- Action bar, always visible ---------- */
+dialog.menu-editor-dialog .menu-item-editor-actions { flex-shrink: 0; display: grid; gap: var(--space-2); margin: 0; padding: var(--space-3) var(--space-4); border-top: 1px solid var(--border); background: var(--surface); }
+dialog.menu-editor-dialog .menu-item-editor-action-buttons { display: flex; justify-content: flex-end; gap: var(--space-2); }
+
+/* ---------- Phones: label above value, still one compact row ---------- */
+@media (max-width: 520px) {
+  dialog.ui-dialog.menu-editor-dialog { width: 100vw; max-height: 100dvh; border-radius: var(--radius-lg) var(--radius-lg) 0 0; margin: auto 0 0; }
+  dialog.menu-editor-dialog .menu-item-editor .ui-field { grid-template-columns: 1fr; gap: 2px; min-height: 0; }
+  dialog.menu-editor-dialog .menu-item-editor .ui-field:not(:has(textarea)) > :is(.ui-muted, .ui-error) { grid-column: 1; padding-left: 0; }
+  dialog.menu-editor-dialog :is(.menu-item-editor-money-input, .field-suffix) input { text-align: left; }
+  dialog.menu-editor-dialog .menu-item-editor .ui-field :is(input, select) { margin-left: calc(-1 * var(--space-2)); width: calc(100% + var(--space-2)); }
+  dialog.menu-editor-dialog .menu-item-editor-action-buttons > * { flex: 1; }
+}
+
+/* Older form rules lay these out in two columns; the list is always one column. */
+dialog.menu-editor-dialog .menu-item-editor-fields,
+dialog.menu-editor-dialog .menu-item-editor-fields--details,
+dialog.menu-editor-dialog .locale-fields { grid-template-columns: minmax(0, 1fr); grid-auto-rows: auto; }
+dialog.menu-editor-dialog :is(.menu-item-editor-money-input, .field-suffix) { height: 32px; min-height: 0; }
+dialog.menu-editor-dialog .menu-item-editor-media .image-uploader > .ui-field { margin: 0; }

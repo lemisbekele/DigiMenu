@@ -268,32 +268,34 @@ export function SuperAdminCafes() {
                         {cafe.created_at ? formatDateTime(cafe.created_at, { timeStyle: undefined }) : "—"}
                       </td>
                       <td data-label="Actions" style={{ textAlign: "right" }}>
-                        <div className="ui-row">
+                        <div className="ui-row cafe-actions">
                           <a
                             href={`/${cafe.slug}/menu`}
                             target="_blank"
                             rel="noreferrer"
-                            className="ui-btn"
-                            title="Open Live Menu"
-                            style={{ textDecoration: "none" }}
+                            className="ui-btn ui-btn--icon"
+                            title="Open live menu"
+                            aria-label={`Open live menu for ${cafe.name}`}
                           >
-                            <ExternalLink size={14} /> Open Menu
+                            <ExternalLink size={16} />
                           </a>
                           <button
                             type="button"
                             title="Change assigned package"
                             onClick={() => { setPackageModal(cafe); setSelectedPlanKey(sub?.plan_key || "") }}
-                            className="ui-btn"
+                            className="ui-btn ui-btn--icon"
+                            aria-label={`Change package for ${cafe.name}`}
                           >
-                            <Package size={14} /> Package
+                            <Package size={16} />
                           </button>
                           <button
                             type="button"
                             title="Edit owner email"
                             onClick={() => { setOwnerModal(cafe); setOwnerEmail(cafe.owner_email || "") }}
-                            className="ui-btn"
+                            className="ui-btn ui-btn--icon"
+                            aria-label={`Edit owner email for ${cafe.name}`}
                           >
-                            <Pencil size={14} /> Owner
+                            <Pencil size={16} />
                           </button>
                           {isActive ? (
                             <button
@@ -301,9 +303,10 @@ export function SuperAdminCafes() {
                               disabled={loading}
                               onClick={() => handleStatus(cafe, "suspended")}
                               title="Suspend cafe access"
-                              className="ui-btn"
+                              className="ui-btn ui-btn--icon ui-btn--danger"
+                              aria-label={`Suspend ${cafe.name}`}
                             >
-                              <XCircle size={14} /> Suspend
+                              <XCircle size={16} />
                             </button>
                           ) : (
                             <button
@@ -311,9 +314,10 @@ export function SuperAdminCafes() {
                               disabled={loading}
                               onClick={() => handleStatus(cafe, "active")}
                               title="Restore cafe access"
-                              className="ui-btn ui-btn--primary"
+                              className="ui-btn ui-btn--icon"
+                              aria-label={`Restore ${cafe.name}`}
                             >
-                              <CheckCircle2 size={14} /> Restore
+                              <CheckCircle2 size={16} />
                             </button>
                           )}
                           <button
@@ -321,9 +325,10 @@ export function SuperAdminCafes() {
                             disabled={loading}
                             onClick={() => handleDelete(cafe)}
                             title="Permanently delete cafe"
-                            className="ui-btn ui-btn--danger"
+                            className="ui-btn ui-btn--icon ui-btn--danger"
+                            aria-label={`Delete ${cafe.name}`}
                           >
-                            <Trash2 size={14} /> Delete
+                            <Trash2 size={16} />
                           </button>
                         </div>
                       </td>

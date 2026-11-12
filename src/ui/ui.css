@@ -277,3 +277,41 @@ textarea.ui-input { height: auto; min-height: 72px; padding: var(--space-2) var(
   .ui-table td > * { min-width: 0; }
   .ui-table td .ui-row { flex-wrap: wrap; justify-content: flex-end; }
 }
+
+/* ---------- Finish: buttons, actions and icons ----------
+   Hairline borders with a soft shadow, a subtle press, one icon-button size and a lighter icon stroke. */
+svg.lucide { stroke-width: 1.75; }
+.ui-btn {
+  border-color: var(--border-strong); box-shadow: var(--shadow-sm); letter-spacing: -0.005em;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s, transform 0.08s;
+}
+.ui-btn:hover:not(:disabled) { border-color: var(--border-strong); background: var(--surface-2); }
+.ui-btn:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
+.ui-btn--primary { border-color: transparent; box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.14); }
+.ui-btn--primary:hover:not(:disabled) { border-color: transparent; background: var(--brand-hover); box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.14); }
+.ui-btn--quiet:not(.ui-btn--icon) { border-color: transparent; box-shadow: none; }
+
+/* Icon buttons: one 32px square everywhere, outlined, icon in the text colour. */
+.ui-btn--icon, .ui-btn.ui-btn--quiet.ui-btn--icon {
+  width: 32px; height: 32px; padding: 0; flex: none;
+  border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text-2); box-shadow: var(--shadow-sm);
+}
+.ui-btn--icon svg { width: 16px; height: 16px; }
+.ui-btn--icon:hover:not(:disabled) { border-color: var(--border-strong); background: var(--surface-2); color: var(--text); }
+/* Destructive icon actions stay neutral until you reach for them. */
+.ui-btn--icon.ui-btn--danger, .ui-btn--icon.danger { color: var(--text-2); }
+.ui-btn--icon.ui-btn--danger:hover:not(:disabled), .ui-btn--icon.danger:hover:not(:disabled) { border-color: var(--danger-soft); background: var(--danger-soft); color: var(--danger-text); }
+.ui-touch .ui-btn--icon { width: 40px; height: 40px; }
+
+/* Grouped row actions sit tight together like one control. */
+.ui-row:has(> .ui-btn--icon + .ui-btn--icon) { gap: var(--space-1); }
+
+/* Focus: a clean double ring that works on any background. */
+.ui-btn:focus-visible, .ui-chip:focus-visible, .ui-seg button:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--brand); }
+
+/* Chips and switches get the same finish. */
+.ui-chip { transition: background-color 0.15s, border-color 0.15s, color 0.15s; }
+.ui-chip:hover:not([aria-pressed="true"]) { border-color: var(--border-strong); color: var(--text); }
+.ui-seg [aria-pressed="true"], .ui-seg [aria-selected="true"], .ui-seg .active, .ui-seg .is-active { box-shadow: var(--shadow-sm); }
+
+@media (prefers-reduced-motion: reduce) { .ui-btn, .ui-chip { transition: none; } .ui-btn:active:not(:disabled) { transform: none; } }
