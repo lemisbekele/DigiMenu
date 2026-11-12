@@ -1,7 +1,3 @@
-/* ==========================================================================
-   Customer QR Menu Redesign (Mobile-First, Premium Cafe Experience)
-   ========================================================================== */
-
 .qr-menu-wrapper {
   min-height: 100vh;
   background-color: var(--background, #f8fafc);
@@ -19,9 +15,6 @@
   gap: 16px;
 }
 
-/* --------------------------------------------------------------------------
-   Top Header Bar
-   -------------------------------------------------------------------------- */
 .qr-header-bar {
   display: flex;
   align-items: center;
@@ -158,9 +151,6 @@ html[data-theme="dark"] .qr-table-pill {
   padding: 0;
 }
 
-/* --------------------------------------------------------------------------
-   Search & Filters Row
-   -------------------------------------------------------------------------- */
 .qr-search-row {
   display: flex;
   align-items: center;
@@ -275,9 +265,6 @@ html[data-theme="dark"] .qr-filter-active-dot {
   background-color: #22c55e;
 }
 
-/* --------------------------------------------------------------------------
-   Expandable Filter Tray
-   -------------------------------------------------------------------------- */
 .qr-filter-tray {
   background-color: var(--surface, #ffffff);
   border: 1px solid var(--border, #e2e8f0);
@@ -351,9 +338,6 @@ html[data-theme="dark"] .qr-filter-active-dot {
   outline: none;
 }
 
-/* --------------------------------------------------------------------------
-   Category Pills (Horizontal Scroll - NO EMOJIS, ONLY SLEEK ICONS)
-   -------------------------------------------------------------------------- */
 .qr-categories-scroll {
   display: flex;
   align-items: center;
@@ -406,7 +390,6 @@ html[data-theme="dark"] .qr-filter-active-dot {
   color: inherit;
 }
 
-/* Subcategories row */
 .qr-subcategories-scroll {
   display: flex;
   align-items: center;
@@ -441,9 +424,6 @@ html[data-theme="dark"] .qr-filter-active-dot {
   font-weight: 600;
 }
 
-/* --------------------------------------------------------------------------
-   Section Heading Row
-   -------------------------------------------------------------------------- */
 .qr-section-header {
   display: flex;
   align-items: baseline;
@@ -466,9 +446,6 @@ html[data-theme="dark"] .qr-filter-active-dot {
   color: var(--muted, #64748b);
 }
 
-/* --------------------------------------------------------------------------
-   Product Grid (2 Columns)
-   -------------------------------------------------------------------------- */
 .qr-menu-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -476,15 +453,13 @@ html[data-theme="dark"] .qr-filter-active-dot {
 }
 
 @media (min-width: 640px) {
-  .qr-menu-grid {
+.qr-menu-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
   }
+
 }
 
-/* --------------------------------------------------------------------------
-   Product Card
-   -------------------------------------------------------------------------- */
 .qr-item-card {
   background-color: var(--surface, #ffffff);
   border: 1px solid var(--border-light, #f1f5f9);
@@ -513,7 +488,6 @@ html[data-theme="dark"] .qr-filter-active-dot {
   opacity: 0.65;
 }
 
-/* Image Wrap & Badges */
 .qr-item-image-wrap {
   width: 100%;
   aspect-ratio: 4 / 3;
@@ -533,7 +507,6 @@ html[data-theme="dark"] .qr-filter-active-dot {
   transform: scale(1.04);
 }
 
-/* Top-Left Badge: Ã¢Ëœâ€¦ Popular */
 .qr-badge-popular {
   position: absolute;
   top: 8px;
@@ -552,7 +525,6 @@ html[data-theme="dark"] .qr-filter-active-dot {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
-/* Bottom-Left Badge: Calories */
 .qr-badge-calorie {
   position: absolute;
   bottom: 8px;
@@ -571,7 +543,6 @@ html[data-theme="dark"] .qr-filter-active-dot {
   letter-spacing: 0.01em;
 }
 
-/* Unavailable Badge */
 .qr-badge-unavailable {
   position: absolute;
   top: 8px;
@@ -585,7 +556,6 @@ html[data-theme="dark"] .qr-filter-active-dot {
   border-radius: 9999px;
 }
 
-/* Card Body */
 .qr-item-body {
   padding: 10px 10px 12px;
   display: flex;
@@ -617,7 +587,6 @@ html[data-theme="dark"] .qr-filter-active-dot {
   min-height: 2em;
 }
 
-/* Card Footer: Price & Add Button */
 .qr-item-footer {
   margin-top: auto;
   display: flex;
@@ -662,12 +631,6 @@ html[data-theme="dark"] .qr-filter-active-dot {
   transform: scale(1.02);
 }
 
-.qr-add-btn.in-cart {
-  background-color: #166534;
-  color: #ffffff;
-  padding: 5px 10px;
-}
-
 html[data-theme="dark"] .qr-add-btn {
   background-color: rgba(22, 101, 52, 0.35);
   color: #4ade80;
@@ -678,19 +641,11 @@ html[data-theme="dark"] .qr-add-btn:hover {
   background-color: rgba(22, 101, 52, 0.5);
 }
 
-html[data-theme="dark"] .qr-add-btn.in-cart {
-  background-color: #22c55e;
-  color: #0f172a;
-}
-
 .qr-add-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* --------------------------------------------------------------------------
-   Empty State
-   -------------------------------------------------------------------------- */
 .qr-empty-state {
   grid-column: 1 / -1;
   text-align: center;
@@ -728,49 +683,6 @@ html[data-theme="dark"] .qr-add-btn.in-cart {
   margin: 0;
 }
 
-/* --------------------------------------------------------------------------
-   Floating Bag / Cart Button (Applied to CartDrawer's button)
-   -------------------------------------------------------------------------- */
-.floating-cart {
-  position: fixed !important;
-  bottom: 24px !important;
-  right: 24px !important;
-  z-index: 85 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  background: #14532d !important;
-  color: #ffffff !important;
-  border: none !important;
-  border-radius: 9999px !important;
-  padding: 12px 18px !important;
-  cursor: pointer !important;
-  box-shadow: 0 10px 25px -4px rgba(20, 83, 45, 0.45) !important;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease !important;
-}
-
-.floating-cart:hover {
-  transform: translateY(-3px) scale(1.04) !important;
-  box-shadow: 0 14px 30px -4px rgba(20, 83, 45, 0.55) !important;
-}
-
-.floating-cart span {
-  background-color: #ffffff !important;
-  color: #14532d !important;
-  border-radius: 9999px !important;
-  font-size: 0.82rem !important;
-  font-weight: 800 !important;
-  min-width: 22px !important;
-  height: 22px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 0 6px !important;
-}
-
-/* --------------------------------------------------------------------------
-   Item Details Modal Redesign & Polish (Centered, Single Look, Seamless Fade)
-   -------------------------------------------------------------------------- */
 .modal-shell.item-modal-shell,
 .modal-shell {
   position: fixed !important;
@@ -819,8 +731,8 @@ html[data-theme="dark"] .qr-add-btn.in-cart {
 }
 
 @media (max-width: 768px) {
-  .modal-shell.item-modal-shell,
-  .modal-shell {
+.modal-shell.item-modal-shell,
+.modal-shell {
     padding: 12px !important;
     width: 100vw !important;
     height: 100dvh !important;
@@ -828,8 +740,8 @@ html[data-theme="dark"] .qr-add-btn.in-cart {
     max-height: none !important;
   }
 
-  .modal-card.item-modal-card,
-  .modal-card {
+.modal-card.item-modal-card,
+.modal-card {
     display: flex !important;
     flex-direction: column !important;
     grid-template-columns: none !important;
@@ -841,9 +753,9 @@ html[data-theme="dark"] .qr-add-btn.in-cart {
     border-radius: var(--radius-lg) !important;
     margin: auto !important;
   }
+
 }
 
-/* In-cart stepper on menu cards: tapping adds one more, never silently removes. */
 .qr-stepper {
   display: inline-flex;
   align-items: center;
@@ -853,6 +765,7 @@ html[data-theme="dark"] .qr-add-btn.in-cart {
   background: var(--brand);
   color: var(--on-brand);
 }
+
 .qr-stepper button {
   display: grid;
   place-items: center;
@@ -864,11 +777,13 @@ html[data-theme="dark"] .qr-add-btn.in-cart {
   color: inherit;
   cursor: pointer;
 }
+
 .qr-stepper button:hover { background: rgba(255, 255, 255, 0.16); }
+
 .qr-stepper button:focus-visible { outline: 3px solid var(--brand-bright); outline-offset: 1px; }
+
 .qr-stepper span { min-width: 18px; text-align: center; font-weight: var(--weight-bold); font-variant-numeric: tabular-nums; }
 
-/* "View order" bar: full width at the bottom, only when the cart has items. */
 .cart-bar {
   position: fixed;
   left: 50%;
@@ -891,8 +806,11 @@ html[data-theme="dark"] .qr-add-btn.in-cart {
   font-weight: var(--weight-bold);
   cursor: pointer;
 }
+
 .cart-bar:hover { background: var(--brand-hover); }
+
 .cart-bar:focus-visible { outline: 3px solid var(--brand-bright); outline-offset: 3px; }
+
 .cart-bar-count {
   display: grid;
   place-items: center;
@@ -903,45 +821,13 @@ html[data-theme="dark"] .qr-add-btn.in-cart {
   background: rgba(255, 255, 255, 0.2);
   font-size: var(--text-sm);
 }
+
 .cart-bar-label { flex: 1; text-align: left; }
+
 .cart-bar-total { font-variant-numeric: tabular-nums; }
-/* Room under the last row of cards so the bar never covers them. */
+
 .qr-menu-wrapper { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 
-/* Checkout */
-.checkout-title { margin: var(--space-3) 0 0; font-size: var(--text-xl); line-height: 1.2; }
-.checkout-meta { margin: var(--space-1) 0 var(--space-4); color: var(--muted); font-size: var(--text-sm); }
-.checkout-remove {
-  display: grid;
-  place-items: center;
-  width: var(--tap);
-  height: var(--tap);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--danger);
-  cursor: pointer;
-}
-.checkout-methods { display: grid; gap: var(--space-2); margin: var(--space-4) 0; padding: 0; border: 0; }
-.checkout-methods legend { margin-bottom: var(--space-2); padding: 0; font-size: var(--text-md); font-weight: var(--weight-bold); color: var(--text); }
-.checkout-method {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  min-height: 52px;
-  padding: 0 var(--space-4);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  color: var(--text);
-  font-weight: var(--weight-bold);
-  cursor: pointer;
-}
-.checkout-method:has(input:checked) { border-color: var(--brand); background: var(--brand-soft); color: var(--brand-ink); }
-.checkout-method input { width: 20px; height: 20px; accent-color: var(--brand); }
-.checkout-method:has(input:focus-visible) { outline: 3px solid var(--brand-bright); outline-offset: 2px; }
-
-/* Tracking: shown once, right after placing an order. */
 .order-placed-banner {
   display: flex;
   align-items: center;

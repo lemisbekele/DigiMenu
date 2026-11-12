@@ -46,7 +46,7 @@ export function MyOrdersPage() {
   return (
     <main className="page-pad narrow my-orders-page">
       <header style={{ marginBottom: 16 }}>
-        <p className="eyebrow">{t("myOrdersEyebrow")}</p>
+        <p className="ui-muted">{t("myOrdersEyebrow")}</p>
         <h1 style={{ margin: 0 }}>{t("myOrders")}</h1>
       </header>
 
@@ -55,10 +55,10 @@ export function MyOrdersPage() {
           <h2><span className="orders-section-icon"><ShoppingBag size={16} /></span> {t("activeOrders")}</h2>
         </div>
         {active.length === 0 ? (
-          <div className="empty-state">
+          <div className="ui-empty">
             <Coffee size={36} strokeWidth={1.5} opacity={0.4} />
             <p style={{ margin: 0 }}>{t("noActiveOrders")}</p>
-            <Link className="primary-button" style={{ marginTop: 14 }} to={`/${cafeSlug}/menu${goToTableParam}`}>
+            <Link className="ui-btn ui-btn--primary" style={{ marginTop: 14 }} to={`/${cafeSlug}/menu${goToTableParam}`}>
               {t("browseMenu")}
             </Link>
           </div>
@@ -76,7 +76,7 @@ export function MyOrdersPage() {
                 <article className="summary-panel order-card" key={record.id}>
                   <div className="order-card-top">
                     <div>
-                      <p className="eyebrow" style={{ margin: 0 }}>{t("orderShort")} #{record.id.slice(-6)}</p>
+                      <p className="ui-muted" style={{ margin: 0 }}>{t("orderShort")} #{record.id.slice(-6)}</p>
                       <strong style={{ fontVariantNumeric: "tabular-nums" }}>
                         {t("table")} {record.tableNumber} &middot; {money(record.totalAmount)}
                       </strong>
@@ -94,7 +94,7 @@ export function MyOrdersPage() {
                       <li className="order-card-more">+{(record.items || []).length - 6} {t("moreItems")}</li>
                     ) : null}
                   </ul>
-                  <Link className="primary-button compact-btn track-order-btn" to={`/${cafeSlug}/order/${record.id}${goToTableParam}`}>
+                  <Link className="ui-btn ui-btn--primary track-order-btn" to={`/${cafeSlug}/order/${record.id}${goToTableParam}`}>
                     {t("trackOrder")} <ArrowRight size={15} />
                   </Link>
                 </article>
@@ -109,7 +109,7 @@ export function MyOrdersPage() {
           <h2><span className="orders-section-icon"><Receipt size={16} /></span> {t("orderHistory")}</h2>
         </div>
         {history.length === 0 ? (
-          <div className="empty-state" style={{ paddingBlock: 20 }}>
+          <div className="ui-empty" style={{ paddingBlock: 20 }}>
             <PackageCheck size={36} strokeWidth={1.5} opacity={0.4} />
             <p style={{ margin: 0 }}>{t("noOrderHistory")}</p>
           </div>
@@ -124,7 +124,7 @@ export function MyOrdersPage() {
                 <article className="summary-panel order-card" key={record.id}>
                   <div className="order-card-top">
                     <div>
-                      <p className="eyebrow" style={{ margin: 0 }}>{t("orderShort")} #{record.id.slice(-6)}</p>
+                      <p className="ui-muted" style={{ margin: 0 }}>{t("orderShort")} #{record.id.slice(-6)}</p>
                       <strong style={{ fontVariantNumeric: "tabular-nums" }}>
                         {t("table")} {record.tableNumber} &middot; {money(record.totalAmount)}
                       </strong>
@@ -134,7 +134,7 @@ export function MyOrdersPage() {
                   <p className="order-card-meta">
                     <Clock size={13} /> {formatDateTime(record.placedAt || Date.now())}
                   </p>
-                  <Link className="ghost-button compact-btn track-order-btn" to={`/${cafeSlug}/order/${record.id}${goToTableParam}`}>
+                  <Link className="ui-btn track-order-btn" to={`/${cafeSlug}/order/${record.id}${goToTableParam}`}>
                     {t("viewDetails")}
                   </Link>
                 </article>

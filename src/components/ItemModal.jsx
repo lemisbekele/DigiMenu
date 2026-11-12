@@ -297,7 +297,7 @@ export function ItemModal({ item, onClose }) {
 
           {/* 4. Primary Action Button */}
           <button
-            className={`primary-button ${selected ? "remove-selection-button" : ""}`}
+            className={`ui-btn ui-btn--primary ${selected ? "remove-selection-button" : ""}`}
             type="button"
             onClick={() => {
               if (selected) {

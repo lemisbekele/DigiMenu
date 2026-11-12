@@ -121,7 +121,7 @@ export function OrderPage() {
     return (
       <main className="page-pad narrow" style={{ textAlign: "center", paddingTop: 80 }}>
         <TimerOff size={40} strokeWidth={1.5} opacity={0.4} />
-        <p className="form-error" style={{ marginTop: 16 }}>{loadError}</p>
+        <p className="ui-error" style={{ marginTop: 16 }}>{loadError}</p>
       </main>
     )
   }
@@ -140,7 +140,7 @@ export function OrderPage() {
         <section className="status-panel rejected-order-panel" role="alert" aria-live="assertive">
           <StatusBadge type="payment" value="rejected" label={t("rejected")} />
           <div style={{ marginBlock: 16 }}>
-            <p className="eyebrow">{t("orderRejected")}</p>
+            <p className="ui-muted">{t("orderRejected")}</p>
             <h2>{t("rejectedTryAgain")}</h2>
             {order.rejectionReason ? (
               <p style={{ background: "var(--bg-muted)", padding: 12, borderRadius: 8, marginTop: 12 }}>
@@ -227,12 +227,12 @@ export function OrderPage() {
 
       <div className="order-page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
-          <p className="eyebrow">{t("order")} #{orderId?.slice(-6)}</p>
+          <p className="ui-muted">{t("order")} #{orderId?.slice(-6)}</p>
           <h1 style={{ margin: 0 }}>{t("table")} {order.tableNumber}</h1>
         </div>
         <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
           <StatusBadge type="payment" value={order.paymentStatus} label={t(order.paymentStatus)} />
-          {order.paymentMethod ? <span className="badge">{paymentOptions.find((o) => o.type === order.paymentMethod)?.name || order.paymentMethod}</span> : null}
+          {order.paymentMethod ? <span className="ui-pill">{paymentOptions.find((o) => o.type === order.paymentMethod)?.name || order.paymentMethod}</span> : null}
         </div>
       </div>
 
@@ -286,11 +286,11 @@ export function OrderPage() {
             <span>{t("paymentReceived")}</span>
           </div>
           <p style={{ marginTop: 8, opacity: 0.7, fontSize: "0.9rem" }}>{t("receiptTableMessage")}</p>
-          {order.paymentMethod ? <span className="badge">{paymentOptions.find((o) => o.type === order.paymentMethod)?.name || order.paymentMethod}</span> : null}
+          {order.paymentMethod ? <span className="ui-pill">{paymentOptions.find((o) => o.type === order.paymentMethod)?.name || order.paymentMethod}</span> : null}
         </section>
       ) : (
         <section className="summary-panel">
-          <p className="eyebrow" style={{ marginBottom: 8 }}>{t("paymentMethod")}</p>
+          <p className="ui-muted" style={{ marginBottom: 8 }}>{t("paymentMethod")}</p>
 
           {/* Pay with: one button per method; switching is allowed until a proof is sent. */}
           {order.paymentStatus !== "pending" ? (
@@ -311,7 +311,7 @@ export function OrderPage() {
               })}
             </div>
           ) : null}
-          {proofError ? <p className="form-error" style={{ marginBottom: 8 }}>{proofError}</p> : null}
+          {proofError ? <p className="ui-error" style={{ marginBottom: 8 }}>{proofError}</p> : null}
 
           {!selectedMethod ? (
             <p style={{ margin: 0, opacity: 0.7, fontSize: "0.9rem" }}>{t("choosePaymentMethod")}</p>
@@ -381,7 +381,7 @@ export function OrderPage() {
                     </div>
                   ) : null}
                   <button
-                    className="primary-button"
+                    className="ui-btn ui-btn--primary"
                     type="button"
                     style={{ width: "100%" }}
                     onClick={async () => {
@@ -432,7 +432,7 @@ export function OrderPage() {
               ) : order.paymentProofUrl ? (
                 <div className="uploaded-proof-preview">
                   <p className="bank-field-label">{t("uploadedProof")}</p>
-                  <p className="form-error" style={{ marginTop: 8 }}>Invalid proof URL</p>
+                  <p className="ui-error" style={{ marginTop: 8 }}>Invalid proof URL</p>
                 </div>
               ) : null}
             </div>
@@ -452,10 +452,10 @@ export function OrderPage() {
               ) : order.paymentProofUrl ? (
                 <div className="uploaded-proof-preview">
                   <p className="bank-field-label">{t("previousProof")}</p>
-                  <p className="form-error" style={{ marginTop: 8 }}>Invalid proof URL</p>
+                  <p className="ui-error" style={{ marginTop: 8 }}>Invalid proof URL</p>
                 </div>
               ) : null}
-              {proofError ? <p className="form-error">{proofError}</p> : null}
+              {proofError ? <p className="ui-error">{proofError}</p> : null}
               <div className="bank-upload-step">
                 <div className="bank-step-header">
                   <span className="step-badge">Upload</span>
@@ -537,7 +537,7 @@ export function OrderPage() {
                 <p style={{ margin: "0 0 6px", fontSize: "0.85rem" }}>
                   {t("uploadProofAfterTransfer")}
                 </p>
-                {proofError ? <p className="form-error">{proofError}</p> : null}
+                {proofError ? <p className="ui-error">{proofError}</p> : null}
                 <ImageUploader
                   value={order.paymentProofUrl}
                   onChange={handleProofBlob}
@@ -555,7 +555,7 @@ export function OrderPage() {
       )}
 
       <section className="summary-panel">
-        <p className="eyebrow" style={{ marginBottom: 8 }}>
+        <p className="ui-muted" style={{ marginBottom: 8 }}>
           {order.items?.length === 1 ? "1 item" : `${order.items?.length || 0} items`}
         </p>
         {(order.items || []).map((item, index) => (
