@@ -58,10 +58,10 @@ export function FeatureLockedPage({ feature }) {
           Ask your cafe owner to arrange a package change with the platform team.
         </div>
         <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link to={`/pricing?locked=${encodeURIComponent(feature)}`} className="primary-button" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+          <Link to={`/pricing?locked=${encodeURIComponent(feature)}`} className="ui-btn ui-btn--primary" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
             Compare packages <ArrowRight size={16} />
           </Link>
-          <Link to="/" className="ghost-button" style={{ display: "inline-flex", alignItems: "center" }}>
+          <Link to="/" className="ui-btn" style={{ display: "inline-flex", alignItems: "center" }}>
             Back to home
           </Link>
         </div>
@@ -94,7 +94,7 @@ export function PlanRoute({ feature, children }) {
     return children
   }
 
-  if (subscriptionStatus === "unavailable") return <main className="auth-page"><div className="auth-card"><h1>Access could not be verified</h1><p>Package information is temporarily unavailable. Please try again.</p><button type="button" className="primary-button" onClick={() => window.location.reload()}>Try again</button></div></main>
+  if (subscriptionStatus === "unavailable") return <main className="auth-page"><div className="auth-card"><h1>Access could not be verified</h1><p>Package information is temporarily unavailable. Please try again.</p><button type="button" className="ui-btn ui-btn--primary" onClick={() => window.location.reload()}>Try again</button></div></main>
   if (subscriptionStatus === "loading") {
     return (
       <main className="page-pad splash-loader-container" style={{ minHeight: "60vh", display: "grid", placeItems: "center" }}>

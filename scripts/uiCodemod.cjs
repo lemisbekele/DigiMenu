@@ -24,6 +24,12 @@ const MAP = {
   "ad-field": "ui-field", "field": "ui-field", "sa-field": "ui-field", "ad-fields": "ui-form-row", "ad-form": "ui-form",
   "ad-select": "ui-input", "sa-input": "ui-input", "sa-label": "", "form-error": "ui-error", "field-hint": "ui-muted",
   "ad-switch": "ui-switch", "oc-dialog-form": "ui-form", "edit-modal-actions": "ui-dialog-actions", "sa-modal-actions": "ui-dialog-actions",
+  // superadmin
+  "sa-head": "ui-page-header", "sa-tabs": "ui-seg", "sa-tab": "", "sa-workspace-tabs": "ui-seg", "sa-badge": "ui-pill",
+  "sa-alert": "ui-notice", "sa-notice": "ui-muted", "sa-search": "ui-search", "sa-empty": "ui-empty",
+  "sa-select": "ui-input", "sa-textarea": "ui-input", "form-grid": "ui-form-row", "form-help": "ui-muted",
+  "sa-panel-title": "ui-section-head", "sa-card-title": "ui-section-head", "sa-panel-flush": "ui-card--flush",
+  "sa-grid-2": "ui-grid", "sa-grid-3": "ui-grid", "sa-page-toolbar": "ui-toolbar",
   // feedback
   "oc-empty": "ui-empty", "empty-state": "ui-empty", "badge": "ui-pill", "eyebrow": "ui-muted",
   "sa-table": "ui-table", "sa-table-wrap": "ui-table-wrap", "sa-inline-actions": "ui-row",

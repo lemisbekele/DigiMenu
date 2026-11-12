@@ -3,7 +3,7 @@ import { VisualSummary } from "../components/PlatformCharts"
 import { toUserMessage } from "../services/userMessages"
 import { useState } from "react"
 import { useAuth } from "../context/authContextValue"
-import "./superadmin.css"
+import "./superadmin-layout.css"
 
 export function SuperAdminProfile() {
   const { user, changePassword } = useAuth()
@@ -36,8 +36,8 @@ export function SuperAdminProfile() {
   }
 
   return (
-    <div className="sa-page sa-page-narrow">
-      <div className="sa-head">
+    <div className="ui-stack sa-page-narrow">
+      <div className="ui-page-header">
         <h1>Account &amp; security</h1>
         <p>
           Manage your platform administrator identity and password.
@@ -47,7 +47,7 @@ export function SuperAdminProfile() {
       <VisualSummary icon={ShieldCheck} title="Platform administrator">Your account manages cafe access and platform configuration. Keep your password unique and private.</VisualSummary>
 
       <div className="sa-fact-card">
-        <h3 className="sa-card-title">Account Information</h3>
+        <h3 className="ui-section-head">Account Information</h3>
         <div className="sa-fact-grid">
           <div>
             <span className="sa-fact-label">Account Email</span>
@@ -65,51 +65,51 @@ export function SuperAdminProfile() {
       </div>
 
       <div className="sa-fact-card">
-        <h3 className="sa-card-title">Security &amp; Password Update</h3>
+        <h3 className="ui-section-head">Security &amp; Password Update</h3>
 
         {msg.text && (
-          <div className={`sa-alert ${msg.type === "error" ? "sa-alert-error" : "sa-alert-success"}`}>
+          <div className={`ui-notice ${msg.type === "error" ? "sa-alert-error" : "sa-alert-success"}`}>
             {msg.text}
           </div>
         )}
 
         <form onSubmit={handlePasswordChange} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <label className="sa-field">
-            <span className="sa-label">Current Password</span>
+          <label className="ui-field">
+            <span className="">Current Password</span>
             <input
               type="password"
               autoComplete="current-password" value={currentPass}
               onChange={(e) => setCurrentPass(e.target.value)}
               required
-              className="sa-input"
+              className="ui-input"
             />
           </label>
-          <label className="sa-field">
-            <span className="sa-label">New Password (minimum 6 characters)</span>
+          <label className="ui-field">
+            <span className="">New Password (minimum 6 characters)</span>
             <input
               type="password"
               autoComplete="new-password" value={newPass}
               onChange={(e) => setNewPass(e.target.value)}
               required
               minLength={6}
-              className="sa-input"
+              className="ui-input"
             />
           </label>
-          <label className="sa-field">
-            <span className="sa-label">Confirm New Password</span>
+          <label className="ui-field">
+            <span className="">Confirm New Password</span>
             <input
               type="password"
               autoComplete="new-password" value={confirmPass}
               onChange={(e) => setConfirmPass(e.target.value)}
               required
               minLength={6}
-              className="sa-input"
+              className="ui-input"
             />
           </label>
           <button
             type="submit"
             disabled={submitting}
-            className="primary-button"
+            className="ui-btn ui-btn--primary"
           >
             {submitting ? "Updating..." : "Update Password"}
           </button>

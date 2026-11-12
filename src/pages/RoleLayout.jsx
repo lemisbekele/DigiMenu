@@ -13,7 +13,7 @@ import { LanguageToggle } from "../components/LanguageToggle"
 import { BrandLogo } from "../components/BrandLogo"
 import { ForcePasswordChangeModal } from "../components/ForcePasswordChangeModal"
 import "../ui/shell.css"
-import "./superadmin.css"
+import "./superadmin-layout.css"
 
 const ICON_MAP = {
   LayoutDashboard, CreditCard, FileText,

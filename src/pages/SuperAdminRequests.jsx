@@ -15,7 +15,7 @@ import {
   SUBSCRIPTION_STATUS_LABELS,
 } from "../services/subscriptionService"
 import { observePackages } from "../services/packageService"
-import "./superadmin.css"
+import "./superadmin-layout.css"
 import { VisualSummary, FeedState } from "../components/PlatformCharts"
 
 const statusStyle = (status) => {
@@ -147,8 +147,8 @@ export function SuperAdminRequests() {
   if (loading || loadError) return <FeedState loading={loading} error={loadError} />
 
   return (
-    <div className="sa-page sa-requests-page">
-      {actionError ? <p className="form-error" role="alert">{actionError}</p> : null}
+    <div className="ui-stack sa-requests-page">
+      {actionError ? <p className="ui-error" role="alert">{actionError}</p> : null}
       {successNotice ? (
         <div className="sa-success-toast" role="status" aria-live="polite">
           <CheckCircle2 size={20} />
@@ -160,8 +160,8 @@ export function SuperAdminRequests() {
         </div>
       ) : null}
       <VisualSummary icon={Inbox} title={`${requests.length} requests awaiting review`}>Approve a request to provision its cafe and administrator account, or decline it with a reason.</VisualSummary>
-      <div className="sa-page-toolbar">
-        <div className="sa-search">
+      <div className="ui-toolbar">
+        <div className="ui-search">
           <Search size={16} />
           <input
             value={search}
@@ -171,15 +171,15 @@ export function SuperAdminRequests() {
         </div>
       </div>
 
-      <section className="sa-panel-flush">
+      <section className="ui-card--flush">
         {filtered.length === 0 ? (
-          <div className="sa-empty">
+          <div className="ui-empty">
             <Inbox size={32} />
             <div>No requests found.</div>
           </div>
         ) : (
-          <div className="sa-table-wrap">
-            <table className="sa-table">
+          <div className="ui-table-wrap">
+            <table className="ui-table">
               <thead>
                 <tr>
                   <th>Organization / Customer</th>
@@ -218,7 +218,7 @@ export function SuperAdminRequests() {
                         {req.requested_at ? formatDateTime(req.requested_at, { timeStyle: undefined }) : "—"}
                       </td>
                       <td data-label="Status">
-                        <span className="sa-badge" style={{ background: style.bg, color: style.color }}>
+                        <span className="ui-pill" style={{ background: style.bg, color: style.color }}>
                           {SUBSCRIPTION_STATUS_LABELS[req.status] || req.status}
                         </span>
                         {req.rejection_reason ? (
@@ -227,12 +227,12 @@ export function SuperAdminRequests() {
                       </td>
                       <td data-label="Actions" style={{ textAlign: "right" }}>
                         {isPending ? (
-                          <div className="sa-inline-actions">
+                          <div className="ui-row">
                             <button
                               type="button"
                               onClick={() => handleApprove(req)}
                               disabled={isBusy}
-                              className="primary-button"
+                              className="ui-btn ui-btn--primary"
                             >
                               <CheckCircle2 size={16} /> {isBusy ? "Approving..." : "Approve & Provision"}
                             </button>
@@ -240,7 +240,7 @@ export function SuperAdminRequests() {
                               type="button"
                               onClick={() => handleReject(req.id)}
                               disabled={isBusy}
-                              className="danger-button"
+                              className="ui-btn ui-btn--danger"
                             >
                               <XCircle size={16} /> Reject
                             </button>
@@ -289,11 +289,11 @@ export function SuperAdminRequests() {
             </div>
 
             <div style={{ display: "flex", gap: "1rem" }}>
-              <button type="button" onClick={handleCopy} className="ghost-button" style={{ flex: 1, justifyContent: "center" }}>
+              <button type="button" onClick={handleCopy} className="ui-btn" style={{ flex: 1, justifyContent: "center" }}>
                 {copied ? <Check size={18} style={{ color: "var(--brand)" }} /> : <Copy size={18} />}
                 {copied ? "Copied!" : "Copy Credentials"}
               </button>
-              <button type="button" onClick={() => setCredentialModal(null)} className="primary-button" style={{ flex: 1, justifyContent: "center" }}>
+              <button type="button" onClick={() => setCredentialModal(null)} className="ui-btn ui-btn--primary" style={{ flex: 1, justifyContent: "center" }}>
                 Done
               </button>
             </div>
@@ -312,13 +312,13 @@ export function SuperAdminRequests() {
               </div>
             </div>
             <div className="form-context"><strong>{approvalRequest.customer_name}</strong><span>{approvalRequest.email}</span><span>Requested package: {approvalRequest.plan_key}</span></div>
-            <p className="form-help">Use at least 12 characters with uppercase and lowercase letters, a number, and a symbol (!@#$%^&amp;*). Share the temporary password securely after approval.</p>
-            <label className="sa-field">
+            <p className="ui-muted">Use at least 12 characters with uppercase and lowercase letters, a number, and a symbol (!@#$%^&amp;*). Share the temporary password securely after approval.</p>
+            <label className="ui-field">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                <span className="sa-label" style={{ margin: 0 }}>Temporary password</span>
+                <span className="" style={{ margin: 0 }}>Temporary password</span>
                 <button
                   type="button"
-                  className="sa-ghost"
+                  className="ui-btn"
                   style={{ fontSize: "0.78rem", padding: "2px 8px", height: "auto", cursor: "pointer" }}
                   onClick={() => setTemporaryPassword(generateTemporaryPassword())}
                 >
@@ -326,7 +326,7 @@ export function SuperAdminRequests() {
                 </button>
               </div>
               <input
-                className="sa-input"
+                className="ui-input"
                 type="text" required minLength={12} autoComplete="off"
                 value={temporaryPassword}
                 onChange={(event) => setTemporaryPassword(event.target.value)}
@@ -334,12 +334,12 @@ export function SuperAdminRequests() {
                 autoFocus
               />
             </label>
-            {approvalError ? <p className="form-error">{approvalError}</p> : null}
-            <div className="sa-modal-actions">
-              <button type="button" className="sa-ghost" onClick={() => setApprovalRequest(null)} disabled={Boolean(busy)}>
+            {approvalError ? <p className="ui-error">{approvalError}</p> : null}
+            <div className="ui-dialog-actions">
+              <button type="button" className="ui-btn" onClick={() => setApprovalRequest(null)} disabled={Boolean(busy)}>
                 Cancel
               </button>
-              <button type="submit" className="primary-button" disabled={Boolean(busy)}>
+              <button type="submit" className="ui-btn ui-btn--primary" disabled={Boolean(busy)}>
                 {busy ? "Approving..." : "Approve & Provision"}
               </button>
             </div>

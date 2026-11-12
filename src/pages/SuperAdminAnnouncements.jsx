@@ -3,7 +3,7 @@ import { VisualSummary } from "../components/PlatformCharts"
 import { toUserMessage } from "../services/userMessages"
 import { useEffect, useState } from "react"
 import { observeAnnouncements, createAnnouncement, deleteAnnouncement, ANNOUNCEMENT_TARGETS, ANNOUNCEMENT_PRIORITIES } from "../services/announcementService"
-import "./superadmin.css"
+import "./superadmin-layout.css"
 
 export function SuperAdminAnnouncements() {
   const [announcements, setAnnouncements] = useState([])
@@ -64,8 +64,8 @@ export function SuperAdminAnnouncements() {
   }
 
   return (
-    <div className="sa-page">
-      <div className="sa-head sa-row">
+    <div className="ui-stack">
+      <div className="ui-page-header sa-row">
         <div>
           <h1>Platform Announcements</h1>
           <p>
@@ -75,14 +75,14 @@ export function SuperAdminAnnouncements() {
         <button
           type="button"
           onClick={() => { setShowModal(true); setError("") }}
-          className="primary-button"
+          className="ui-btn ui-btn--primary"
         >
           + New Announcement
         </button>
       </div>
 
       {notice && (
-        <div className={`sa-alert ${notice.type === "success" ? "sa-alert-success" : "sa-alert-error"}`} style={{ marginBottom: "1.25rem" }}>
+        <div className={`ui-notice ${notice.type === "success" ? "sa-alert-success" : "sa-alert-error"}`} style={{ marginBottom: "1.25rem" }}>
           {notice.text}
         </div>
       )}
@@ -90,9 +90,9 @@ export function SuperAdminAnnouncements() {
       {!loading && notice?.type !== "error" && <VisualSummary icon={Megaphone} title={`${announcements.length} published announcements`}>{announcements.filter(item => item.priority === "High").length} high priority notices. Published messages appear in the selected cafe dashboards.</VisualSummary>}
 
       {notice?.type === "error" ? null : loading ? (
-        <p className="sa-notice">Loading announcements...</p>
+        <p className="ui-muted">Loading announcements...</p>
       ) : announcements.length === 0 ? (
-        <div className="sa-panel" style={{ textAlign: "center", padding: "2.5rem 1rem" }}>
+        <div className="ui-card ui-card--stack" style={{ textAlign: "center", padding: "2.5rem 1rem" }}>
           <Megaphone size={40} color="var(--brand)" aria-hidden="true" style={{ marginBottom: 16 }} />
           <p style={{ margin: 0, color: "var(--text-3)" }}>No announcements yet. Create the first broadcast with “+ New Announcement”.</p>
         </div>
@@ -101,13 +101,13 @@ export function SuperAdminAnnouncements() {
           {announcements.map((ann) => (
             <div
               key={ann.id}
-              className="sa-panel"
+              className="ui-card ui-card--stack"
               style={{ display: "flex", alignItems: "flex-start", gap: "1rem", flexWrap: "wrap" }}
             >
               <div style={{ flex: "1 1 240px", minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6, flexWrap: "wrap" }}>
-                  <span className="sa-badge sa-badge-brand">{ann.target}</span>
-                  <span className={`sa-badge ${ann.priority === "High" ? "sa-badge-error" : "sa-badge-neutral"}`}>{ann.priority}</span>
+                  <span className="ui-pill sa-badge-brand">{ann.target}</span>
+                  <span className={`ui-pill ${ann.priority === "High" ? "sa-badge-error" : "sa-badge-neutral"}`}>{ann.priority}</span>
                   <span style={{ fontSize: "0.75rem", color: "var(--text-3)" }}>{ann.date}</span>
                 </div>
                 <h3 style={{ fontSize: "1.1rem", color: "var(--brand-ink)", margin: "0 0 6px" }}>{ann.title}</h3>
@@ -116,7 +116,7 @@ export function SuperAdminAnnouncements() {
               <button
                 type="button"
                 onClick={() => handleDelete(ann)}
-                className="danger-button"
+                className="ui-btn ui-btn--danger"
               >
                 Delete
               </button>
@@ -130,25 +130,25 @@ export function SuperAdminAnnouncements() {
           <form onSubmit={handleCreate} className="sa-modal">
             <h3 style={{ margin: "0 0 1rem", color: "var(--brand-ink)" }}>Create Broadcast Announcement</h3>
             {error && (
-              <div className="sa-alert sa-alert-error" style={{ marginBottom: "1rem" }}>{error}</div>
+              <div className="ui-notice sa-alert-error" style={{ marginBottom: "1rem" }}>{error}</div>
             )}
-            <label className="sa-field">
-              <span className="sa-label">Announcement Title</span>
+            <label className="ui-field">
+              <span className="">Announcement Title</span>
               <input
                 type="text"
                 maxLength={160} value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
                 placeholder="e.g. Scheduled System Maintenance"
                 required
-                className="sa-input"
+                className="ui-input"
               />
             </label>
-            <label className="sa-field">
-              <span className="sa-label">Target Audience</span>
+            <label className="ui-field">
+              <span className="">Target Audience</span>
               <select
                 value={newTarget}
                 onChange={(e) => setNewTarget(e.target.value)}
-                className="sa-select"
+                className="ui-input"
               >
                 {ANNOUNCEMENT_TARGETS.map((t) => (
                   <option key={t} value={t}>
@@ -157,32 +157,32 @@ export function SuperAdminAnnouncements() {
                 ))}
               </select>
             </label>
-            <label className="sa-field">
-              <span className="sa-label">Priority</span>
+            <label className="ui-field">
+              <span className="">Priority</span>
               <select
                 value={newPriority}
                 onChange={(e) => setNewPriority(e.target.value)}
-                className="sa-select"
+                className="ui-input"
               >
                 {ANNOUNCEMENT_PRIORITIES.map((p) => (
                   <option key={p} value={p}>{p}</option>
                 ))}
               </select>
             </label>
-            <label className="sa-field">
-              <span className="sa-label">Announcement Message</span>
+            <label className="ui-field">
+              <span className="">Announcement Message</span>
               <textarea
                 maxLength={4000} value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 rows={4}
                 placeholder="Type the message to broadcast..."
                 required
-                className="sa-textarea"
+                className="ui-input"
               />
             </label>
-            <div className="sa-modal-actions">
-              <button type="button" onClick={() => setShowModal(false)} className="sa-ghost">Cancel</button>
-              <button type="submit" disabled={busy} className="primary-button">
+            <div className="ui-dialog-actions">
+              <button type="button" onClick={() => setShowModal(false)} className="ui-btn">Cancel</button>
+              <button type="submit" disabled={busy} className="ui-btn ui-btn--primary">
                 {busy ? "Broadcasting..." : "Broadcast"}
               </button>
             </div>

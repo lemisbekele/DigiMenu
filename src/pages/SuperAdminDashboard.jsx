@@ -8,7 +8,7 @@ import { observeRegisteredCafes } from "../services/cafeService"
 import { observeAuditLogs } from "../services/dataService"
 import { SUBSCRIPTION_STATUS, SUBSCRIPTION_STATUS_LABELS } from "../services/subscriptionService"
 import { observePackages } from "../services/packageService"
-import "./superadmin.css"
+import "./superadmin-layout.css"
 import { usePlatformFeed, observeAllSubscriptions } from "../hooks/usePlatformFeed"
 import { isSubscriptionActive } from "../services/planService"
 import { cafeDistribution, requestTrend } from "../services/platformMetrics"
@@ -132,15 +132,15 @@ export function SuperAdminDashboard() {
   if (loading || error) return <FeedState loading={loading} error={error} />
 
   return (
-    <div className="sa-page">
-      <div className="sa-head">
+    <div className="ui-stack">
+      <div className="ui-page-header">
         <h1>Platform Overview</h1>
         <p>
           Monitor the DigiMenu SaaS platform, cafes, requests, packages, and subscriptions at a glance.
         </p>
       </div>
 
-      <div className="sa-stats">
+      <div className="ui-stats">
         <StatCard icon={Building2} label="Active Cafes" value={stats.activeCafes} sub={`${stats.totalCafes} total · ${stats.suspendedCafes} suspended`} color="var(--brand)" to="/superadmin/cafes" />
         <StatCard icon={Inbox} label="Pending Requests" value={stats.pending.length} sub="Awaiting approval" color="var(--warning)" to="/superadmin/requests" />
         <StatCard icon={CreditCard} label="Active Subscriptions" value={stats.activeSubs.length} sub={`${stats.expired.length} expired · ${stats.rejected.length} rejected`} color="var(--brand)" to="/superadmin/requests?view=subscriptions" />
@@ -159,15 +159,15 @@ export function SuperAdminDashboard() {
         </span>
       </div>
 
-      <div className="sa-grid-2">
+      <div className="ui-grid">
         <RequestTrend items={requestTrend(subscriptions)} />
         <DistributionChart title="Cafe status" description="Current access status across registered cafes" items={cafeDistribution(cafes)} donut />
       </div>
 
-      <div className="sa-grid-2">
+      <div className="ui-grid">
         {/* PENDING REQUESTS */}
-        <section className="sa-panel">
-          <div className="sa-panel-title">
+        <section className="ui-card ui-card--stack">
+          <div className="ui-section-head">
             <Inbox size={18} color="var(--warning)" />
             <h3 style={{ margin: 0, fontSize: "1rem", color: "var(--brand-ink)" }}>Pending Cafe Requests</h3>
             <Link to="/superadmin/requests" className="sa-link" style={{ marginLeft: "auto" }}>View all →</Link>
@@ -184,7 +184,7 @@ export function SuperAdminDashboard() {
                       <strong style={{ color: "var(--brand-ink)", fontSize: "0.9rem", display: "block" }}>{sub.customer_name}</strong>
                       <span style={{ color: "var(--text-3)", fontSize: "0.78rem" }}>{sub.email} · {packageById[sub.plan_key]?.name || sub.plan_key}</span>
                     </div>
-                    <span className="sa-badge" style={{ background: style.bg, color: style.color }}>
+                    <span className="ui-pill" style={{ background: style.bg, color: style.color }}>
                       {SUBSCRIPTION_STATUS_LABELS[sub.status] || sub.status}
                     </span>
                   </div>
@@ -195,8 +195,8 @@ export function SuperAdminDashboard() {
         </section>
 
         {/* RECENT CAFES */}
-        <section className="sa-panel">
-          <div className="sa-panel-title">
+        <section className="ui-card ui-card--stack">
+          <div className="ui-section-head">
             <Building2 size={18} color="var(--brand)" />
             <h3 style={{ margin: 0, fontSize: "1rem", color: "var(--brand-ink)" }}>Recently Registered Cafes</h3>
             <Link to="/superadmin/cafes" className="sa-link" style={{ marginLeft: "auto" }}>View all →</Link>
@@ -223,8 +223,8 @@ export function SuperAdminDashboard() {
         </section>
       </div>
 
-      <section className="sa-panel">
-        <div className="sa-panel-title">
+      <section className="ui-card ui-card--stack">
+        <div className="ui-section-head">
           <Activity size={18} color="var(--brand)" />
           <h3 style={{ margin: 0, fontSize: "1rem", color: "var(--brand-ink)" }}>Recent Platform Activity</h3>
         </div>

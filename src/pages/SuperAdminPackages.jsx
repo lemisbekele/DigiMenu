@@ -11,7 +11,7 @@ import {
 } from "../services/packageService"
 import { observeSubscriptionRequests, assignPackageToCafe } from "../services/subscriptionService"
 import { fetchRegisteredCafes } from "../services/cafeService"
-import "./superadmin.css"
+import "./superadmin-layout.css"
 
 const EMPTY_PACKAGE = {
   id: "",
@@ -228,8 +228,8 @@ export function SuperAdminPackages() {
   )
 
   return (
-    <div className="sa-page">
-      <div className="sa-head">
+    <div className="ui-stack">
+      <div className="ui-page-header">
         <h1>SaaS Package Management</h1>
         <p>
           Define packages, their feature entitlements and limits. Changes take effect instantly for every assigned cafe — no browser refresh required.
@@ -237,20 +237,20 @@ export function SuperAdminPackages() {
       </div>
 
       {notice && (
-        <div className={`sa-alert ${notice.type === "success" ? "sa-alert-success" : "sa-alert-error"}`} style={{ marginBottom: "1.25rem" }}>
+        <div className={`ui-notice ${notice.type === "success" ? "sa-alert-success" : "sa-alert-error"}`} style={{ marginBottom: "1.25rem" }}>
           {notice.text}
         </div>
       )}
 
       <div style={{ marginBottom: "1.25rem" }}>
-        <button type="button" onClick={() => setCreating({ ...EMPTY_PACKAGE })} className="primary-button">
+        <button type="button" onClick={() => setCreating({ ...EMPTY_PACKAGE })} className="ui-btn ui-btn--primary">
           + New Package
         </button>
       </div>
 
       {!loading && !notice?.type?.includes("error") && <DistributionChart title="Package adoption" description="Current active or approved subscriptions, excluding expired access" items={displayList.map(pkg => ({ key: pkg.id, label: pkg.name, value: pkg.activeCafes }))} />}
 
-      <div className="sa-grid-3">
+      <div className="ui-grid">
         {displayList.map((pkg) => {
           const isActive = pkg.status !== "inactive"
           return (
@@ -264,7 +264,7 @@ export function SuperAdminPackages() {
                   <span style={{ fontSize: "0.8rem", textTransform: "uppercase", fontWeight: 800, letterSpacing: 1, color: tierAccent(pkg.id) }}>
                     {pkg.id} TIER
                   </span>
-                  <span className={isActive ? "sa-badge sa-badge-success" : "sa-badge"}>{isActive ? `${pkg.activeCafes} Active Cafes` : "Deactivated"}</span>
+                  <span className={isActive ? "ui-pill sa-badge-success" : "ui-pill"}>{isActive ? `${pkg.activeCafes} Active Cafes` : "Deactivated"}</span>
                 </div>
                 <h2 style={{ fontSize: "1.4rem", margin: "0 0 4px" }}>{pkg.name}</h2>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 4, margin: "8px 0 16px" }}>
@@ -301,15 +301,15 @@ export function SuperAdminPackages() {
                     features: featureKeysOf(pkg),
                     limits: { menuItems: pkg.limits?.menuItems ?? 50, staffUsers: pkg.limits?.staffUsers ?? 1 },
                   })}
-                  className="ghost-button"
+                  className="ui-btn"
                   style={{ flex: "1 1 auto", justifyContent: "center", whiteSpace: "nowrap" }}
                 >
                   Edit Package
                 </button>
-                <button type="button" onClick={() => { setAssigningPackage(pkg); setSelectedCafe("") }} className="primary-button" style={{ flex: "1 1 auto", justifyContent: "center", whiteSpace: "nowrap" }}>
+                <button type="button" onClick={() => { setAssigningPackage(pkg); setSelectedCafe("") }} className="ui-btn ui-btn--primary" style={{ flex: "1 1 auto", justifyContent: "center", whiteSpace: "nowrap" }}>
                   Assign Cafe
                 </button>
-                <button type="button" onClick={() => toggleStatus(pkg)} disabled={busy} className="ghost-button" style={{ flex: "1 1 auto", justifyContent: "center", whiteSpace: "nowrap" }}>
+                <button type="button" onClick={() => toggleStatus(pkg)} disabled={busy} className="ui-btn" style={{ flex: "1 1 auto", justifyContent: "center", whiteSpace: "nowrap" }}>
                   {isActive ? "Deactivate" : "Activate"}
                 </button>
               </div>
@@ -318,7 +318,7 @@ export function SuperAdminPackages() {
         })}
       </div>
 
-      <p className="sa-notice" style={{ marginTop: "1rem", fontSize: "0.85rem" }}>
+      <p className="ui-muted" style={{ marginTop: "1rem", fontSize: "0.85rem" }}>
         Package features are the single source of truth for entitlements: cafe routes, navigation, and backend writes all reject features your package does not include. Active cafe counts are computed live from Active subscriptions.
       </p>
 
@@ -326,33 +326,33 @@ export function SuperAdminPackages() {
         <div className="sa-modal-scrim">
           <form className="sa-modal sa-modal-wide" onSubmit={event => { event.preventDefault(); if (!busy) saveEdit() }}>
             <h3>Edit Package: {editingPackage.name}</h3>
-            <p className="form-help">Provide a clear public name, pricing terms, usage limits and the exact included features.</p>
-            {notice?.type === "error" && <p className="form-error" role="alert">{notice.text}</p>}
-            <div className="form-grid">
-              <label className="sa-field">
-                <span className="sa-label">Package Key (read-only)</span>
-                <input value={editingPackage.id} readOnly className="sa-input" style={{ background: "var(--surface-2)" }} />
+            <p className="ui-muted">Provide a clear public name, pricing terms, usage limits and the exact included features.</p>
+            {notice?.type === "error" && <p className="ui-error" role="alert">{notice.text}</p>}
+            <div className="ui-form-row">
+              <label className="ui-field">
+                <span className="">Package Key (read-only)</span>
+                <input value={editingPackage.id} readOnly className="ui-input" style={{ background: "var(--surface-2)" }} />
               </label>
-              <label className="sa-field">
-                <span className="sa-label">Package Name</span>
-                <input required maxLength={120} value={editingPackage.name} onChange={(e) => setEditingPackage({ ...editingPackage, name: e.target.value })} className="sa-input" />
+              <label className="ui-field">
+                <span className="">Package Name</span>
+                <input required maxLength={120} value={editingPackage.name} onChange={(e) => setEditingPackage({ ...editingPackage, name: e.target.value })} className="ui-input" />
               </label>
-              <label className="sa-field">
-                <span className="sa-label">Published price (include currency code)</span>
-                <input type="text" maxLength={80} placeholder="USD 29 (blank for price on request)" value={editingPackage.price} onChange={(e) => setEditingPackage({ ...editingPackage, price: e.target.value })} className="sa-input" />
+              <label className="ui-field">
+                <span className="">Published price (include currency code)</span>
+                <input type="text" maxLength={80} placeholder="USD 29 (blank for price on request)" value={editingPackage.price} onChange={(e) => setEditingPackage({ ...editingPackage, price: e.target.value })} className="ui-input" />
               </label>
-              <label className="sa-field">
-                <span className="sa-label">Billing Period Label</span>
-                <input type="text" required={Boolean(editingPackage.price?.trim())} maxLength={40} placeholder="/month" value={editingPackage.period} onChange={(e) => setEditingPackage({ ...editingPackage, period: e.target.value })} className="sa-input" />
+              <label className="ui-field">
+                <span className="">Billing Period Label</span>
+                <input type="text" required={Boolean(editingPackage.price?.trim())} maxLength={40} placeholder="/month" value={editingPackage.period} onChange={(e) => setEditingPackage({ ...editingPackage, period: e.target.value })} className="ui-input" />
               </label>
             </div>
-            <label className="sa-field">
-              <span className="sa-label">Tier Description</span>
-              <input type="text" required maxLength={500} value={editingPackage.description} onChange={(e) => setEditingPackage({ ...editingPackage, description: e.target.value })} className="sa-input" />
+            <label className="ui-field">
+              <span className="">Tier Description</span>
+              <input type="text" required maxLength={500} value={editingPackage.description} onChange={(e) => setEditingPackage({ ...editingPackage, description: e.target.value })} className="ui-input" />
             </label>
-            <div className="form-grid">
-              <label className="sa-field">
-                <span className="sa-label">Menu Items Limit</span>
+            <div className="ui-form-row">
+              <label className="ui-field">
+                <span className="">Menu Items Limit</span>
                 <input
                   type="number"
                   min={1}
@@ -361,11 +361,11 @@ export function SuperAdminPackages() {
                   required
                   value={editingPackage.limits?.menuItems ?? ""}
                   onChange={(e) => setEditingPackage({ ...editingPackage, limits: { ...(editingPackage.limits || {}), menuItems: Number(e.target.value) } })}
-                  className="sa-input"
+                  className="ui-input"
                 />
               </label>
-              <label className="sa-field">
-                <span className="sa-label">Staff Accounts Limit</span>
+              <label className="ui-field">
+                <span className="">Staff Accounts Limit</span>
                 <input
                   type="number"
                   min={1}
@@ -374,18 +374,18 @@ export function SuperAdminPackages() {
                   required
                   value={editingPackage.limits?.staffUsers ?? ""}
                   onChange={(e) => setEditingPackage({ ...editingPackage, limits: { ...(editingPackage.limits || {}), staffUsers: Number(e.target.value) } })}
-                  className="sa-input"
+                  className="ui-input"
                 />
               </label>
             </div>
-            <fieldset className="sa-field feature-fieldset">
-              <legend className="sa-label">Feature Entitlements (single source of truth)</legend>
+            <fieldset className="ui-field feature-fieldset">
+              <legend className="">Feature Entitlements (single source of truth)</legend>
               {renderFeatureCheckboxes(editingPackage, toggleFeature)}
             </fieldset>
-            <div className="sa-modal-actions">
+            <div className="ui-dialog-actions">
               <p className="muted">Changes apply to every cafe assigned this package ({activeCafeCounts[editingPackage.id] || 0} active subscriptions). To change only one cafe, assign it a different package.</p>
-              <button type="button" onClick={() => setEditingPackage(null)} className="sa-ghost">Cancel</button>
-              <button type="submit" disabled={busy} className="primary-button">
+              <button type="button" onClick={() => setEditingPackage(null)} className="ui-btn">Cancel</button>
+              <button type="submit" disabled={busy} className="ui-btn ui-btn--primary">
                 {busy ? "Saving..." : "Save Changes"}
               </button>
             </div>
@@ -397,33 +397,33 @@ export function SuperAdminPackages() {
         <div className="sa-modal-scrim">
           <form className="sa-modal sa-modal-wide" onSubmit={event => { event.preventDefault(); if (!busy) confirmCreate() }}>
             <h3>Create New Package</h3>
-            <p className="form-help">Provide a clear public name, pricing terms, usage limits and the exact included features.</p>
-            {notice?.type === "error" && <p className="form-error" role="alert">{notice.text}</p>}
-            <div className="form-grid">
-              <label className="sa-field">
-                <span className="sa-label">Package Key (unique id, e.g. premium)</span>
-                <input required maxLength={64} pattern="[a-z0-9](?:[a-z0-9_]|-)*" title="Use lowercase letters, numbers, hyphens or underscores." value={creating.id} onChange={(e) => setCreating({ ...creating, id: e.target.value })} className="sa-input" />
+            <p className="ui-muted">Provide a clear public name, pricing terms, usage limits and the exact included features.</p>
+            {notice?.type === "error" && <p className="ui-error" role="alert">{notice.text}</p>}
+            <div className="ui-form-row">
+              <label className="ui-field">
+                <span className="">Package Key (unique id, e.g. premium)</span>
+                <input required maxLength={64} pattern="[a-z0-9](?:[a-z0-9_]|-)*" title="Use lowercase letters, numbers, hyphens or underscores." value={creating.id} onChange={(e) => setCreating({ ...creating, id: e.target.value })} className="ui-input" />
               </label>
-              <label className="sa-field">
-                <span className="sa-label">Package Name</span>
-                <input required maxLength={120} value={creating.name} onChange={(e) => setCreating({ ...creating, name: e.target.value })} className="sa-input" />
+              <label className="ui-field">
+                <span className="">Package Name</span>
+                <input required maxLength={120} value={creating.name} onChange={(e) => setCreating({ ...creating, name: e.target.value })} className="ui-input" />
               </label>
-              <label className="sa-field">
-                <span className="sa-label">Published price (include currency code)</span>
-                <input type="text" maxLength={80} placeholder="USD 29 (blank for price on request)" value={creating.price} onChange={(e) => setCreating({ ...creating, price: e.target.value })} className="sa-input" />
+              <label className="ui-field">
+                <span className="">Published price (include currency code)</span>
+                <input type="text" maxLength={80} placeholder="USD 29 (blank for price on request)" value={creating.price} onChange={(e) => setCreating({ ...creating, price: e.target.value })} className="ui-input" />
               </label>
-              <label className="sa-field">
-                <span className="sa-label">Billing Period Label</span>
-                <input type="text" required={Boolean(creating.price?.trim())} maxLength={40} placeholder="/month" value={creating.period} onChange={(e) => setCreating({ ...creating, period: e.target.value })} className="sa-input" />
+              <label className="ui-field">
+                <span className="">Billing Period Label</span>
+                <input type="text" required={Boolean(creating.price?.trim())} maxLength={40} placeholder="/month" value={creating.period} onChange={(e) => setCreating({ ...creating, period: e.target.value })} className="ui-input" />
               </label>
             </div>
-            <label className="sa-field">
-              <span className="sa-label">Tier Description</span>
-              <input type="text" required maxLength={500} value={creating.description} onChange={(e) => setCreating({ ...creating, description: e.target.value })} className="sa-input" />
+            <label className="ui-field">
+              <span className="">Tier Description</span>
+              <input type="text" required maxLength={500} value={creating.description} onChange={(e) => setCreating({ ...creating, description: e.target.value })} className="ui-input" />
             </label>
-            <div className="form-grid">
-              <label className="sa-field">
-                <span className="sa-label">Menu Items Limit</span>
+            <div className="ui-form-row">
+              <label className="ui-field">
+                <span className="">Menu Items Limit</span>
                 <input
                   type="number"
                   min={1}
@@ -432,11 +432,11 @@ export function SuperAdminPackages() {
                   required
                   value={creating.limits?.menuItems ?? ""}
                   onChange={(e) => setCreating({ ...creating, limits: { ...(creating.limits || {}), menuItems: Number(e.target.value) } })}
-                  className="sa-input"
+                  className="ui-input"
                 />
               </label>
-              <label className="sa-field">
-                <span className="sa-label">Staff Accounts Limit</span>
+              <label className="ui-field">
+                <span className="">Staff Accounts Limit</span>
                 <input
                   type="number"
                   min={1}
@@ -445,12 +445,12 @@ export function SuperAdminPackages() {
                   required
                   value={creating.limits?.staffUsers ?? ""}
                   onChange={(e) => setCreating({ ...creating, limits: { ...(creating.limits || {}), staffUsers: Number(e.target.value) } })}
-                  className="sa-input"
+                  className="ui-input"
                 />
               </label>
             </div>
-            <fieldset className="sa-field feature-fieldset">
-              <legend className="sa-label">Feature Entitlements</legend>
+            <fieldset className="ui-field feature-fieldset">
+              <legend className="">Feature Entitlements</legend>
               {renderFeatureCheckboxes(creating, (key) =>
                 setCreating((prev) => {
                   const current = featureKeysOf(prev)
@@ -459,9 +459,9 @@ export function SuperAdminPackages() {
                 }),
               )}
             </fieldset>
-            <div className="sa-modal-actions">
-              <button type="button" onClick={() => setCreating(null)} className="sa-ghost">Cancel</button>
-              <button type="submit" disabled={busy} className="primary-button">
+            <div className="ui-dialog-actions">
+              <button type="button" onClick={() => setCreating(null)} className="ui-btn">Cancel</button>
+              <button type="submit" disabled={busy} className="ui-btn ui-btn--primary">
                 {busy ? "Creating..." : "Create Package"}
               </button>
             </div>
@@ -473,16 +473,16 @@ export function SuperAdminPackages() {
         <div className="sa-modal-scrim">
           <form className="sa-modal" onSubmit={event => { event.preventDefault(); if (!busy) confirmAssign() }}>
             <h3>Assign {assigningPackage.name} to Cafe</h3>
-            <p className="sa-notice" style={{ margin: "0 0 1rem" }}>
+            <p className="ui-muted" style={{ margin: "0 0 1rem" }}>
               Creates or updates an Active subscription for the selected registered cafe. The cafe receives these features immediately.
             </p>
-            {notice?.type === "error" && <p className="form-error" role="alert">{notice.text}</p>}
-            <label className="sa-field">
-              <span className="sa-label">Registered Cafe</span>
+            {notice?.type === "error" && <p className="ui-error" role="alert">{notice.text}</p>}
+            <label className="ui-field">
+              <span className="">Registered Cafe</span>
               <select
                 required value={selectedCafe}
                 onChange={(e) => setSelectedCafe(e.target.value)}
-                className="sa-select"
+                className="ui-input"
                 disabled={loading}
               >
                 <option value="">{loading ? "Loading cafes..." : "Select a cafe..."}</option>
@@ -493,12 +493,12 @@ export function SuperAdminPackages() {
                 ))}
               </select>
             </label>
-            <div className="sa-modal-actions">
-              <button type="button" onClick={() => setAssigningPackage(null)} className="sa-ghost">Cancel</button>
+            <div className="ui-dialog-actions">
+              <button type="button" onClick={() => setAssigningPackage(null)} className="ui-btn">Cancel</button>
               <button
                 type="submit"
                 disabled={busy || !selectedCafe}
-                className="primary-button"
+                className="ui-btn ui-btn--primary"
               >
                 {busy ? "Assigning..." : "Confirm Assignment"}
               </button>
