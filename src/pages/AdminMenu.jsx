@@ -248,36 +248,34 @@ export function AdminMenu() {
           <p>Try another category or search, or add a new item.</p>
         </div>
       ) : (
-        <div className="menu-grid">
+        <ul className="menu-list">
           {filteredItems.map((item) => (
-            <article className={`ui-card ui-product${item.available ? "" : " is-muted"}`} key={item.id}>
-              <OptimizedImage src={item.imageUrl} alt="" className="menu-grid-photo" />
-              <div className="ui-product-info">
-                <div>
-                  <small>{item.category}{item.subcategory ? ` · ${item.subcategory}` : ""}</small>
-                  <b title={item.name}>{item.name}</b>
-                  <span className="ui-num">{money(item.price)}</span>
-                  {item.estimatedMinutes ? <small>{item.estimatedMinutes} {t("minutes")}</small> : null}
-                </div>
+            <li className={`menu-list-row${item.available ? "" : " is-muted"}`} key={item.id}>
+              <OptimizedImage src={item.imageUrl} alt="" className="menu-list-photo" />
+              <div className="menu-list-main">
+                <b title={item.name}>{item.name}</b>
+                <small>
+                  {item.category}{item.subcategory ? ` · ${item.subcategory}` : ""}
+                  {item.estimatedMinutes ? ` · ${item.estimatedMinutes} ${t("minutes")}` : ""}
+                </small>
               </div>
-              <div className="menu-grid-actions">
-                <label className="ui-switch">
-                  <input checked={Boolean(item.available)} type="checkbox" onChange={(event) => toggleAvailable(item, event.target.checked)} />
-                  <span aria-hidden="true" />
-                  On menu
-                </label>
-                <div className="ui-row">
-                  <button className="ui-btn ui-btn--quiet ui-btn--icon" type="button" onClick={() => edit(item)} aria-label={`${t("editItem")}: ${item.name}`} title={t("editItem")}>
-                    <Edit3 size={16} />
-                  </button>
-                  <button className="ui-btn ui-btn--quiet ui-btn--icon ui-btn--danger" type="button" onClick={() => removeItem(item)} aria-label={`${t("removeItem")}: ${item.name}`} title={t("removeItem")}>
-                    <Trash2 size={16} />
-                  </button>
-                </div>
+              <span className="menu-list-price ui-num">{money(item.price)}</span>
+              <label className="ui-switch menu-list-switch">
+                <input checked={Boolean(item.available)} type="checkbox" onChange={(event) => toggleAvailable(item, event.target.checked)} />
+                <span aria-hidden="true" />
+                On menu
+              </label>
+              <div className="menu-list-actions">
+                <button className="ui-btn ui-btn--icon" type="button" onClick={() => edit(item)} aria-label={`${t("editItem")}: ${item.name}`} title={t("editItem")}>
+                  <Edit3 size={16} />
+                </button>
+                <button className="ui-btn ui-btn--icon ui-btn--danger" type="button" onClick={() => removeItem(item)} aria-label={`${t("removeItem")}: ${item.name}`} title={t("removeItem")}>
+                  <Trash2 size={16} />
+                </button>
               </div>
-            </article>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
 
       {form ? (
