@@ -39,11 +39,11 @@ export function AccessDenied() {
         </p>
         <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
           {home ? (
-            <Link to={home} className="primary-button" style={{ display: "inline-flex", alignItems: "center" }}>
+            <Link to={home} className="ui-btn ui-btn--primary" style={{ display: "inline-flex", alignItems: "center" }}>
               Go to my home
             </Link>
           ) : null}
-          <button type="button" className="ghost-button" onClick={() => logout().catch(() => {})}>
+          <button type="button" className="ui-btn" onClick={() => logout().catch(() => {})}>
             Sign out
           </button>
         </div>

@@ -29,10 +29,10 @@ export function ResetPassword() {
     <h1>Reset password</h1>
     {done ? <p role="status">Password updated. <Link to="/login">Sign in</Link></p> : !user ?
       <p>This reset link has expired or is invalid. <Link to="/login">Request a new link</Link></p> : <>
-        <label className="field">New password<input type="password" autoComplete="new-password" minLength={8} required value={password} onChange={(e) => setPassword(e.target.value)} /></label>
-        <label className="field">Confirm password<input type="password" autoComplete="new-password" minLength={8} required value={confirm} onChange={(e) => setConfirm(e.target.value)} /></label>
-        {error ? <p className="form-error" role="alert">{error}</p> : null}
-        <button className="primary-button" disabled={busy}>{busy ? "Updating…" : "Update password"}</button>
+        <label className="ui-field">New password<input type="password" autoComplete="new-password" minLength={8} required value={password} onChange={(e) => setPassword(e.target.value)} /></label>
+        <label className="ui-field">Confirm password<input type="password" autoComplete="new-password" minLength={8} required value={confirm} onChange={(e) => setConfirm(e.target.value)} /></label>
+        {error ? <p className="ui-error" role="alert">{error}</p> : null}
+        <button className="ui-btn ui-btn--primary" disabled={busy}>{busy ? "Updating…" : "Update password"}</button>
       </>}
   </form></main>
 }

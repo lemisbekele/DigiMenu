@@ -46,7 +46,7 @@ export function RoleRoute({ role, fallback = null, children }) {
             out and sign in again, or contact your administrator.
           </p>
           <button
-            className="ghost-button"
+            className="ui-btn"
             type="button"
             onClick={() => logout().catch(() => {})}
             style={{ marginTop: "1rem" }}
